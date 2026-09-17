@@ -11,3 +11,5 @@
 - Quest-only: keep the existing Meta Quest build profile and Android target. All Unity batch/editor validation launches must explicitly pass -buildTarget Android; never switch these projects to Standalone/Windows for checks. Selecting a build profile does not authorize an APK build.
 
 - 第 1 关以 ../docs/FIRST_LESSON_ROOM_OBSERVATION.md 为准：新 7680×3840 全景观察房间，特写对应镜头一要求，3 道观察巩固题。后五关不在本轮重做范围。
+
+- 2026-09-17 第 1 关交互：房间观察后逐张动态加载特写与正误图，一次只有当前内容和一个近触继续按钮；禁止恢复主题/媒体选择菜单或提前答题捷径。最终图谱直接接入原有答题流程。
