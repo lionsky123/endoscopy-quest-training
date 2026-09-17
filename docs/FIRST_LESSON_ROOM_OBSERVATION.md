@@ -72,3 +72,9 @@
 实际渲染检查 **PASS**：最大纬度误差 0.00002°，平行双眼平均像素差 0.000030，空白像素 0。前后报告分别在 `artifacts/first-lesson/projection-before/projection-check.txt` 和 `artifacts/first-lesson/projection-check.txt`；同目录保存四方向房间图、双眼对照图。原始全景文件 SHA-256 仍为 `FFA3ADD4D0045620DC3333869F444A23F0BF812D010C56EB2CAC2730E69761F7`，与用户文件逐字节一致。
 
 已检查新版 `first-lesson-panel.png`、`first-lesson-immersive.png` 和特写/对照预览：无重叠，面板位于进入视线下方，房间主体仍可观察。此为编辑器视角和渲染验证，尚未做 Quest 真机验收。全部 Unity 验证使用 Android 目标，没有构建、安装或启动 APK。
+
+## 顺序图谱验证（2026-09-17）
+
+针对性 EditMode 测试 9/9 通过，报告 `artifacts/first-lesson/first-lesson-sequence-tests.xml`。覆盖入口只有一个按钮、房间观察阶段不显示图片、六张图按特写/对照顺序逐张加载、末张之前不完成、完成回调只触发一次、结束不回到选择菜单、重新进入重置、相机和玩家不被旋转移动，以及原手部近触和六站推进。另验证完成接口拒绝旧会话，并先关闭内容再请求原答题流程。
+
+已检查 `first-lesson-guided-card.png` 和六张图谱静态预览。`first-lesson-immersive.png` 是尚未开始图谱时的房间观察；`first-lesson-panel.png` 是新的单入口引导卡。原 360 投影检查仍通过。0.42 秒切换动画已实现，编辑器静态预览不等于头显动画与真实手部验收。没有构建、安装或启动 APK。
