@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a38952645f7994f990784abdb9b46a, type: 3}
+  m_Name: ContentSceneConfig
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.ContentSceneConfig
+  _sceneId: welwitschia
+  _content:
+    _title: "\u9519\u4E71\u6848\u4F8B \xB7 \u4FEE\u590D\u8BC1\u636E\u94FE"
+    _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 6 \u5173"
+    _summary: "\u6559\u5B66\u6848\u4F8B\uFF1A\u6807\u7B7E\u6A21\u7CCA\u3001\u9002\u914D\u5173\u7CFB\u4E0D\u660E\u3001\u5305\u88C5\u8BC1\u636E\u4E0D\u5168\u3001\u4F7F\u7528\u8BB0\u5F55\u7F3A\u9879\u3002\n\u5B8C\u6210\u6700\u540E
+      4 \u9053\u4FEE\u590D\u9898\u3002"
+    _video:
+      rid: -2
+    _panorama:
+      rid: 1234463858117836812
+    _imageRing:
+      rid: 1234463858117836813
+    _knowledgeMiniGame:
+      rid: 1234463858117836814
+    _model:
+      rid: -2
+    _narration:
+      rid: -2
+    _effect:
+      rid: -2
+    _physicalAugmentationPointIds: []
+  _presentation:
+    _titleStyle:
+      rid: -2
+    _subtitleStyle:
+      rid: -2
+    _layout:
+      rid: 7166929538842624006
+    _animation:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1234463858117836812
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _texture: {fileID: 2800000, guid: d84b7ff8082397e449158a0d952464d8, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1234463858117836813
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 4d623374d27751a47bea09a07842f69d, type: 3}
+          _audio: {fileID: 8300000, guid: 1a15ee2b26dda9449ae4123e6094574b, type: 3}
+          _title: "\u4EA7\u54C1\u6807\u7B7E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u6807\u7B7E\u5B8C\u6574\u6E05\u6670\u4EE5\u53CA\u5185\u955C\u9002\u7528\u8303\u56F4\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5546\u54C1\u540D\u79F0\u5224\u65AD\u3002"
+        - _image: {fileID: 2800000, guid: 08937d68a842d104a986f2d8dbc2a4c5, type: 3}
+          _audio: {fileID: 8300000, guid: 09d3227885e67ac4ebf940dd905eed0e, type: 3}
+          _title: "\u4EA7\u54C1\u8BF4\u660E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u8BF4\u660E\u4E66\u4E2D\u7684\u9002\u7528\u8303\u56F4\u4E0E\u4F7F\u7528\u8981\u6C42\uFF0C\u672C\u7D20\u6750\u7528\u4E8E\u6559\u5B66\u89C2\u5BDF\u3002"
+        - _image: {fileID: 2800000, guid: 5e6d4a69daae0014793c2109d1e9d318, type: 3}
+          _audio: {fileID: 8300000, guid: 25654bfb787ea994a8d81b5469948e87, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+    - rid: 1234463858117836814
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u6848\u4F8B 1\uFF1A\u6D88\u6BD2\u5242\u6807\u7B7E\u6A21\u7CCA\uFF0C\u770B\u4E0D\u6E05\u5BF9\u5E94\u4EA7\u54C1\u3002\u4E0B\u4E00\u6B65\u600E\u6837\u5904\u7406\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6309\u74F6\u5B50\u989C\u8272\u731C\u4EA7\u54C1"
+          - _answerId: answer_1
+            _text: "\u7167\u65C1\u8FB9\u53E6\u4E00\u74F6\u8BF4\u660E\u4E66\u4F7F\u7528"
+          - _answerId: answer_2
+            _text: "\u6838\u5B9E\u4EA7\u54C1\u8EAB\u4EFD\u548C\u5B8C\u6574\u914D\u5957\u8D44\u6599"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6838\u5B9E\u8BE5\u74F6\u4EA7\u54C1\u8EAB\u4EFD\uFF0C\u53D6\u5F97\u6E05\u6670\u5B8C\u6574\u6807\u7B7E\u53CA\u540C\u4EA7\u54C1\u8BF4\u660E\u4E66\uFF0C\u672A\u786E\u8BA4\u524D\u4E0D\u5224\u4E3A\u9002\u7528\u3002"
+          _retryHint: "\u9700\u8981\u5148\u786E\u8BA4\u5B9E\u9645\u4EA7\u54C1\uFF0C\u4E0D\u80FD\u628A\u5176\u4ED6\u4EA7\u54C1\u8BF4\u660E\u4E66\u5F53\u4F5C\u8BE5\u74F6\u7684\u4F9D\u636E\u3002"
+        - _question: "\u6848\u4F8B 2\uFF1A\u8BF4\u660E\u4E66\u672A\u786E\u8BA4\u9002\u914D\u8BE5\u5185\u955C\u3002\u600E\u6837\u9009\u62E9\u4FEE\u590D\u65B9\u6848\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6838\u5BF9\u9AD8\u6C34\u5E73\u6D88\u6BD2\u7528\u9014\u548C\u6750\u6599\u9002\u914D"
+          - _answerId: answer_1
+            _text: "\u6D88\u6BD2\u5242\u8D8A\u5F3A\u8D8A\u597D"
+          - _answerId: answer_2
+            _text: "\u53EA\u770B\u54C1\u724C\u5C31\u5224\u4E3A\u9002\u7528"
+          _correctAnswerId: answer_0
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u7ED3\u5408\u6D88\u6BD2\u5242\u4E0E\u5185\u955C\u8BF4\u660E\u4E66\u786E\u8BA4\u9AD8\u6C34\u5E73\u6D88\u6BD2\u7528\u9014\u3001\u6750\u6599\u9002\u914D\u53CA\u4F7F\u7528\u9650\u5236\u3002"
+          _retryHint: "\u6D88\u6BD2\u7528\u9014\u548C\u5185\u955C\u6750\u6599\u9002\u914D\u5747\u9700\u6838\u5BF9\uFF0C\u4E0D\u53EF\u4EC5\u51ED\u54C1\u724C\u6216\u5F3A\u5F31\u5224\u65AD\u3002"
+        - _question: "\u6848\u4F8B 3\uFF1A\u5BAB\u8154\u955C\u9644\u4EF6\u76D2\u53EA\u8D34\u201C\u5DF2\u706D\u83CC\u201D\uFF0C\u5305\u88C5\u6807\u8BC6\u53CA\u6279\u6B21\u8BC1\u636E\u7F3A\u5931\u3002\u600E\u4E48\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u518D\u8D34\u4E00\u5F20\u201C\u5DF2\u706D\u83CC\u201D"
+          - _answerId: answer_1
+            _text: "\u6838\u67E5\u5305\u88C5\u6807\u8BC6\u4E0E\u5BF9\u5E94\u706D\u83CC\u8BC1\u636E"
+          - _answerId: answer_2
+            _text: "\u5916\u89C2\u6574\u6D01\u5C31\u53EF\u4EE5"
+          _correctAnswerId: answer_1
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6838\u67E5\u5B8C\u6574\u5305\u88C5\u6807\u8BC6\u4E0E\u5BF9\u5E94\u6279\u6B21\u706D\u83CC\u3001\u653E\u884C\u8BC1\u636E\uFF0C\u7F3A\u5931\u8BC1\u636E\u4FDD\u7559\u5F85\u786E\u8BA4\u3002"
+          _retryHint: "\u5355\u72EC\u4E00\u4E2A\u201C\u5DF2\u706D\u83CC\u201D\u6807\u7B7E\u4E0D\u8DB3\u4EE5\u8BC1\u660E\u5BF9\u5E94\u9644\u4EF6\u5DF2\u5B8C\u6210\u89C4\u8303\u706D\u83CC\u5904\u7406\u3002"
+        - _question: "\u6848\u4F8B 4\uFF1A\u5F53\u5929\u793A\u4F8B\u6709\u4E09\u6B21\u6D4B\u6F0F\u4F7F\u7528\uFF0C\u5374\u53EA\u6709\u4E00\u6761\u8BB0\u5F55\u3002\u600E\u4E48\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u4E00\u5929\u4E00\u6761\u5C31\u8DB3\u591F"
+          - _answerId: answer_1
+            _text: "\u590D\u5236\u540C\u4E00\u6761\u8BB0\u5F55\u4E09\u904D"
+          - _answerId: answer_2
+            _text: "\u9010\u6B21\u6838\u5BF9\u771F\u5B9E\u4F7F\u7528\u4E0E\u5BF9\u5E94\u8BB0\u5F55"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u9010\u6B21\u6838\u5BF9\u4E09\u6B21\u4F7F\u7528\u548C\u771F\u5B9E\u8BB0\u5F55\uFF0C\u660E\u786E\u7F3A\u9879\u5E76\u6309\u5B9E\u9645\u60C5\u51B5\u5904\u7406\uFF1B\u540C\u65F6\u68C0\u67E5\u8BBE\u5907\u5F53\u524D\u72B6\u6001\u3002"
+          _retryHint: "\u672C\u8BFE\u8981\u6C42\u6BCF\u6B21\u4F7F\u7528\u5747\u6709\u5BF9\u5E94\u8BB0\u5F55\uFF0C\u4E0D\u80FD\u590D\u5236\u6216\u8865\u9020\u65E0\u6CD5\u6838\u5B9E\u7684\u5185\u5BB9\u3002"
+    - rid: 7166929538842624006
+      type: {class: LayoutOverride, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _panelSize:
+          _hasValue: 0
+          _value: {x: 0, y: 0}
+        _panelOffset:
+          _hasValue: 1
+          _value: {x: 0, y: -0.42}
+        _spacing:
+          _hasValue: 0
+          _value: 0

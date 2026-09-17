@@ -1,0 +1,20 @@
+{
+  "name": "BotanicalGardenQR.Configuration.Editor",
+  "rootNamespace": "BotanicalGardenQR.Configuration.Editor",
+  "references": [
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.Collection.Contracts",
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.SpatialHost.Contracts",
+    "BotanicalGardenQR.KnowledgeMiniGame.Contracts",
+    "BotanicalGardenQR.Model.Contracts",
+    "BotanicalGardenQR.Panorama.Contracts",
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts",
+    "BotanicalGardenQR.MapNavigation.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

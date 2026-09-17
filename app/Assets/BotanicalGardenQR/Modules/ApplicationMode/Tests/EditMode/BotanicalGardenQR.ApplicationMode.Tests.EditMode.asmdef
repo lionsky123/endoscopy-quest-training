@@ -1,0 +1,16 @@
+{
+  "name": "BotanicalGardenQR.ApplicationMode.Tests.EditMode",
+  "rootNamespace": "BotanicalGardenQR.ApplicationMode.Tests.EditMode",
+  "references": [
+    "BotanicalGardenQR.ApplicationMode.Contracts",
+    "BotanicalGardenQR.ApplicationMode.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "noEngineReferences": true
+}

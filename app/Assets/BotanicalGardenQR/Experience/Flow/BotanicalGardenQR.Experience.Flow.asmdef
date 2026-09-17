@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.Experience.Flow",
+  "rootNamespace": "BotanicalGardenQR.Experience.Flow",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

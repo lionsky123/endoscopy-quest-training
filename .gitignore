@@ -1,0 +1,57 @@
+# Current Unity project (open app/, never the repository root).
+/[Aa]ssets/
+/[Pp]ackages/
+/[Pp]roject[Ss]ettings/
+
+# Generated Unity state at any level.
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+.utmp/
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*.csproj
+*.sln
+*.slnx
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Local archives and generated deliverables.
+/archive/
+/artifacts/
+/builds/
+[Bb]uild/
+[Bb]uilds/
+*.apk
+*.aab
+*.obb
+*.apk.receipt.json
+
+# IDE / script caches.
+.vs/
+.idea/
+**/bin/
+**/obj/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Local credentials and signing material.
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.key

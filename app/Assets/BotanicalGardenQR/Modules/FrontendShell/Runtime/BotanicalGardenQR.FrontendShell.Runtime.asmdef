@@ -1,0 +1,16 @@
+{
+  "name": "BotanicalGardenQR.FrontendShell.Runtime",
+  "rootNamespace": "BotanicalGardenQR.FrontendShell.Runtime",
+  "references": [
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.SpatialHost.Contracts",
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.ImageRing.Contracts",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI",
+    "Oculus.Interaction"
+  ],
+  "autoReferenced": true
+}

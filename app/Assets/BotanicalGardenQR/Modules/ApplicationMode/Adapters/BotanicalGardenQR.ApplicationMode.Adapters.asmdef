@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.ApplicationMode.Adapters",
+  "rootNamespace": "BotanicalGardenQR.ApplicationMode.Adapters",
+  "references": [
+    "BotanicalGardenQR.ApplicationMode.Contracts",
+    "BotanicalGardenQR.ApplicationMode.Runtime",
+    "Oculus.VR"
+  ],
+  "autoReferenced": true
+}

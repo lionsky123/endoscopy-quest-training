@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.VisitorAtlasHub.Backend",
+  "rootNamespace": "BotanicalGardenQR.VisitorAtlasHub.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.VisitorAtlasHub.Contracts",
+    "glTFast",
+    "BotanicalGardenQR.MapNavigation.Contracts"
+  ],
+  "autoReferenced": false
+}

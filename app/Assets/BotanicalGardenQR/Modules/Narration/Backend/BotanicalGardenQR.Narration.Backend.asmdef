@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.Narration.Backend",
+  "rootNamespace": "BotanicalGardenQR.Narration.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Narration.Contracts"
+  ],
+  "autoReferenced": false
+}

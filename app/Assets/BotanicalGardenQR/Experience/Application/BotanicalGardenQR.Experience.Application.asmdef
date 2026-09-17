@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.Experience.Application",
+  "rootNamespace": "BotanicalGardenQR.Experience.Application",
+  "references": [
+    "BotanicalGardenQR.Collection.Contracts",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.MapNavigation.Contracts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

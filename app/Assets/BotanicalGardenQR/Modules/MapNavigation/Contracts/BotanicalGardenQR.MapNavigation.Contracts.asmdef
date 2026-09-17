@@ -1,0 +1,7 @@
+{
+  "name": "BotanicalGardenQR.MapNavigation.Contracts",
+  "rootNamespace": "BotanicalGardenQR.MapNavigation.Contracts",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

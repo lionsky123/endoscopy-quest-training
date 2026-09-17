@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.MapNavigation.Frontend",
+  "rootNamespace": "BotanicalGardenQR.MapNavigation.Frontend",
+  "references": [
+    "BotanicalGardenQR.MapNavigation.Contracts",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

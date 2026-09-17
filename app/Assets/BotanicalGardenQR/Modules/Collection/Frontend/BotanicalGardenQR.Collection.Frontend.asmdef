@@ -1,0 +1,13 @@
+{
+  "name": "BotanicalGardenQR.Collection.Frontend",
+  "rootNamespace": "BotanicalGardenQR.Collection.Frontend",
+  "references": [
+    "BotanicalGardenQR.Collection.Contracts",
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "Oculus.Interaction",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true
+}

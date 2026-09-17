@@ -1,0 +1,8 @@
+{
+  "name": "BotanicalGardenQR.PhysicalAugmentation.Installation",
+  "rootNamespace": "BotanicalGardenQR.PhysicalAugmentation.Installation",
+  "references": [
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts"
+  ],
+  "autoReferenced": false
+}

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1ddcf19616d49cba7e78540b50cd71b, type: 3}
+  m_Name: VisitorPrologueTheme
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.VisitorPrologueThemeAsset
+  _presentationPrefab: {fileID: 2370670670832817760, guid: d6752cae1afe6c34c8565735cd81001c, type: 3}
+  _viewerDistance: 0.55
+  _verticalOffset: -0.08
+  _minimumStandingPanelCenterHeight: 1.35
+  _initialPlacementDelaySeconds: 0.18
+  _gazeFallbackDelaySeconds: 5
+  _palmHoldSeconds: 1.1
+  _palmContactRadius: 0.13
+  _minimumPalmAlignment: 0.45
+  _bookOpenSeconds: 0.85
+  _invitationAudio: {fileID: 8300000, guid: 76e5283e7cfa41afb0d6913b006e9b6b, type: 3}
+  _bookAppearAudio: {fileID: 8300000, guid: 1115ba8313664610a1194c038af6fb8e, type: 3}
+  _sealContactAudio: {fileID: 8300000, guid: 83398088310a43a9b391ab58beac8a86, type: 3}
+  _copy:
+    _invitationTitle: 一封来自清洗消毒室的邀请
+    _invitationDetail: 学习册正在等待回应。把一只手掌靠近封面的印记，稍停片刻。
+    _gazeInvitationAction: 回应邀请
+    _arrivalTitle: 联系已建立
+    _arrivalDetail: 可以放下手了。看前面，小精灵来与你会合了。
+    _fairySpeakerName: 小精灵
+    _encounterPages:
+    - 你好！刚才是你在回应我，对吗？我会陪你走过这里的六个学习点。
+    - 这里有正确示范，也有需要修复的案例。你愿意和我一起，了解清洗消毒室吗？
+    - 先等我一下，好，我准备好了。
+    - 我们出发吧！跟着我和地面的路线走，到站后触碰“开启发现”。
+    _curiousReplyLabel: 我们会学些什么？
+    _companionReplyLabel: 好，一起探索！
+    _curiousResponse: 布局和流程、工具和水路、产品与使用记录。我们先看正确示范，再一起修复案例中的问题。
+    _companionResponse: 好！遇到不熟悉的内容也没关系，我们一起看图、观察、回答问题。
+    _retryAction: 重新建立联系
+    _firstContinueAction: 触碰回应  ›

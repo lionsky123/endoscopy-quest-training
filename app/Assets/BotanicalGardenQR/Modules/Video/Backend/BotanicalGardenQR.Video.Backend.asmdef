@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.Video.Backend",
+  "rootNamespace": "BotanicalGardenQR.Video.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Video.Contracts"
+  ],
+  "autoReferenced": false
+}

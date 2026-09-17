@@ -1,0 +1,14 @@
+{
+    "name": "BotanicalGardenQR.Experience.Contracts",
+    "rootNamespace": "BotanicalGardenQR.Experience.Contracts",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

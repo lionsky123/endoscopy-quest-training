@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a38952645f7994f990784abdb9b46a, type: 3}
+  m_Name: ContentSceneConfig
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.ContentSceneConfig
+  _sceneId: macrozamia
+  _content:
+    _title: "\u6B63\u786E\u793A\u8303 \xB7 \u4EA7\u54C1\u4E0E\u8BB0\u5F55"
+    _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 5 \u5173"
+    _summary: "\u6838\u5BF9\u6D88\u6BD2\u5242\u6807\u7B7E\u548C\u914D\u5957\u8BF4\u660E\u4E66\u7684\u9002\u7528\u8303\u56F4\uFF1B\u67E5\u770B\u706D\u83CC\u5305\u88C5\u6807\u8BC6\u53CA\u5BF9\u5E94\u8BC1\u636E\u3002\n\u6D4B\u6F0F\u8BBE\u5907\u73B0\u573A\u72B6\u6001\u4E0E\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\u5206\u522B\u68C0\u67E5\u3002"
+    _video:
+      rid: -2
+    _panorama:
+      rid: 1234463858117836810
+    _imageRing:
+      rid: 1234463858117836811
+    _knowledgeMiniGame:
+      rid: -2
+    _model:
+      rid: -2
+    _narration:
+      rid: -2
+    _effect:
+      rid: -2
+    _physicalAugmentationPointIds: []
+  _presentation:
+    _titleStyle:
+      rid: -2
+    _subtitleStyle:
+      rid: -2
+    _layout:
+      rid: 7166929538842624036
+    _animation:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1234463858117836810
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _texture: {fileID: 2800000, guid: bc33b9c3645692c49bcf62d97b76e0ea, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1234463858117836811
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 1a99498f9a33a9c479121242edce53b6, type: 3}
+          _audio: {fileID: 8300000, guid: 92641827c58eb3b429f0648a0b1dde9e, type: 3}
+          _title: "\u4EA7\u54C1\u6807\u7B7E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u6807\u7B7E\u5B8C\u6574\u6E05\u6670\u4EE5\u53CA\u5185\u955C\u9002\u7528\u8303\u56F4\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5546\u54C1\u540D\u79F0\u5224\u65AD\u3002"
+        - _image: {fileID: 2800000, guid: bce2d9ed585ecec4190a9d1c5969e915, type: 3}
+          _audio: {fileID: 8300000, guid: 6d91b1c44d4d9114a81b9a87b6d3f589, type: 3}
+          _title: "\u4EA7\u54C1\u8BF4\u660E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u8BF4\u660E\u4E66\u4E2D\u7684\u9002\u7528\u8303\u56F4\u4E0E\u4F7F\u7528\u8981\u6C42\uFF0C\u672C\u7D20\u6750\u7528\u4E8E\u6559\u5B66\u89C2\u5BDF\u3002"
+        - _image: {fileID: 2800000, guid: 7ceda668a03d1e44da74e9ea86cc46b9, type: 3}
+          _audio: {fileID: 8300000, guid: 210dcd6dfe6a95e419d00a12111dc7b5, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+    - rid: 7166929538842624036
+      type: {class: LayoutOverride, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _panelSize:
+          _hasValue: 0
+          _value: {x: 0, y: 0}
+        _panelOffset:
+          _hasValue: 1
+          _value: {x: 0, y: -0.25}
+        _spacing:
+          _hasValue: 0
+          _value: 0

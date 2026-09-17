@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.SpatialAnchor.Persistence",
+  "rootNamespace": "",
+  "references": [
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts",
+    "BotanicalGardenQR.PhysicalAugmentation.Installation",
+    "Oculus.VR"
+  ],
+  "autoReferenced": true
+}

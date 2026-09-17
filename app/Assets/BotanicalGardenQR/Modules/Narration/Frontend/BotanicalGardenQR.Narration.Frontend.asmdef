@@ -1,0 +1,6 @@
+{
+    "name": "BotanicalGardenQR.Narration.Frontend",
+    "rootNamespace": "BotanicalGardenQR.Narration.Frontend",
+    "references": ["BotanicalGardenQR.Narration.Contracts", "BotanicalGardenQR.FrontendShell.Contracts", "BotanicalGardenQR.Experience.Contracts", "Unity.ugui", "Unity.TextMeshPro"],
+    "autoReferenced": true
+}

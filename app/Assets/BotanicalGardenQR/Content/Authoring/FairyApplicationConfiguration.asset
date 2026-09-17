@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d8a753be6924d74b618d32f54f35f0a, type: 3}
+  m_Name: FairyApplicationConfiguration
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.FairyApplicationConfiguration
+  _prefab: {fileID: 2900570613036428286, guid: e0de60eb69ac3ec4496377ec5a5bc06e, type: 3}
+  _behavior: 0
+  _scale: 1
+  _arrivalEffectPrefab: {fileID: 223556555757983850, guid: 039c558a896540b4eb84a0c5ad3e1c25, type: 3}
+  _arrivalMaskPrefab: {fileID: 3038693889497283558, guid: 9983c0a76405f6246a34c9ff6b1a8651, type: 3}
+  _companionCueEffectPrefab: {fileID: 7687313121712780961, guid: 842c70a4d1312284db748a3242b02808, type: 3}
+  _companionCueEffectLocalOffset: {x: 0, y: 0.4, z: 0}
+  _companionCueEffectLocalScale: 1
+  _coachAttentionClip: {fileID: 8300000, guid: 222b6f1915d69d84386f42a0d611a2ec, type: 3}
+  _coachAttentionVolume: 0.42
+  _coachAttentionEffectSeconds: 0.55
+  _coachAttentionParticleBurst: 6
+  _artifactWaitClip: {fileID: 8300000, guid: ba8e70a26cd3b2c4ba57318f68016a1f, type: 3}
+  _artifactWaitVolume: 0.28
+  _artifactWaitEffectSeconds: 0.35
+  _artifactWaitParticleBurst: 4
+  _artifactReturnClip: {fileID: 8300000, guid: 1d27157edc745ad408d9828c884ea104, type: 3}
+  _artifactReturnVolume: 0.52
+  _artifactReturnEffectSeconds: 0.65
+  _artifactReturnParticleBurst: 8
+  _celebrateClip: {fileID: 8300000, guid: 1fa66e479047fce43bcde80d570332df, type: 3}
+  _celebrateVolume: 0.82
+  _celebrateEffectSeconds: 1.2
+  _celebrateParticleBurst: 12
+  _idleLocomotionClips:
+  - {fileID: 8300000, guid: e4748bf5c221c8a47bb6199aa4f208a6, type: 3}
+  - {fileID: 8300000, guid: 0f51776855140504099d9a76d49f65d7, type: 3}
+  - {fileID: 8300000, guid: 178f2f3ee39e66a459b4587a6b575cb8, type: 3}
+  - {fileID: 8300000, guid: a07afb5cf051bad4f8fb30d3e9c874a7, type: 3}
+  - {fileID: 8300000, guid: 80630457736147843bcef057e297e95e, type: 3}
+  - {fileID: 8300000, guid: 2268801d0fde6954f8593d687de4f8ca, type: 3}
+  - {fileID: 8300000, guid: fb6533cb88c80704aaa25bdbbdf3c1b6, type: 3}
+  - {fileID: 8300000, guid: e0a1e845dd74ec74bb24e6c1e07126fc, type: 3}
+  - {fileID: 8300000, guid: ab6d04278f6d46ab8821f1c62a04b798, type: 3}
+  - {fileID: 8300000, guid: 5acb24d75ac74058bdf3c4268433b3be, type: 3}
+  - {fileID: 8300000, guid: 9130f71bc4254553a3e14535cc5b3bd2, type: 3}
+  - {fileID: 8300000, guid: 288ed1b85747432885619fc740269eee, type: 3}
+  - {fileID: 8300000, guid: 2df4841dbfb44b39bddf3c49431d9134, type: 3}
+  - {fileID: 8300000, guid: 86feee0479d640529ea46a5f32b7a337, type: 3}
+  _idleLocomotionVolume: 0.42
+  _idleLocomotionMinIntervalSeconds: 3
+  _idleLocomotionMaxIntervalSeconds: 7
+  _idleLocomotionEffectSeconds: 0.25
+  _idleLocomotionParticleBurst: 2
+  _arrivalEffectDelaySeconds: 1.6
+  _arrivalRevealDelaySeconds: 1.1

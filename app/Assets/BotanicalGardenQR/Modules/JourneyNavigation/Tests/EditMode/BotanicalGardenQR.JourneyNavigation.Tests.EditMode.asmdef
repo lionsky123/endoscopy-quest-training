@@ -1,0 +1,18 @@
+{
+  "name": "BotanicalGardenQR.JourneyNavigation.Tests.EditMode",
+  "rootNamespace": "BotanicalGardenQR.JourneyNavigation.Tests.EditMode",
+  "references": [
+    "BotanicalGardenQR.JourneyNavigation.Contracts",
+    "BotanicalGardenQR.JourneyNavigation.Runtime",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.Experience.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "noEngineReferences": true
+}

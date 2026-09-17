@@ -1,0 +1,13 @@
+{
+  "name": "BotanicalGardenQR.VisitorCoach.Frontend",
+  "rootNamespace": "BotanicalGardenQR.VisitorCoach.Frontend",
+  "references": [
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.VisitorCoach.Contracts",
+    "Oculus.Interaction",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true
+}

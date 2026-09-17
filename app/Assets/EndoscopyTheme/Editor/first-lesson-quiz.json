@@ -1,0 +1,37 @@
+{
+  "_questions": [
+    {
+      "_question": "观察清洗消毒室与诊疗室的分隔，本课应重点确认什么？",
+      "_options": [
+        {"_answerId": "sign", "_text": "门上有房间名称即可"},
+        {"_answerId": "partition", "_text": "实体隔断完整，门处于关闭状态"},
+        {"_answerId": "tidy", "_text": "地面整洁就说明分隔符合要求"}
+      ],
+      "_correctAnswerId": "partition",
+      "_successExplanation": "应观察墙体与门形成的实体分隔，并确认门的关闭状态。门牌和整洁程度不能替代这两项观察。",
+      "_retryHint": "回想门与墙体的特写：需要同时核对实体分隔和门的状态。"
+    },
+    {
+      "_question": "消化内镜与呼吸内镜的设备分设，哪项符合要求？",
+      "_options": [
+        {"_answerId": "dedicated", "_text": "清洗槽与清洗消毒机均各自配置、分开使用"},
+        {"_answerId": "timed", "_text": "共用设备，只要分时段使用"},
+        {"_answerId": "labels", "_text": "在共用清洗槽上贴两种标签"}
+      ],
+      "_correctAnswerId": "dedicated",
+      "_successExplanation": "WS 507—2016 第 5.3.5 条要求不同系统软式内镜的清洗槽、自动清洗消毒机分开设置和使用。两类设备都要核对。",
+      "_retryHint": "分设包括清洗槽和清洗消毒机，不是只分标签或操作时间。"
+    },
+    {
+      "_question": "核对本课的工位与流程，哪一项正确？",
+      "_options": [
+        {"_answerId": "reverse", "_text": "工位够多就可以，消毒后也可返回污染工位"},
+        {"_answerId": "skip", "_text": "清洗后直接消毒，再进入干燥"},
+        {"_answerId": "forward", "_text": "清洗→漂洗→消毒→终末漂洗→干燥，由污到洁单向衔接"}
+      ],
+      "_correctAnswerId": "forward",
+      "_successExplanation": "本镜头重点核对这五个环节的工位和单向衔接。干燥是干燥工位；完整内镜处理还涉及本镜头以外的步骤。",
+      "_retryHint": "同时检查环节是否齐全、方向是否由污到洁，不能漏掉终末漂洗或让洁净端回流。"
+    }
+  ]
+}

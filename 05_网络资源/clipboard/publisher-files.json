@@ -1,0 +1,964 @@
+{
+  "blend": {
+    "1k": {
+      "blend": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/1k/clipboard/clipboard_1k.blend",
+        "md5": "5f6bfefdb1fb304a36630d55a32b3085",
+        "size": 249741,
+        "include": {
+          "textures/clipboard_diff_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+            "md5": "bfcf21f8bd08f8180293fccfefe3428a",
+            "size": 572026
+          },
+          "textures/clipboard_metal_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_metal_1k.exr",
+            "md5": "0bc40e75e68a2cdf45676165a81e0575",
+            "size": 200238
+          },
+          "textures/clipboard_nor_gl_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_nor_gl_1k.exr",
+            "md5": "7758e254238740bc2905b6e744b28fa8",
+            "size": 860251
+          },
+          "textures/clipboard_rough_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_rough_1k.exr",
+            "md5": "decafbadec8d79937879f9f76970aaba",
+            "size": 609927
+          }
+        }
+      }
+    },
+    "2k": {
+      "blend": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/2k/clipboard/clipboard_2k.blend",
+        "md5": "19fe2eeddf5bef6fe74a83c90ac99086",
+        "size": 249741,
+        "include": {
+          "textures/clipboard_diff_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_diff_2k.jpg",
+            "md5": "c45112894acdb8b97a5863b5aa969cfd",
+            "size": 2287331
+          },
+          "textures/clipboard_metal_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_metal_2k.exr",
+            "md5": "9fd4d4fb562191e977b21045fc2bdeb4",
+            "size": 489595
+          },
+          "textures/clipboard_nor_gl_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_nor_gl_2k.exr",
+            "md5": "d34e4a5588d08f0471378cd3ed8b894e",
+            "size": 4536392
+          },
+          "textures/clipboard_rough_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_rough_2k.exr",
+            "md5": "e1885522a6f2b5fb4a2b3056ff4853d7",
+            "size": 2329127
+          }
+        }
+      }
+    },
+    "4k": {
+      "blend": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/4k/clipboard/clipboard_4k.blend",
+        "md5": "a3544a5fb5820535caca3428aa2f6876",
+        "size": 249741,
+        "include": {
+          "textures/clipboard_diff_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_diff_4k.jpg",
+            "md5": "1d1df4b31b0805cc8e982607fb204b66",
+            "size": 9226184
+          },
+          "textures/clipboard_metal_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_metal_4k.exr",
+            "md5": "3090ec010f3edcd39e98aeab88d6f24e",
+            "size": 1123940
+          },
+          "textures/clipboard_nor_gl_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_nor_gl_4k.exr",
+            "md5": "8196ab1a1cb60b94ab5fbd7f1e7c4c98",
+            "size": 21179389
+          },
+          "textures/clipboard_rough_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_rough_4k.exr",
+            "md5": "410afab7d7ae4f06dd6b2d1c04c4390b",
+            "size": 9094540
+          }
+        }
+      }
+    },
+    "8k": {
+      "blend": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/8k/clipboard/clipboard_8k.blend",
+        "md5": "ff821f0fc2e9937dc4fa69315ebe86bb",
+        "size": 249741,
+        "include": {
+          "textures/clipboard_diff_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_diff_8k.jpg",
+            "md5": "8aa108db96118939ce931c4099b1a579",
+            "size": 32279370
+          },
+          "textures/clipboard_metal_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_metal_8k.exr",
+            "md5": "d2275082fab1407bc1e4ef0e64529948",
+            "size": 2465433
+          },
+          "textures/clipboard_nor_gl_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_nor_gl_8k.exr",
+            "md5": "d882acef47b614455557d5447a5d43df",
+            "size": 85609810
+          },
+          "textures/clipboard_rough_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_rough_8k.exr",
+            "md5": "471390042660b4cbe06b4025dfaf6b83",
+            "size": 32540710
+          }
+        }
+      }
+    }
+  },
+  "AO": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_ao_1k.exr",
+        "md5": "7b6bbb90024f80ae36b5944c2dca3442",
+        "size": 326022
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_ao_1k.jpg",
+        "md5": "0cdc420bb5e5430380c534e4b8eb812b",
+        "size": 283320
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_ao_1k.png",
+        "md5": "d68f1121f7791745cc8c894a10cafbda",
+        "size": 1259463
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_ao_2k.exr",
+        "md5": "3b1440cf2359864e683122b400019e1f",
+        "size": 1194640
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_ao_2k.jpg",
+        "md5": "c7d5fd2600a864f587ca56687a3b4d46",
+        "size": 1128597
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_ao_2k.png",
+        "md5": "6e9fc9e0b65959f255c5d57f44adb467",
+        "size": 4261974
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_ao_4k.exr",
+        "md5": "715ce1d1fab55ff5dacf927c67b0d285",
+        "size": 5135536
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_ao_4k.jpg",
+        "md5": "899966b52a6327c09d3bf3b9fa8f9552",
+        "size": 4844706
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_ao_4k.png",
+        "md5": "d90fc1e82e424fad7bcebc1cc09521e6",
+        "size": 10093378
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_ao_8k.exr",
+        "md5": "f3e2ae5c2eae3c9450c7edc832ef031e",
+        "size": 24612893
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_ao_8k.jpg",
+        "md5": "0fbebd53e79eaa7a9e3d5ddbb173a466",
+        "size": 24002652
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_ao_8k.png",
+        "md5": "515923e0230134fbe9128513150df9aa",
+        "size": 24029343
+      }
+    }
+  },
+  "arm": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_arm_1k.exr",
+        "md5": "14e49e1506e5a79877ab7a1d85e5e2e3",
+        "size": 1433374
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_arm_1k.jpg",
+        "md5": "0c5d2b64984d32e13fc484aa4df5b98f",
+        "size": 620747
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_arm_1k.png",
+        "md5": "8909db89c4edcca49509bf109c091be5",
+        "size": 981798
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_arm_2k.exr",
+        "md5": "ca1d4d46c7f9e4a55def85fb65acebea",
+        "size": 5649213
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_arm_2k.jpg",
+        "md5": "188167c83a04985f1cd3c2ee9be10e7d",
+        "size": 2426585
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_arm_2k.png",
+        "md5": "4620e8069e0e1e9e9d2c0fd201099033",
+        "size": 4111523
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_arm_4k.exr",
+        "md5": "c6b8c64665b92d1a783a0689107efed7",
+        "size": 22495295
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_arm_4k.jpg",
+        "md5": "710d0c24e6c335d0afb80925e6cb5bf9",
+        "size": 9792831
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_arm_4k.png",
+        "md5": "0d2b151a9969d003d331e2576d338a54",
+        "size": 17163091
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_arm_8k.exr",
+        "md5": "c416df6002f71f5d550e76158479dbf9",
+        "size": 82348549
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_arm_8k.jpg",
+        "md5": "87e9106cd035d2ee2f0c6ef5939d1384",
+        "size": 37673024
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_arm_8k.png",
+        "md5": "348839869a95419b1af5b869b1e2d287",
+        "size": 60632993
+      }
+    }
+  },
+  "Diffuse": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_diff_1k.exr",
+        "md5": "eba9dac9933c24d747671f75b1e65741",
+        "size": 825169
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+        "md5": "bfcf21f8bd08f8180293fccfefe3428a",
+        "size": 572026
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_diff_1k.png",
+        "md5": "c992b64a6e31e17e1e2ce1173e273dd2",
+        "size": 4703791
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_diff_2k.exr",
+        "md5": "2b70a0de2405ee23e42c6cf00c34e1e0",
+        "size": 3153195
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_diff_2k.jpg",
+        "md5": "c45112894acdb8b97a5863b5aa969cfd",
+        "size": 2287331
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_diff_2k.png",
+        "md5": "3ee7fe3062050faa654392e0cf768e5a",
+        "size": 17323218
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_diff_4k.exr",
+        "md5": "da3c7db496d95d051914aa2760f81f77",
+        "size": 12626725
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_diff_4k.jpg",
+        "md5": "1d1df4b31b0805cc8e982607fb204b66",
+        "size": 9226184
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_diff_4k.png",
+        "md5": "bdc5b5b87534d548a4dd727f1999362f",
+        "size": 54894029
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_diff_8k.exr",
+        "md5": "bb291557a0d93a74626bf3251bb8c5a7",
+        "size": 44642765
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_diff_8k.jpg",
+        "md5": "8aa108db96118939ce931c4099b1a579",
+        "size": 32279370
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_diff_8k.png",
+        "md5": "995d41f766ec60e2ae4ed290c8824ff7",
+        "size": 73388613
+      }
+    }
+  },
+  "Metal": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_metal_1k.exr",
+        "md5": "0bc40e75e68a2cdf45676165a81e0575",
+        "size": 200238
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_metal_1k.jpg",
+        "md5": "daa93300f350ef80033362b41ff80e8b",
+        "size": 175587
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_metal_1k.png",
+        "md5": "f6d41df1ab6b00cc0ce5e06c8396d75d",
+        "size": 152681
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_metal_2k.exr",
+        "md5": "9fd4d4fb562191e977b21045fc2bdeb4",
+        "size": 489595
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_metal_2k.jpg",
+        "md5": "70b3c3a0a6a186c1761229e93ca22f46",
+        "size": 454528
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_metal_2k.png",
+        "md5": "538f2994de3ad2c9021aaa75e79392ba",
+        "size": 400250
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_metal_4k.exr",
+        "md5": "3090ec010f3edcd39e98aeab88d6f24e",
+        "size": 1123940
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_metal_4k.jpg",
+        "md5": "13b54a79b8fe510293295a0246ec15b2",
+        "size": 1131823
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_metal_4k.png",
+        "md5": "0ab07a8d7ade6125417cca4d5045ef23",
+        "size": 1025771
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_metal_8k.exr",
+        "md5": "d2275082fab1407bc1e4ef0e64529948",
+        "size": 2465433
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_metal_8k.jpg",
+        "md5": "5dae5dbdc6a6d5cc209a317e5a5238af",
+        "size": 2797921
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_metal_8k.png",
+        "md5": "efc79abcfead75fba0a7cf58b591efe4",
+        "size": 1720898
+      }
+    }
+  },
+  "nor_dx": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_nor_dx_1k.exr",
+        "md5": "fe45e96231246da74a381c081cf9c9f1",
+        "size": 860914
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_nor_dx_1k.jpg",
+        "md5": "0bc729cad4ceb96288a0ff86de4343d1",
+        "size": 407342
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_nor_dx_1k.png",
+        "md5": "9444a269cba6560c7332a5bd428f9e05",
+        "size": 4329484
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_nor_dx_2k.exr",
+        "md5": "a72b3c699a8a128ac5fb0bf5a91339b1",
+        "size": 4542625
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_nor_dx_2k.jpg",
+        "md5": "ba0c6fe21bc1abe94cd8fb420534225f",
+        "size": 1874705
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_nor_dx_2k.png",
+        "md5": "18667938f72cabd6b2dcb565cad5b8f5",
+        "size": 16883394
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_nor_dx_4k.exr",
+        "md5": "b6f0a0dd5560e8d2556bf0277774ab63",
+        "size": 21189937
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_nor_dx_4k.jpg",
+        "md5": "9430a3676c0f061f3140e2a1478d338d",
+        "size": 9157794
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_nor_dx_4k.png",
+        "md5": "8f714def38734fdd24ecb8d7328637c7",
+        "size": 60568534
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_nor_dx_8k.exr",
+        "md5": "65d198f473fa555b6c1d47a84386e897",
+        "size": 85589615
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_nor_dx_8k.jpg",
+        "md5": "8ed053559bb164960ce20aab55293278",
+        "size": 40369889
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_nor_dx_8k.png",
+        "md5": "986bb1e1d77ef4dfafc25d167e5b07e0",
+        "size": 135535256
+      }
+    }
+  },
+  "nor_gl": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_nor_gl_1k.exr",
+        "md5": "7758e254238740bc2905b6e744b28fa8",
+        "size": 860251
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_nor_gl_1k.jpg",
+        "md5": "073ac31d4b1b916ed1d10040f0c1987f",
+        "size": 406898
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_nor_gl_1k.png",
+        "md5": "a2455fb702af626a5adcff1fadcab0f3",
+        "size": 4324799
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_nor_gl_2k.exr",
+        "md5": "d34e4a5588d08f0471378cd3ed8b894e",
+        "size": 4536392
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_nor_gl_2k.jpg",
+        "md5": "6ce5de2fbd528affdd6d894598c640f2",
+        "size": 1867548
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_nor_gl_2k.png",
+        "md5": "aa0ec14216833c5e71aa4ee671ad3dd5",
+        "size": 16861661
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_nor_gl_4k.exr",
+        "md5": "8196ab1a1cb60b94ab5fbd7f1e7c4c98",
+        "size": 21179389
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_nor_gl_4k.jpg",
+        "md5": "aff8c1f9e035de3065e333da0c1376f6",
+        "size": 9124364
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_nor_gl_4k.png",
+        "md5": "bd80e1798e2af293f479289c3f4f2aaf",
+        "size": 60472991
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_nor_gl_8k.exr",
+        "md5": "d882acef47b614455557d5447a5d43df",
+        "size": 85609810
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_nor_gl_8k.jpg",
+        "md5": "d4c1013d799121dd692ca4ff1d7316ca",
+        "size": 39961917
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_nor_gl_8k.png",
+        "md5": "0af16412c5e0f7f66780e3c89cd27d90",
+        "size": 128528918
+      }
+    }
+  },
+  "Rough": {
+    "1k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_rough_1k.exr",
+        "md5": "decafbadec8d79937879f9f76970aaba",
+        "size": 609927
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_rough_1k.jpg",
+        "md5": "77c9ae7a8eb4fd91dc9e77fd93ee6331",
+        "size": 491105
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/clipboard/clipboard_rough_1k.png",
+        "md5": "90d6a132b03f73cee5e699d83083750f",
+        "size": 1622598
+      }
+    },
+    "2k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_rough_2k.exr",
+        "md5": "e1885522a6f2b5fb4a2b3056ff4853d7",
+        "size": 2329127
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_rough_2k.jpg",
+        "md5": "b9c14a059a7f5ec98cbc5d6f9d629097",
+        "size": 1998583
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/clipboard/clipboard_rough_2k.png",
+        "md5": "c767b9e08cacc4613ffe602298dc099a",
+        "size": 6121070
+      }
+    },
+    "4k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_rough_4k.exr",
+        "md5": "410afab7d7ae4f06dd6b2d1c04c4390b",
+        "size": 9094540
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_rough_4k.jpg",
+        "md5": "1eb2e4260a09ae00f17e5ed0a88fb717",
+        "size": 8169239
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/4k/clipboard/clipboard_rough_4k.png",
+        "md5": "cd9c1f594575e9550b1f2744ca0f4c14",
+        "size": 19815973
+      }
+    },
+    "8k": {
+      "exr": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_rough_8k.exr",
+        "md5": "471390042660b4cbe06b4025dfaf6b83",
+        "size": 32540710
+      },
+      "jpg": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_rough_8k.jpg",
+        "md5": "594ce681ce518a44f34d5295905e447c",
+        "size": 29348804
+      },
+      "png": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/8k/clipboard/clipboard_rough_8k.png",
+        "md5": "cdf56dc96a0851b033bbc20bbaaf8915",
+        "size": 35246957
+      }
+    }
+  },
+  "fbx": {
+    "1k": {
+      "fbx": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/1k/clipboard/clipboard_1k.fbx",
+        "md5": "0469cdc7ed3fee20d5d8c49ad79651ba",
+        "size": 186732,
+        "include": {
+          "textures/clipboard_diff_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+            "md5": "bfcf21f8bd08f8180293fccfefe3428a",
+            "size": 572026
+          },
+          "textures/clipboard_metal_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_metal_1k.exr",
+            "md5": "0bc40e75e68a2cdf45676165a81e0575",
+            "size": 200238
+          },
+          "textures/clipboard_nor_gl_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_nor_gl_1k.exr",
+            "md5": "7758e254238740bc2905b6e744b28fa8",
+            "size": 860251
+          },
+          "textures/clipboard_rough_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_rough_1k.exr",
+            "md5": "decafbadec8d79937879f9f76970aaba",
+            "size": 609927
+          }
+        }
+      }
+    },
+    "2k": {
+      "fbx": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/2k/clipboard/clipboard_2k.fbx",
+        "md5": "3d9d7ad6b9883f42ad884e00c2e18b83",
+        "size": 186732,
+        "include": {
+          "textures/clipboard_diff_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_diff_2k.jpg",
+            "md5": "c45112894acdb8b97a5863b5aa969cfd",
+            "size": 2287331
+          },
+          "textures/clipboard_metal_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_metal_2k.exr",
+            "md5": "9fd4d4fb562191e977b21045fc2bdeb4",
+            "size": 489595
+          },
+          "textures/clipboard_nor_gl_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_nor_gl_2k.exr",
+            "md5": "d34e4a5588d08f0471378cd3ed8b894e",
+            "size": 4536392
+          },
+          "textures/clipboard_rough_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_rough_2k.exr",
+            "md5": "e1885522a6f2b5fb4a2b3056ff4853d7",
+            "size": 2329127
+          }
+        }
+      }
+    },
+    "4k": {
+      "fbx": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/4k/clipboard/clipboard_4k.fbx",
+        "md5": "d4af778a281a4bb7c95404523cddfcde",
+        "size": 186732,
+        "include": {
+          "textures/clipboard_diff_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_diff_4k.jpg",
+            "md5": "1d1df4b31b0805cc8e982607fb204b66",
+            "size": 9226184
+          },
+          "textures/clipboard_metal_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_metal_4k.exr",
+            "md5": "3090ec010f3edcd39e98aeab88d6f24e",
+            "size": 1123940
+          },
+          "textures/clipboard_nor_gl_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_nor_gl_4k.exr",
+            "md5": "8196ab1a1cb60b94ab5fbd7f1e7c4c98",
+            "size": 21179389
+          },
+          "textures/clipboard_rough_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_rough_4k.exr",
+            "md5": "410afab7d7ae4f06dd6b2d1c04c4390b",
+            "size": 9094540
+          }
+        }
+      }
+    },
+    "8k": {
+      "fbx": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/fbx/8k/clipboard/clipboard_8k.fbx",
+        "md5": "974bb1cb4ad8586de3835497cb61d910",
+        "size": 186732,
+        "include": {
+          "textures/clipboard_diff_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_diff_8k.jpg",
+            "md5": "8aa108db96118939ce931c4099b1a579",
+            "size": 32279370
+          },
+          "textures/clipboard_metal_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_metal_8k.exr",
+            "md5": "d2275082fab1407bc1e4ef0e64529948",
+            "size": 2465433
+          },
+          "textures/clipboard_nor_gl_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_nor_gl_8k.exr",
+            "md5": "d882acef47b614455557d5447a5d43df",
+            "size": 85609810
+          },
+          "textures/clipboard_rough_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_rough_8k.exr",
+            "md5": "471390042660b4cbe06b4025dfaf6b83",
+            "size": 32540710
+          }
+        }
+      }
+    }
+  },
+  "gltf": {
+    "1k": {
+      "gltf": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/clipboard/clipboard_1k.gltf",
+        "md5": "15f5e2ef74129add39b4723c381f7f5c",
+        "size": 2738,
+        "include": {
+          "textures/clipboard_nor_gl_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_nor_gl_1k.jpg",
+            "md5": "073ac31d4b1b916ed1d10040f0c1987f",
+            "size": 406898
+          },
+          "textures/clipboard_diff_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+            "md5": "bfcf21f8bd08f8180293fccfefe3428a",
+            "size": 572026
+          },
+          "textures/clipboard_arm_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_arm_1k.jpg",
+            "md5": "0c5d2b64984d32e13fc484aa4df5b98f",
+            "size": 620747
+          },
+          "clipboard.bin": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard.bin",
+            "md5": "49e106c37117ba65e72816d3d09f9ea5",
+            "size": 184512
+          }
+        }
+      }
+    },
+    "2k": {
+      "gltf": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/clipboard/clipboard_2k.gltf",
+        "md5": "471c5f9dcefc1c890aa89a69e94557d6",
+        "size": 2738,
+        "include": {
+          "textures/clipboard_nor_gl_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_nor_gl_2k.jpg",
+            "md5": "6ce5de2fbd528affdd6d894598c640f2",
+            "size": 1867548
+          },
+          "textures/clipboard_diff_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_diff_2k.jpg",
+            "md5": "c45112894acdb8b97a5863b5aa969cfd",
+            "size": 2287331
+          },
+          "textures/clipboard_arm_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_arm_2k.jpg",
+            "md5": "188167c83a04985f1cd3c2ee9be10e7d",
+            "size": 2426585
+          },
+          "clipboard.bin": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard.bin",
+            "md5": "49e106c37117ba65e72816d3d09f9ea5",
+            "size": 184512
+          }
+        }
+      }
+    },
+    "4k": {
+      "gltf": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/clipboard/clipboard_4k.gltf",
+        "md5": "255398362deb79771f88f33a1e734777",
+        "size": 2738,
+        "include": {
+          "textures/clipboard_nor_gl_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_nor_gl_4k.jpg",
+            "md5": "aff8c1f9e035de3065e333da0c1376f6",
+            "size": 9124364
+          },
+          "textures/clipboard_diff_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_diff_4k.jpg",
+            "md5": "1d1df4b31b0805cc8e982607fb204b66",
+            "size": 9226184
+          },
+          "textures/clipboard_arm_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_arm_4k.jpg",
+            "md5": "710d0c24e6c335d0afb80925e6cb5bf9",
+            "size": 9792831
+          },
+          "clipboard.bin": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard.bin",
+            "md5": "49e106c37117ba65e72816d3d09f9ea5",
+            "size": 184512
+          }
+        }
+      }
+    },
+    "8k": {
+      "gltf": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard_8k.gltf",
+        "md5": "a5ef72824731ac724255c05f759fe799",
+        "size": 2738,
+        "include": {
+          "textures/clipboard_nor_gl_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_nor_gl_8k.jpg",
+            "md5": "d4c1013d799121dd692ca4ff1d7316ca",
+            "size": 39961917
+          },
+          "textures/clipboard_diff_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_diff_8k.jpg",
+            "md5": "8aa108db96118939ce931c4099b1a579",
+            "size": 32279370
+          },
+          "textures/clipboard_arm_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_arm_8k.jpg",
+            "md5": "87e9106cd035d2ee2f0c6ef5939d1384",
+            "size": 37673024
+          },
+          "clipboard.bin": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard.bin",
+            "md5": "49e106c37117ba65e72816d3d09f9ea5",
+            "size": 184512
+          }
+        }
+      }
+    }
+  },
+  "usd": {
+    "1k": {
+      "usd": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/usd/1k/clipboard/clipboard_1k.usdc",
+        "md5": "2f648f3b61a3149051dcf943fbd53d4c",
+        "size": 253331,
+        "include": {
+          "textures/clipboard_diff_1k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+            "md5": "bfcf21f8bd08f8180293fccfefe3428a",
+            "size": 572026
+          },
+          "textures/clipboard_metal_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_metal_1k.exr",
+            "md5": "0bc40e75e68a2cdf45676165a81e0575",
+            "size": 200238
+          },
+          "textures/clipboard_nor_gl_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_nor_gl_1k.exr",
+            "md5": "7758e254238740bc2905b6e744b28fa8",
+            "size": 860251
+          },
+          "textures/clipboard_rough_1k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/clipboard/clipboard_rough_1k.exr",
+            "md5": "decafbadec8d79937879f9f76970aaba",
+            "size": 609927
+          }
+        }
+      }
+    },
+    "2k": {
+      "usd": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/usd/2k/clipboard/clipboard_2k.usdc",
+        "md5": "fe157ff260c548775607f1f81ef58acc",
+        "size": 253331,
+        "include": {
+          "textures/clipboard_diff_2k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/clipboard/clipboard_diff_2k.jpg",
+            "md5": "c45112894acdb8b97a5863b5aa969cfd",
+            "size": 2287331
+          },
+          "textures/clipboard_metal_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_metal_2k.exr",
+            "md5": "9fd4d4fb562191e977b21045fc2bdeb4",
+            "size": 489595
+          },
+          "textures/clipboard_nor_gl_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_nor_gl_2k.exr",
+            "md5": "d34e4a5588d08f0471378cd3ed8b894e",
+            "size": 4536392
+          },
+          "textures/clipboard_rough_2k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/2k/clipboard/clipboard_rough_2k.exr",
+            "md5": "e1885522a6f2b5fb4a2b3056ff4853d7",
+            "size": 2329127
+          }
+        }
+      }
+    },
+    "4k": {
+      "usd": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/usd/4k/clipboard/clipboard_4k.usdc",
+        "md5": "4f9489dde35e00f7371bb8c06c9b2215",
+        "size": 253331,
+        "include": {
+          "textures/clipboard_diff_4k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/4k/clipboard/clipboard_diff_4k.jpg",
+            "md5": "1d1df4b31b0805cc8e982607fb204b66",
+            "size": 9226184
+          },
+          "textures/clipboard_metal_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_metal_4k.exr",
+            "md5": "3090ec010f3edcd39e98aeab88d6f24e",
+            "size": 1123940
+          },
+          "textures/clipboard_nor_gl_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_nor_gl_4k.exr",
+            "md5": "8196ab1a1cb60b94ab5fbd7f1e7c4c98",
+            "size": 21179389
+          },
+          "textures/clipboard_rough_4k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/4k/clipboard/clipboard_rough_4k.exr",
+            "md5": "410afab7d7ae4f06dd6b2d1c04c4390b",
+            "size": 9094540
+          }
+        }
+      }
+    },
+    "8k": {
+      "usd": {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/usd/8k/clipboard/clipboard_8k.usdc",
+        "md5": "43bb8027e982e5800d05a271a81b88d4",
+        "size": 253331,
+        "include": {
+          "textures/clipboard_diff_8k.jpg": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/8k/clipboard/clipboard_diff_8k.jpg",
+            "md5": "8aa108db96118939ce931c4099b1a579",
+            "size": 32279370
+          },
+          "textures/clipboard_metal_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_metal_8k.exr",
+            "md5": "d2275082fab1407bc1e4ef0e64529948",
+            "size": 2465433
+          },
+          "textures/clipboard_nor_gl_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_nor_gl_8k.exr",
+            "md5": "d882acef47b614455557d5447a5d43df",
+            "size": 85609810
+          },
+          "textures/clipboard_rough_8k.exr": {
+            "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/8k/clipboard/clipboard_rough_8k.exr",
+            "md5": "471390042660b4cbe06b4025dfaf6b83",
+            "size": 32540710
+          }
+        }
+      }
+    }
+  }
+}

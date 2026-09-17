@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae3e5fb771c14a7438f058859f810674, type: 3}
+  m_Name: RuntimeEnvironmentOptions
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.RuntimeEnvironmentOptions
+  _recognitionAdapters:
+  - _sourceKind: qr
+    _enabled: 0
+  _recognitionDebounceSeconds: 0.35
+  _scanConfirmationSeconds: 1
+  _scanLostGraceSeconds: 0.2
+  _scanFocusPaddingDegrees: 2
+  _scanGazeLostGraceSeconds: 0.15
+  _videoPrepareTimeoutSeconds: 15
+  _fieldbookEnabled: 1
+  _arrivalRadius: 1.2
+  _arrivalExitRadius: 1.5
+  _arrivalStableSeconds: 0.35

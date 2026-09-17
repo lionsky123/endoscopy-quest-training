@@ -1,0 +1,19 @@
+{
+  "name": "BotanicalGardenQR.SpatialAnchorAdmin.Editor",
+  "rootNamespace": "BotanicalGardenQR.SpatialAnchorAdmin",
+  "references": [
+    "BotanicalGardenQR.SpatialAnchorAdmin.Contracts",
+    "BotanicalGardenQR.SpatialAnchorAdmin.Runtime",
+    "BotanicalGardenQR.SpatialAnchorAdmin.Frontend",
+    "BotanicalGardenQR.Configuration.Runtime",
+    "Oculus.VR",
+    "meta.xr.mrutilitykit",
+    "Meta.XR.EnvironmentDepth",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

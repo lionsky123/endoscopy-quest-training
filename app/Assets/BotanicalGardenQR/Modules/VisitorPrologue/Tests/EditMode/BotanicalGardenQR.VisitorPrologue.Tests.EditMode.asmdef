@@ -1,0 +1,23 @@
+{
+  "name": "BotanicalGardenQR.VisitorPrologue.Tests.EditMode",
+  "rootNamespace": "BotanicalGardenQR.VisitorPrologue.Tests.EditMode",
+  "references": [
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.VisitorPrologue.Contracts",
+    "BotanicalGardenQR.VisitorPrologue.Frontend",
+    "BotanicalGardenQR.VisitorPrologue.Runtime",
+    "Oculus.Interaction",
+    "Unity.TextMeshPro"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
+}

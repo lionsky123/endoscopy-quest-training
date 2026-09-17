@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.VisitorCoach.Runtime",
+  "rootNamespace": "BotanicalGardenQR.VisitorCoach.Runtime",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.VisitorCoach.Contracts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

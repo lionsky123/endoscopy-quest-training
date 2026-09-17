@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.SpatialAnchorAdmin.Runtime",
+  "rootNamespace": "BotanicalGardenQR.SpatialAnchorAdmin",
+  "references": [
+    "BotanicalGardenQR.SpatialAnchorAdmin.Contracts",
+    "BotanicalGardenQR.SpatialAnchor.Persistence",
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts"
+  ],
+  "autoReferenced": true
+}

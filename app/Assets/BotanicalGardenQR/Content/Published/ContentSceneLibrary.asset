@@ -1,0 +1,559 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c469be5b68338564cba164df75fb2fa2, type: 3}
+  m_Name: ContentSceneLibrary
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.ContentSceneLibrary
+  _packages:
+  - _sceneId: baobab
+    _content:
+      _title: "\u9519\u4E71\u6848\u4F8B \xB7 \u4FEE\u590D\u5E03\u5C40"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 2 \u5173"
+      _summary: "\u6559\u5B66\u6848\u4F8B\uFF1A\u95E8\u655E\u5F00\uFF1B\u4E24\u7C7B\u5185\u955C\u5171\u7528\u8BBE\u5907\uFF1B\u5904\u7406\u540E\u53C8\u56DE\u5230\u524D\u5E8F\u69FD\u4F4D\u3002\n\u7528
+        3 \u9053\u9898\u9009\u62E9\u4FEE\u590D\u65B9\u6848\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1000
+      _imageRing:
+        rid: 1001
+      _knowledgeMiniGame:
+        rid: 1002
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: -0.22}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  - _sceneId: bottle_tree
+    _content:
+      _title: "\u6B63\u786E\u793A\u8303 \xB7 \u5DE5\u5177\u4E0E\u6C34\u8DEF"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 3 \u5173"
+      _summary: "\u5DE5\u5177\u8981\u70B9\uFF1A\u6BDB\u5237\u3001\u538B\u529B\u6C34\u67AA\u3001\u538B\u529B\u6C14\u67AA\u3001\u6D4B\u6F0F\u4EEA\u3001\u704C\u6D41\u5668\u9F50\u5168\uFF0C\u6BDB\u5237\u5B8C\u597D\u3002\n\u6C34\u8DEF\u8981\u70B9\uFF1A\u6838\u5BF9\u7EC8\u672B\u6F02\u6D17\u4F9B\u6C34\u3001\u6EE4\u819C\u72B6\u6001\u53CA\u66F4\u6362\u8BB0\u5F55\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1003
+      _imageRing:
+        rid: 1004
+      _knowledgeMiniGame:
+        rid: -2
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: 0.08}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  - _sceneId: ceiba
+    _content:
+      _title: "\u9519\u4E71\u6848\u4F8B \xB7 \u4FEE\u590D\u5DE5\u5177\u6C34\u8DEF"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 4 \u5173"
+      _summary: "\u6559\u5B66\u6848\u4F8B\uFF1A\u5DE5\u5177\u6E05\u5355\u6709\u7F3A\u9879\u3001\u6BDB\u5237\u7834\u635F\uFF1B\u7EC8\u672B\u6F02\u6D17\u6C34\u8DEF\u4E0E\u6EE4\u819C\u8D44\u6599\u672A\u6838\u5B9E\u3002\n\u5B8C\u6210
+        3 \u9053\u4FEE\u590D\u9898\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1005
+      _imageRing:
+        rid: 1006
+      _knowledgeMiniGame:
+        rid: 1007
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: -0.22}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  - _sceneId: giant_saguaro
+    _content:
+      _title: "\u6B63\u786E\u793A\u8303 \xB7 \u5E03\u5C40\u4E0E\u6D41\u7A0B"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 1 \u5173"
+      _summary: "\u89C2\u5BDF\u5B9E\u4F53\u9694\u65AD\u4E0E\u95E8\u3001\u4E24\u7C7B\u5185\u955C\u5DE5\u4F4D\u5206\u8BBE\u548C\u6D41\u7A0B\u65B9\u5411\u3002\u67E5\u770B\u6559\u5B66\u56FE\u8C31\u540E\uFF0C\u8FDB\u5165
+        360 \u5168\u666F\u8F6C\u8EAB\u89C2\u5BDF\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1008
+      _imageRing:
+        rid: 1009
+      _knowledgeMiniGame:
+        rid: 1010
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: -0.22}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  - _sceneId: macrozamia
+    _content:
+      _title: "\u6B63\u786E\u793A\u8303 \xB7 \u4EA7\u54C1\u4E0E\u8BB0\u5F55"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 5 \u5173"
+      _summary: "\u6838\u5BF9\u6D88\u6BD2\u5242\u6807\u7B7E\u548C\u914D\u5957\u8BF4\u660E\u4E66\u7684\u9002\u7528\u8303\u56F4\uFF1B\u67E5\u770B\u706D\u83CC\u5305\u88C5\u6807\u8BC6\u53CA\u5BF9\u5E94\u8BC1\u636E\u3002\n\u6D4B\u6F0F\u8BBE\u5907\u73B0\u573A\u72B6\u6001\u4E0E\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\u5206\u522B\u68C0\u67E5\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1011
+      _imageRing:
+        rid: 1012
+      _knowledgeMiniGame:
+        rid: -2
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: -0.25}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  - _sceneId: welwitschia
+    _content:
+      _title: "\u9519\u4E71\u6848\u4F8B \xB7 \u4FEE\u590D\u8BC1\u636E\u94FE"
+      _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 6 \u5173"
+      _summary: "\u6559\u5B66\u6848\u4F8B\uFF1A\u6807\u7B7E\u6A21\u7CCA\u3001\u9002\u914D\u5173\u7CFB\u4E0D\u660E\u3001\u5305\u88C5\u8BC1\u636E\u4E0D\u5168\u3001\u4F7F\u7528\u8BB0\u5F55\u7F3A\u9879\u3002\n\u5B8C\u6210\u6700\u540E
+        4 \u9053\u4FEE\u590D\u9898\u3002"
+      _video:
+        rid: -2
+      _panorama:
+        rid: 1013
+      _imageRing:
+        rid: 1014
+      _knowledgeMiniGame:
+        rid: 1031
+      _model:
+        rid: -2
+      _narration:
+        rid: -2
+      _effect:
+        rid: -2
+      _physicalAugmentationPointIds: []
+    _presentation:
+      _titleStyle:
+        _fontSize: 40
+        _color: {r: 1, g: 1, b: 1, a: 0.98}
+        _position: {x: 0, y: 80}
+        _width: 322
+      _subtitleStyle:
+        _fontSize: 18
+        _color: {r: 1, g: 1, b: 1, a: 0.78}
+        _position: {x: 0, y: 8}
+        _width: 322
+      _layout:
+        _panelSize: {x: 1440, y: 810}
+        _panelOffset: {x: 0, y: -0.42}
+        _spacing: 24
+      _animation:
+        _transitionSeconds: 0.16
+    _availablePages: 03000000
+  _sourceDigest: edf69379da0dff899c65bce51ace7a2e
+  _publishedVersion: 73
+  _publishedAtUtc: 2026-09-16T11:36:23.1650071+00:00
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1000
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 0
+        _texture: {fileID: 2800000, guid: c1ca4a365e91616439b73c4bb4adabcf, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1001
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: f5bc84155af800d4c8785a6259a6a34d, type: 3}
+          _audio: {fileID: 8300000, guid: e82477a2f3354e34ba08bdc184258547, type: 3}
+          _title: "\u9519\u4E71\u5E03\u5C40\u6848\u4F8B"
+          _description: "\u6559\u5B66\u6A21\u62DF\uFF1A\u95E8\u655E\u5F00\u3001\u8BBE\u5907\u5171\u7528\u4E0E\u6D41\u7A0B\u56DE\u6D41\uFF1B\u8BF7\u4E0E\u6B63\u786E\u793A\u610F\u5BF9\u7167\u3002"
+        - _image: {fileID: 2800000, guid: e590a3b8f9a3b55478502fe251e0c5d1, type: 3}
+          _audio: {fileID: 8300000, guid: 8da261f867609e442b0cb1880397120d, type: 3}
+          _title: "\u6B63\u786E\u5E03\u5C40\u793A\u610F"
+          _description: "\u6559\u5B66\u793A\u610F\uFF1A\u5B9E\u4F53\u9694\u65AD\u3001\u5206\u7C7B\u5206\u8BBE\u4E0E\u5355\u5411\u6D41\u7A0B\uFF1B\u4E0D\u662F\u73B0\u573A\u5408\u89C4\u8BC1\u660E\u3002"
+        - _image: {fileID: 2800000, guid: e09609968569e3841a459007b4614f3b, type: 3}
+          _audio: {fileID: 8300000, guid: 79094f911ab40af46a688851bb63a267, type: 3}
+          _title: "\u6E05\u6D17\u5DE5\u4F4D\u53C2\u8003"
+          _description: "\u89C2\u5BDF\u69FD\u4F4D\u4E0E\u5DE5\u5177\uFF1B\u4EC5\u51ED\u5916\u89C2\u4E0D\u80FD\u786E\u8BA4\u5206\u7C7B\u914D\u7F6E\u6216\u5B8C\u6574\u6D41\u7A0B\u3002"
+    - rid: 1002
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u6848\u4F8B 1\uFF1A\u6E05\u6D17\u5BA4\u4E0E\u8BCA\u7597\u5BA4\u4E4B\u95F4\u7684\u95E8\u655E\u5F00\u3002\u600E\u6837\u6062\u590D\u672C\u8BFE\u8981\u6C42\u7684\u9694\u79BB\u72B6\u6001\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u4FDD\u7559\u655E\u5F00\uFF0C\u589E\u52A0\u6807\u724C"
+          - _answerId: answer_1
+            _text: "\u5173\u95ED\u95E8\u5E76\u6838\u5BF9\u5B9E\u4F53\u9694\u65AD"
+          - _answerId: answer_2
+            _text: "\u6302\u4E00\u5757\u5E18\u5B50\u5373\u53EF"
+          _correctAnswerId: answer_1
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u5B9E\u4F53\u9694\u65AD\u5B8C\u6574\uFF0C\u95E8\u5173\u95ED\u3002"
+          _retryHint: "\u6807\u724C\u4E0E\u5E18\u5B50\u4E0D\u80FD\u66FF\u4EE3\u5B9E\u4F53\u5206\u9694\u3002\u8FD8\u9700\u8BA9\u95E8\u5904\u4E8E\u5173\u95ED\u72B6\u6001\u3002"
+        - _question: "\u6848\u4F8B 2\uFF1A\u6D88\u5316\u3001\u547C\u5438\u5185\u955C\u5171\u7528\u540C\u4E00\u7EC4\u6E05\u6D17\u69FD\u4E0E\u6E05\u6D17\u6D88\u6BD2\u673A\u3002\u600E\u6837\u4FEE\u590D\u914D\u7F6E\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u53EA\u8D34\u4E0D\u540C\u989C\u8272\u7684\u6807\u7B7E"
+          - _answerId: answer_1
+            _text: "\u5148\u540E\u4F7F\u7528\u5C31\u7B97\u5206\u8BBE"
+          - _answerId: answer_2
+            _text: "\u4E24\u7C7B\u69FD\u7EC4\u4E0E\u673A\u5668\u5206\u522B\u914D\u7F6E"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u6D88\u5316\u3001\u547C\u5438\u5206\u522B\u4F7F\u7528\u5404\u81EA\u7684\u69FD\u7EC4\u548C\u6E05\u6D17\u6D88\u6BD2\u673A\u3002"
+          _retryHint: "\u672C\u8BFE\u8981\u6C42\u6E05\u6D17\u69FD\u548C\u6E05\u6D17\u6D88\u6BD2\u673A\u5747\u5206\u5F00\u914D\u7F6E\uFF0C\u6807\u7B7E\u6216\u9519\u5CF0\u4E0D\u7B49\u4E8E\u8BBE\u5907\u5206\u8BBE\u3002"
+        - _question: "\u6848\u4F8B 3\uFF1A\u73B0\u573A\u7F3A\u7EC8\u672B\u6F02\u6D17\u4F4D\uFF0C\u8DEF\u7EBF\u4ECE\u6D88\u6BD2\u540E\u6298\u56DE\u524D\u5E8F\u5DE5\u4F4D\u3002\u600E\u6837\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u8865\u9F50\u4E94\u73AF\u8282\u5E76\u6062\u590D\u5355\u5411\u8854\u63A5"
+          - _answerId: answer_1
+            _text: "\u4ECE\u6D88\u6BD2\u76F4\u63A5\u8DF3\u5230\u5E72\u71E5"
+          - _answerId: answer_2
+            _text: "\u53EA\u628A\u5730\u9762\u7BAD\u5934\u53CD\u8FC7\u6765"
+          _correctAnswerId: answer_0
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u6E05\u6D17 \u2192 \u6F02\u6D17
+            \u2192 \u6D88\u6BD2 \u2192 \u7EC8\u672B\u6F02\u6D17 \u2192 \u5E72\u71E5\uFF0C\u5DE5\u4F4D\u9F50\u5168\u3001\u6D41\u7A0B\u5355\u5411\u3002"
+          _retryHint: "\u8981\u540C\u65F6\u4FEE\u590D\u5B9E\u9645\u5DE5\u4F4D\u914D\u7F6E\u548C\u8854\u63A5\u5173\u7CFB\uFF0C\u4E0D\u80FD\u9760\u7BAD\u5934\u63A9\u76D6\u7F3A\u4F4D\u6216\u56DE\u6D41\u3002"
+    - rid: 1003
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 0
+        _texture: {fileID: 2800000, guid: 8551295928e5f3e47a3ffefdf63eb644, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1004
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: f40e9f4fc67abb849ba7016a58e13424, type: 3}
+          _audio: {fileID: 8300000, guid: 99e6453b957433a49af0a67904f0bdf5, type: 3}
+          _title: "\u6E05\u6D17\u5DE5\u4F4D\u53C2\u8003"
+          _description: "\u89C2\u5BDF\u69FD\u4F4D\u4E0E\u5DE5\u5177\uFF1B\u4EC5\u51ED\u5916\u89C2\u4E0D\u80FD\u786E\u8BA4\u5206\u7C7B\u914D\u7F6E\u6216\u5B8C\u6574\u6D41\u7A0B\u3002"
+        - _image: {fileID: 2800000, guid: 8532f34dc9b04224199d76611afdbd3c, type: 3}
+          _audio: {fileID: 8300000, guid: f3ec7f2b176887e4192a450cbd46d283, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+        - _image: {fileID: 2800000, guid: 6ce2dd8c6328c7e41bf43a255c86cdfe, type: 3}
+          _audio: {fileID: 8300000, guid: 8214c5056cd267a4e8b269005529bad3, type: 3}
+          _title: "\u5E72\u71E5\u73AF\u8282\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6D41\u7A0B\u8FA8\u8BA4\u5E72\u71E5\u73AF\u8282\uFF0C\u5904\u7406\u5B8C\u6210\u540E\u4E0D\u5F97\u8FD4\u56DE\u524D\u5E8F\u6C61\u67D3\u73AF\u8282\u3002"
+    - rid: 1005
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 0
+        _texture: {fileID: 2800000, guid: fa6aef3db25f54747a6029bae8b352ac, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1006
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 1540901631bedb04387ad87c04809fa7, type: 3}
+          _audio: {fileID: 8300000, guid: dd5702f49778b954cbf8d077656e547c, type: 3}
+          _title: "\u6E05\u6D17\u5DE5\u4F4D\u53C2\u8003"
+          _description: "\u89C2\u5BDF\u69FD\u4F4D\u4E0E\u5DE5\u5177\uFF1B\u4EC5\u51ED\u5916\u89C2\u4E0D\u80FD\u786E\u8BA4\u5206\u7C7B\u914D\u7F6E\u6216\u5B8C\u6574\u6D41\u7A0B\u3002"
+        - _image: {fileID: 2800000, guid: ea8a631c6745f534c879ebe44d049ff4, type: 3}
+          _audio: {fileID: 8300000, guid: cc01aa42771f8ae49aa79cdca49255d0, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+        - _image: {fileID: 2800000, guid: d620bbcab0f15dc47b2e6d40bbfecd3b, type: 3}
+          _audio: {fileID: 8300000, guid: 816e5dba556a9794d946d3cd92701e7d, type: 3}
+          _title: "\u5E72\u71E5\u73AF\u8282\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6D41\u7A0B\u8FA8\u8BA4\u5E72\u71E5\u73AF\u8282\uFF0C\u5904\u7406\u5B8C\u6210\u540E\u4E0D\u5F97\u8FD4\u56DE\u524D\u5E8F\u6C61\u67D3\u73AF\u8282\u3002"
+    - rid: 1007
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u6848\u4F8B 1\uFF1A\u53EA\u6709\u6BDB\u5237\u3001\u6C34\u67AA\u3001\u6C14\u67AA\uFF0C\u7F3A\u6D4B\u6F0F\u4EEA\u4E0E\u704C\u6D41\u5668\u3002\u600E\u6837\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u5DF2\u6709\u4E09\u7C7B\u5C31\u591F\u4E86"
+          - _answerId: answer_1
+            _text: "\u8865\u9F50\u7F3A\u5C11\u7684\u4E24\u7C7B\u5DE5\u5177"
+          - _answerId: answer_2
+            _text: "\u628A\u6C14\u67AA\u540C\u65F6\u6807\u4F5C\u6D4B\u6F0F\u4EEA"
+          _correctAnswerId: answer_1
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u4E94\u7C7B\u5DE5\u5177\u9010\u9879\u5BF9\u5E94\uFF0C\u7F3A\u5C11\u7684\u6D4B\u6F0F\u4EEA\u548C\u704C\u6D41\u5668\u5DF2\u7EB3\u5165\u914D\u7F6E\u3002"
+          _retryHint: "\u4E0D\u540C\u5DE5\u5177\u627F\u62C5\u4E0D\u540C\u7528\u9014\uFF0C\u6539\u540D\u6216\u4EC5\u7EDF\u8BA1\u6570\u91CF\u4E0D\u80FD\u8865\u9F50\u529F\u80FD\u3002"
+        - _question: "\u6848\u4F8B 2\uFF1A\u6BDB\u5237\u5237\u6BDB\u7F3A\u635F\u3002\u5E94\u9009\u54EA\u79CD\u5904\u7406\u65B9\u6848\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u7EE7\u7EED\u4F7F\u7528\uFF0C\u8BB0\u5F55\u4E00\u4E0B"
+          - _answerId: answer_1
+            _text: "\u53EA\u6362\u5B58\u653E\u76D2"
+          - _answerId: answer_2
+            _text: "\u505C\u6B62\u4F7F\u7528\u7834\u635F\u6BDB\u5237\u5E76\u66F4\u6362"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u7834\u635F\u6BDB\u5237\u9000\u51FA\u4F7F\u7528\uFF0C\u66FF\u6362\u4E3A\u9002\u7528\u4E14\u5B8C\u597D\u7684\u6BDB\u5237\u3002"
+          _retryHint: "\u672C\u8BFE\u8981\u6C42\u6BDB\u5237\u5B8C\u597D\u65E0\u7834\u635F\u3002\u8BB0\u5F55\u6216\u6362\u76D2\u4E0D\u80FD\u4FEE\u590D\u5237\u6BDB\u3002"
+        - _question: "\u6848\u4F8B 3\uFF1A\u53EA\u6709\u201C\u7EAF\u5316\u6C34\u201D\u6807\u7B7E\uFF0C\u6CA1\u6709\u5BF9\u5E94\u7BA1\u8DEF\u4E0E\u6EE4\u819C\u66F4\u6362\u8BB0\u5F55\u3002\u5982\u4F55\u8865\u8DB3\u6838\u67E5\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6838\u5BF9\u5B9E\u9645\u4F9B\u6C34\u3001\u6EE4\u819C\u548C\u5BF9\u5E94\u8BB0\u5F55"
+          - _answerId: answer_1
+            _text: "\u6807\u7B7E\u6E05\u6670\u5373\u53EF\u901A\u8FC7"
+          - _answerId: answer_2
+            _text: "\u968F\u610F\u586B\u5199\u4E00\u4E2A\u66F4\u6362\u65E5\u671F"
+          _correctAnswerId: answer_0
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6CBF\u7EC8\u672B\u6F02\u6D17\u7BA1\u8DEF\u6838\u5BF9\u4F9B\u6C34\uFF0C\u6838\u5B9E\u6EE4\u819C\u5B8C\u597D\u53CA\u771F\u5B9E\u66F4\u6362\u8BB0\u5F55\uFF1B\u672A\u6838\u5B9E\u9879\u7EE7\u7EED\u6807\u4E3A\u5F85\u786E\u8BA4\u3002"
+          _retryHint: "\u6807\u7B7E\u4E0D\u80FD\u66FF\u4EE3\u6C34\u6E90\u8FDE\u63A5\u6838\u5BF9\uFF0C\u4E5F\u4E0D\u80FD\u865A\u6784\u7EF4\u62A4\u8BB0\u5F55\u3002"
+    - rid: 1008
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 1
+        _texture: {fileID: 2800000, guid: 1a14005f8aac4f09b567950df596b9cc, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1009
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: fb171b3947114d42a3a144870db493f8, type: 3}
+          _audio: {fileID: 8300000, guid: a606408c2108b5f449761e8992ea35f2, type: 3}
+          _title: "\u9694\u65AD\u4E0E\u95E8 \xB7 \u6B63\u8BEF\u5BF9\u7167"
+          _description: "\u5DE6\uFF1A\u9694\u65AD\u5B8C\u6574\u3001\u95E8\u5173\u95ED\u3002\u53F3\uFF1A\u95E8\u655E\u5F00\u3002\u89C2\u5BDF\u95E8\u6846\u4E0E\u95ED\u5408\u72B6\u6001\u3002"
+        - _image: {fileID: 2800000, guid: 52a62096546c4d6f91b187e50461c801, type: 3}
+          _audio: {fileID: 8300000, guid: 5de32607d8d48d64d968fe2b3a62f5dc, type: 3}
+          _title: "\u69FD\u4E0E\u673A\u5668\u5206\u8BBE \xB7 \u6B63\u8BEF\u5BF9\u7167"
+          _description: "\u5DE6\uFF1A\u4E24\u7C7B\u69FD\u7EC4\u4E0E\u673A\u5668\u5206\u522B\u914D\u7F6E\u3002\u53F3\uFF1A\u5171\u7528\u4E00\u5957\u8BBE\u5907\u3002\u5206\u8BBE\u4E0D\u80FD\u53EA\u9760\u6807\u7B7E\u3002"
+        - _image: {fileID: 2800000, guid: 683e058a06bc4b24bb570da1e1244b90, type: 3}
+          _audio: {fileID: 8300000, guid: 01085479eec44774b8a58e8ae13810a0, type: 3}
+          _title: "\u5355\u5411\u8854\u63A5 \xB7 \u6B63\u8BEF\u5BF9\u7167"
+          _description: "\u5DE6\uFF1A\u6309\u4E94\u73AF\u8282\u7531\u6C61\u5230\u6D01\u3002\u53F3\uFF1A\u5411\u6C61\u67D3\u7AEF\u56DE\u6D41\u3002\u5E72\u71E5\u4E3A\u72EC\u7ACB\u5E72\u71E5\u5DE5\u4F4D\u3002"
+    - rid: 1010
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u89C2\u5BDF\u6E05\u6D17\u6D88\u6BD2\u5BA4\u4E0E\u8BCA\u7597\u5BA4\u7684\u5206\u9694\uFF0C\u672C\u8BFE\u5E94\u91CD\u70B9\u786E\u8BA4\u4EC0\u4E48\uFF1F"
+          _options:
+          - _answerId: sign
+            _text: "\u95E8\u4E0A\u6709\u623F\u95F4\u540D\u79F0\u5373\u53EF"
+          - _answerId: partition
+            _text: "\u5B9E\u4F53\u9694\u65AD\u5B8C\u6574\uFF0C\u95E8\u5904\u4E8E\u5173\u95ED\u72B6\u6001"
+          - _answerId: tidy
+            _text: "\u5730\u9762\u6574\u6D01\u5C31\u8BF4\u660E\u5206\u9694\u7B26\u5408\u8981\u6C42"
+          _correctAnswerId: partition
+          _successExplanation: "\u5E94\u89C2\u5BDF\u5899\u4F53\u4E0E\u95E8\u5F62\u6210\u7684\u5B9E\u4F53\u5206\u9694\uFF0C\u5E76\u786E\u8BA4\u95E8\u7684\u5173\u95ED\u72B6\u6001\u3002\u95E8\u724C\u548C\u6574\u6D01\u7A0B\u5EA6\u4E0D\u80FD\u66FF\u4EE3\u8FD9\u4E24\u9879\u89C2\u5BDF\u3002"
+          _retryHint: "\u56DE\u60F3\u95E8\u4E0E\u5899\u4F53\u7684\u7279\u5199\uFF1A\u9700\u8981\u540C\u65F6\u6838\u5BF9\u5B9E\u4F53\u5206\u9694\u548C\u95E8\u7684\u72B6\u6001\u3002"
+        - _question: "\u6D88\u5316\u5185\u955C\u4E0E\u547C\u5438\u5185\u955C\u7684\u8BBE\u5907\u5206\u8BBE\uFF0C\u54EA\u9879\u7B26\u5408\u8981\u6C42\uFF1F"
+          _options:
+          - _answerId: dedicated
+            _text: "\u6E05\u6D17\u69FD\u4E0E\u6E05\u6D17\u6D88\u6BD2\u673A\u5747\u5404\u81EA\u914D\u7F6E\u3001\u5206\u5F00\u4F7F\u7528"
+          - _answerId: timed
+            _text: "\u5171\u7528\u8BBE\u5907\uFF0C\u53EA\u8981\u5206\u65F6\u6BB5\u4F7F\u7528"
+          - _answerId: labels
+            _text: "\u5728\u5171\u7528\u6E05\u6D17\u69FD\u4E0A\u8D34\u4E24\u79CD\u6807\u7B7E"
+          _correctAnswerId: dedicated
+          _successExplanation: "WS 507\u20142016 \u7B2C 5.3.5 \u6761\u8981\u6C42\u4E0D\u540C\u7CFB\u7EDF\u8F6F\u5F0F\u5185\u955C\u7684\u6E05\u6D17\u69FD\u3001\u81EA\u52A8\u6E05\u6D17\u6D88\u6BD2\u673A\u5206\u5F00\u8BBE\u7F6E\u548C\u4F7F\u7528\u3002\u4E24\u7C7B\u8BBE\u5907\u90FD\u8981\u6838\u5BF9\u3002"
+          _retryHint: "\u5206\u8BBE\u5305\u62EC\u6E05\u6D17\u69FD\u548C\u6E05\u6D17\u6D88\u6BD2\u673A\uFF0C\u4E0D\u662F\u53EA\u5206\u6807\u7B7E\u6216\u64CD\u4F5C\u65F6\u95F4\u3002"
+        - _question: "\u6838\u5BF9\u672C\u8BFE\u7684\u5DE5\u4F4D\u4E0E\u6D41\u7A0B\uFF0C\u54EA\u4E00\u9879\u6B63\u786E\uFF1F"
+          _options:
+          - _answerId: reverse
+            _text: "\u5DE5\u4F4D\u591F\u591A\u5C31\u53EF\u4EE5\uFF0C\u6D88\u6BD2\u540E\u4E5F\u53EF\u8FD4\u56DE\u6C61\u67D3\u5DE5\u4F4D"
+          - _answerId: skip
+            _text: "\u6E05\u6D17\u540E\u76F4\u63A5\u6D88\u6BD2\uFF0C\u518D\u8FDB\u5165\u5E72\u71E5"
+          - _answerId: forward
+            _text: "\u6E05\u6D17\u2192\u6F02\u6D17\u2192\u6D88\u6BD2\u2192\u7EC8\u672B\u6F02\u6D17\u2192\u5E72\u71E5\uFF0C\u7531\u6C61\u5230\u6D01\u5355\u5411\u8854\u63A5"
+          _correctAnswerId: forward
+          _successExplanation: "\u672C\u955C\u5934\u91CD\u70B9\u6838\u5BF9\u8FD9\u4E94\u4E2A\u73AF\u8282\u7684\u5DE5\u4F4D\u548C\u5355\u5411\u8854\u63A5\u3002\u5E72\u71E5\u662F\u5E72\u71E5\u5DE5\u4F4D\uFF1B\u5B8C\u6574\u5185\u955C\u5904\u7406\u8FD8\u6D89\u53CA\u672C\u955C\u5934\u4EE5\u5916\u7684\u6B65\u9AA4\u3002"
+          _retryHint: "\u540C\u65F6\u68C0\u67E5\u73AF\u8282\u662F\u5426\u9F50\u5168\u3001\u65B9\u5411\u662F\u5426\u7531\u6C61\u5230\u6D01\uFF0C\u4E0D\u80FD\u6F0F\u6389\u7EC8\u672B\u6F02\u6D17\u6216\u8BA9\u6D01\u51C0\u7AEF\u56DE\u6D41\u3002"
+    - rid: 1011
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 0
+        _texture: {fileID: 2800000, guid: bc33b9c3645692c49bcf62d97b76e0ea, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1012
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 1a99498f9a33a9c479121242edce53b6, type: 3}
+          _audio: {fileID: 8300000, guid: 92641827c58eb3b429f0648a0b1dde9e, type: 3}
+          _title: "\u4EA7\u54C1\u6807\u7B7E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u6807\u7B7E\u5B8C\u6574\u6E05\u6670\u4EE5\u53CA\u5185\u955C\u9002\u7528\u8303\u56F4\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5546\u54C1\u540D\u79F0\u5224\u65AD\u3002"
+        - _image: {fileID: 2800000, guid: bce2d9ed585ecec4190a9d1c5969e915, type: 3}
+          _audio: {fileID: 8300000, guid: 6d91b1c44d4d9114a81b9a87b6d3f589, type: 3}
+          _title: "\u4EA7\u54C1\u8BF4\u660E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u8BF4\u660E\u4E66\u4E2D\u7684\u9002\u7528\u8303\u56F4\u4E0E\u4F7F\u7528\u8981\u6C42\uFF0C\u672C\u7D20\u6750\u7528\u4E8E\u6559\u5B66\u89C2\u5BDF\u3002"
+        - _image: {fileID: 2800000, guid: 7ceda668a03d1e44da74e9ea86cc46b9, type: 3}
+          _audio: {fileID: 8300000, guid: 210dcd6dfe6a95e419d00a12111dc7b5, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+    - rid: 1013
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _readyForTeaching: 0
+        _texture: {fileID: 2800000, guid: d84b7ff8082397e449158a0d952464d8, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1014
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 4d623374d27751a47bea09a07842f69d, type: 3}
+          _audio: {fileID: 8300000, guid: 1a15ee2b26dda9449ae4123e6094574b, type: 3}
+          _title: "\u4EA7\u54C1\u6807\u7B7E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u6807\u7B7E\u5B8C\u6574\u6E05\u6670\u4EE5\u53CA\u5185\u955C\u9002\u7528\u8303\u56F4\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5546\u54C1\u540D\u79F0\u5224\u65AD\u3002"
+        - _image: {fileID: 2800000, guid: 08937d68a842d104a986f2d8dbc2a4c5, type: 3}
+          _audio: {fileID: 8300000, guid: 09d3227885e67ac4ebf940dd905eed0e, type: 3}
+          _title: "\u4EA7\u54C1\u8BF4\u660E\u53C2\u8003"
+          _description: "\u6838\u5BF9\u8BF4\u660E\u4E66\u4E2D\u7684\u9002\u7528\u8303\u56F4\u4E0E\u4F7F\u7528\u8981\u6C42\uFF0C\u672C\u7D20\u6750\u7528\u4E8E\u6559\u5B66\u89C2\u5BDF\u3002"
+        - _image: {fileID: 2800000, guid: 5e6d4a69daae0014793c2109d1e9d318, type: 3}
+          _audio: {fileID: 8300000, guid: 25654bfb787ea994a8d81b5469948e87, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+    - rid: 1031
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u6848\u4F8B 1\uFF1A\u6D88\u6BD2\u5242\u6807\u7B7E\u6A21\u7CCA\uFF0C\u770B\u4E0D\u6E05\u5BF9\u5E94\u4EA7\u54C1\u3002\u4E0B\u4E00\u6B65\u600E\u6837\u5904\u7406\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6309\u74F6\u5B50\u989C\u8272\u731C\u4EA7\u54C1"
+          - _answerId: answer_1
+            _text: "\u7167\u65C1\u8FB9\u53E6\u4E00\u74F6\u8BF4\u660E\u4E66\u4F7F\u7528"
+          - _answerId: answer_2
+            _text: "\u6838\u5B9E\u4EA7\u54C1\u8EAB\u4EFD\u548C\u5B8C\u6574\u914D\u5957\u8D44\u6599"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6838\u5B9E\u8BE5\u74F6\u4EA7\u54C1\u8EAB\u4EFD\uFF0C\u53D6\u5F97\u6E05\u6670\u5B8C\u6574\u6807\u7B7E\u53CA\u540C\u4EA7\u54C1\u8BF4\u660E\u4E66\uFF0C\u672A\u786E\u8BA4\u524D\u4E0D\u5224\u4E3A\u9002\u7528\u3002"
+          _retryHint: "\u9700\u8981\u5148\u786E\u8BA4\u5B9E\u9645\u4EA7\u54C1\uFF0C\u4E0D\u80FD\u628A\u5176\u4ED6\u4EA7\u54C1\u8BF4\u660E\u4E66\u5F53\u4F5C\u8BE5\u74F6\u7684\u4F9D\u636E\u3002"
+        - _question: "\u6848\u4F8B 2\uFF1A\u8BF4\u660E\u4E66\u672A\u786E\u8BA4\u9002\u914D\u8BE5\u5185\u955C\u3002\u600E\u6837\u9009\u62E9\u4FEE\u590D\u65B9\u6848\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6838\u5BF9\u9AD8\u6C34\u5E73\u6D88\u6BD2\u7528\u9014\u548C\u6750\u6599\u9002\u914D"
+          - _answerId: answer_1
+            _text: "\u6D88\u6BD2\u5242\u8D8A\u5F3A\u8D8A\u597D"
+          - _answerId: answer_2
+            _text: "\u53EA\u770B\u54C1\u724C\u5C31\u5224\u4E3A\u9002\u7528"
+          _correctAnswerId: answer_0
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u7ED3\u5408\u6D88\u6BD2\u5242\u4E0E\u5185\u955C\u8BF4\u660E\u4E66\u786E\u8BA4\u9AD8\u6C34\u5E73\u6D88\u6BD2\u7528\u9014\u3001\u6750\u6599\u9002\u914D\u53CA\u4F7F\u7528\u9650\u5236\u3002"
+          _retryHint: "\u6D88\u6BD2\u7528\u9014\u548C\u5185\u955C\u6750\u6599\u9002\u914D\u5747\u9700\u6838\u5BF9\uFF0C\u4E0D\u53EF\u4EC5\u51ED\u54C1\u724C\u6216\u5F3A\u5F31\u5224\u65AD\u3002"
+        - _question: "\u6848\u4F8B 3\uFF1A\u5BAB\u8154\u955C\u9644\u4EF6\u76D2\u53EA\u8D34\u201C\u5DF2\u706D\u83CC\u201D\uFF0C\u5305\u88C5\u6807\u8BC6\u53CA\u6279\u6B21\u8BC1\u636E\u7F3A\u5931\u3002\u600E\u4E48\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u518D\u8D34\u4E00\u5F20\u201C\u5DF2\u706D\u83CC\u201D"
+          - _answerId: answer_1
+            _text: "\u6838\u67E5\u5305\u88C5\u6807\u8BC6\u4E0E\u5BF9\u5E94\u706D\u83CC\u8BC1\u636E"
+          - _answerId: answer_2
+            _text: "\u5916\u89C2\u6574\u6D01\u5C31\u53EF\u4EE5"
+          _correctAnswerId: answer_1
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6838\u67E5\u5B8C\u6574\u5305\u88C5\u6807\u8BC6\u4E0E\u5BF9\u5E94\u6279\u6B21\u706D\u83CC\u3001\u653E\u884C\u8BC1\u636E\uFF0C\u7F3A\u5931\u8BC1\u636E\u4FDD\u7559\u5F85\u786E\u8BA4\u3002"
+          _retryHint: "\u5355\u72EC\u4E00\u4E2A\u201C\u5DF2\u706D\u83CC\u201D\u6807\u7B7E\u4E0D\u8DB3\u4EE5\u8BC1\u660E\u5BF9\u5E94\u9644\u4EF6\u5DF2\u5B8C\u6210\u89C4\u8303\u706D\u83CC\u5904\u7406\u3002"
+        - _question: "\u6848\u4F8B 4\uFF1A\u5F53\u5929\u793A\u4F8B\u6709\u4E09\u6B21\u6D4B\u6F0F\u4F7F\u7528\uFF0C\u5374\u53EA\u6709\u4E00\u6761\u8BB0\u5F55\u3002\u600E\u4E48\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u4E00\u5929\u4E00\u6761\u5C31\u8DB3\u591F"
+          - _answerId: answer_1
+            _text: "\u590D\u5236\u540C\u4E00\u6761\u8BB0\u5F55\u4E09\u904D"
+          - _answerId: answer_2
+            _text: "\u9010\u6B21\u6838\u5BF9\u771F\u5B9E\u4F7F\u7528\u4E0E\u5BF9\u5E94\u8BB0\u5F55"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u9010\u6B21\u6838\u5BF9\u4E09\u6B21\u4F7F\u7528\u548C\u771F\u5B9E\u8BB0\u5F55\uFF0C\u660E\u786E\u7F3A\u9879\u5E76\u6309\u5B9E\u9645\u60C5\u51B5\u5904\u7406\uFF1B\u540C\u65F6\u68C0\u67E5\u8BBE\u5907\u5F53\u524D\u72B6\u6001\u3002"
+          _retryHint: "\u672C\u8BFE\u8981\u6C42\u6BCF\u6B21\u4F7F\u7528\u5747\u6709\u5BF9\u5E94\u8BB0\u5F55\uFF0C\u4E0D\u80FD\u590D\u5236\u6216\u8865\u9020\u65E0\u6CD5\u6838\u5B9E\u7684\u5185\u5BB9\u3002"

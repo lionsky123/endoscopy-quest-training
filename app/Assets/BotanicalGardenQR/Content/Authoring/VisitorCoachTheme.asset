@@ -1,0 +1,180 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578a21a524c24524885760578d7b2031, type: 3}
+  m_Name: VisitorCoachTheme
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.VisitorCoachThemeAsset
+  _presentationPrefab: {fileID: 1649305300181074337, guid: aa8c077921260bb49ab97d6e9d3cb4f9, type: 3}
+  _listeningPortrait: {fileID: 21300000, guid: 4b3350511aa8a7243a71ec0c9f870f26, type: 3}
+  _welcomePortrait: {fileID: 21300000, guid: 85e962dc3e6b90b499b5b59763f2dcff, type: 3}
+  _wonderPortrait: {fileID: 21300000, guid: 9564f182b115b364799698603206e515, type: 3}
+  _directSeconds: 4
+  _confirmSound: {fileID: 8300000, guid: 1fa66e479047fce43bcde80d570332df, type: 3}
+  _demonstrationSeconds: 8
+  _recoverySeconds: 12
+  _viewerDistance: 0.55
+  _panelPixels:
+    x: 880
+    y: 370
+  _canvasScale: 0.00065
+  _detailFontSize: 24
+  _speakerFontSize: 24
+  _dialogueFontSize: 30
+  _fadeSeconds: 0.16
+  _confirmDebounceSeconds: 0.18
+  _fairyAttentionSeconds: 3
+  _dialogueVerticalOffset: 0
+  _fairyDialogueHorizontalOffset:
+    x: -0.35
+    y: 0.3
+  _fairySpeakerName: 小精灵
+  _panelColor:
+    r: 0.025
+    g: 0.073
+    b: 0.057
+    a: 0.985
+  _textColor:
+    r: 0.95
+    g: 0.925
+    b: 0.855
+    a: 1
+  _detailTextColor:
+    r: 0.85
+    g: 0.87
+    b: 0.79
+    a: 1
+  _accentColor:
+    r: 0.72
+    g: 0.6
+    b: 0.38
+    a: 1
+  _speakerColor:
+    r: 0.91
+    g: 0.79
+    b: 0.53
+    a: 1
+  _toolPreparationIntroduction: 学习册记录发现，卷轴为我们指路。把一只手放在胸前，掌心朝上，稍停片刻——试试看。
+  _toolPreparationPracticeCopy: '我在这里等你。
+
+    一只手放在胸前，掌心朝上，稍停片刻。'
+  _toolPreparationSummonedCopy: '看，它们回应你了！
+
+    先用“收起”送它们回去，我们就可以出发。'
+  _toolPreparationSuccessCopy: 它们认得你了，以后就这样呼唤它们。
+  _toolPreparationDeferredCopy: 没关系，方便时我们再试。
+  _toolPreparationReadyCopy: 靠近我，一起去第一站吧。离得远了，我会等你。
+  _toolPreparationStartLabel: 开始探索
+  _cues:
+  - _cueKey: entry.qr.confirm
+    _globalOverlay: 1
+    _dialoguePages:
+    - 第一站就在前面，跟我走到光圈。
+    - 到达后，伸出食指触碰“开启发现”。
+    - 完成后，我就带你进入这一站的学习。
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: '轮到你了
+
+      到达光圈后，食指触碰“开启发现”'
+    _direct:
+    _demonstration:
+    _recovery: '找不到入口？
+
+      跟随小精灵和路线到站，再触碰“开启发现”'
+  - _cueKey: collection.artifact.grab
+    _globalOverlay: 0
+    _dialoguePages:
+    - 抓住任意一侧发光页边，我们一起打开。
+    - 向外慢慢拉，看看这一页里藏着什么。
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: 捏住发光页边，向外拉开
+    _direct: 左手或右手都可以，松手后还能接着抓
+    _demonstration: 向外拉约一掌宽，图片会跟着展开
+    _recovery: 抓取困难时可以选择“稍后收取”，之后从学习册恢复
+  - _cueKey: collection.artifact.place
+    _globalOverlay: 0
+    _dialoguePages:
+    - 慢慢拉开，让图片完整展开。
+    - 看完后把页边带回来合拢，我们就记下这次见闻。
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: 向外拉开；充分展开后再合拢入册
+    _direct: 可以先轻拨页中的图片，再捏住页边合拢
+    _demonstration: 松手只会悬停；抓住页边带回来才会合拢
+    _recovery: 随时可以松手休息，重新抓住后接着操作
+  - _cueKey: collection.artifact.place-retry
+    _globalOverlay: 0
+    _dialoguePages:
+    - 没关系，这一页会等着你。
+    - 重新抓住发光页边，继续刚才的展开。
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: 重新抓住页边，接着展开
+    _direct: 左右两侧都可以抓，当前进度会保留
+    _demonstration: 展开后合拢即可入册，不需要投放
+    _recovery: 仍然困难时选择“稍后收取”，之后再从学习册恢复
+  - _cueKey: atlas-hub.palm.summon
+    _globalOverlay: 1
+    _dialoguePages:
+    - '书本 · 学习图鉴
+
+      这里记录你收集到的学习发现。
+
+      探索途中，可以打开它回看收藏。'
+    - '卷轴 · 地图开关
+
+      轻触开关地图，收起工具不关地图。
+
+      路线和光柱会指明目的地。'
+    - '掌心朝上，稍停呼出工具。
+
+      “当前发现”找回到站提示。
+
+      在路线旁空旷处点“召回精灵”。'
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: '任一只手抬到胸前，掌心朝上，食指放松。
+
+      稍停一下，等书本与卷轴出现。'
+    _direct: 任一只手都可以；掌心朝上，食指不要捏合
+    _demonstration: 不需要握拳或凝视；菜单出现后，再触碰书或卷轴选择功能
+    _recovery: '不用着急，掌心朝上，食指保持放松。
+
+      也可以选择“稍后再学”，先去探索。'
+  - _cueKey: panorama.entry
+    _globalOverlay: 0
+    _dialoguePages:
+    - 这里可以环顾四周，转动身体寻找发光气泡。
+    - 伸出食指，靠近并触碰气泡进行选择。
+    - 想回去时，找到左侧的“返回观察”气泡。
+    _dialogueAudio:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    _initial: '轮到你了
+
+      转动身体观察四周，食指近触气泡进行选择'
+    _direct: 把食指伸到目标气泡，触碰后收回
+    _demonstration: 左侧气泡返回；中间和右侧气泡进入不同内容
+    _recovery: 找不到出口？触碰左侧的“返回观察”气泡
+  _guidanceChapter: 地图引航
+  _guidanceUnavailableCopy: 这一段暂时无法带路。请确认手部与头显追踪正常，再重新开始。
+  _guidanceEndLabel: 收起提示
+  _guidanceDepartureCopy: 本站学习已完成。下一点位：{0}。触碰出发，跟随路线继续前进。
+  _guidanceDepartureLabel: 前往下一站

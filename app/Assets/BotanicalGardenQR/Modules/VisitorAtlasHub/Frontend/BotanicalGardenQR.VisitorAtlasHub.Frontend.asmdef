@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.VisitorAtlasHub.Frontend",
+  "rootNamespace": "BotanicalGardenQR.VisitorAtlasHub.Frontend",
+  "references": [
+    "BotanicalGardenQR.VisitorAtlasHub.Contracts",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "Oculus.Interaction",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": true
+}

@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.Effect.Backend",
+  "rootNamespace": "BotanicalGardenQR.Effect.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Effect.Contracts"
+  ],
+  "autoReferenced": true
+}

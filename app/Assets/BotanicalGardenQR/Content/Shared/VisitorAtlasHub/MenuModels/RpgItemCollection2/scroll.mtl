@@ -1,0 +1,5 @@
+newmtl AtlasMenuScroll
+Kd 1.000000 1.000000 1.000000
+d 1.0
+illum 2
+map_Kd scroll.png

@@ -1,0 +1,254 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cc4b0407be74df3a5dd5b3f34079e51, type: 3}
+  m_Name: CollectionCatalog
+  m_EditorClassIdentifier:
+  _artifacts:
+  - _sceneId: giant_saguaro
+    _artifactId: artifact:giant_saguaro
+    _visitorTitle: 正确示范 · 布局与流程 · 学习记录
+    _summary: '先看正确布局图谱，再打开全景观察空间关系。
+
+      教学要点：实体隔断与关门、两类设备分设、五环节单向衔接。全景外观不代表已完成合规核验。'
+    _category: 清洗消毒学习
+    _sortOrder: 0
+    _slotKey: slot:giant_saguaro
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: 622cc2e67092bbf4b834896b19f31a8a, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 89509830deefd1b429d387fb33c8f447, type: 3}
+    _presentationScale:
+      x: 1
+      y: 1
+      z: 1
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: 0
+      y: 0.28
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 1
+      g: 0.61
+      b: 0.24
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  - _sceneId: baobab
+    _artifactId: artifact:baobab
+    _visitorTitle: 错乱案例 · 修复布局 · 学习记录
+    _summary: '教学案例：门敞开；两类内镜共用设备；处理后又回到前序槽位。
+
+      用 3 道题选择修复方案。'
+    _category: 清洗消毒学习
+    _sortOrder: 1
+    _slotKey: slot:baobab
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: 6fe045560e7e2714394ac93113091b6c, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 622cc2e67092bbf4b834896b19f31a8a, type: 3}
+    _presentationScale:
+      x: 1
+      y: 1
+      z: 1
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: -0.04
+      y: 0.3
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 0.86
+      g: 0.64
+      b: 0.28
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  - _sceneId: bottle_tree
+    _artifactId: artifact:bottle_tree
+    _visitorTitle: 正确示范 · 工具与水路 · 学习记录
+    _summary: '工具要点：毛刷、压力水枪、压力气枪、测漏仪、灌流器齐全，毛刷完好。
+
+      水路要点：核对终末漂洗供水、滤膜状态及更换记录。'
+    _category: 清洗消毒学习
+    _sortOrder: 2
+    _slotKey: slot:bottle_tree
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: 89509830deefd1b429d387fb33c8f447, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 46ffc99f0e5e1ce45b230908e1d5602c, type: 3}
+    _presentationScale:
+      x: 0.96
+      y: 0.96
+      z: 0.96
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: 0.04
+      y: 0.3
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 0.34
+      g: 0.74
+      b: 0.46
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  - _sceneId: ceiba
+    _artifactId: artifact:ceiba
+    _visitorTitle: 错乱案例 · 修复工具水路 · 学习记录
+    _summary: '教学案例：工具清单有缺项、毛刷破损；终末漂洗水路与滤膜资料未核实。
+
+      完成 3 道修复题。'
+    _category: 清洗消毒学习
+    _sortOrder: 3
+    _slotKey: slot:ceiba
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: 89509830deefd1b429d387fb33c8f447, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 46ffc99f0e5e1ce45b230908e1d5602c, type: 3}
+    _presentationScale:
+      x: 0.94
+      y: 0.94
+      z: 0.94
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: -0.05
+      y: 0.32
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 0.96
+      g: 0.48
+      b: 0.68
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  - _sceneId: macrozamia
+    _artifactId: artifact:macrozamia
+    _visitorTitle: 正确示范 · 产品与记录 · 学习记录
+    _summary: '核对消毒剂标签和配套说明书的适用范围；查看灭菌包装标识及对应证据。
+
+      测漏设备现场状态与每次使用记录分别检查。'
+    _category: 清洗消毒学习
+    _sortOrder: 4
+    _slotKey: slot:macrozamia
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: ebc486c64e79f714db7b35076df10492, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 974637be08c10cc45b61c4227c5dfbc3, type: 3}
+    _presentationScale:
+      x: 1.02
+      y: 1.02
+      z: 1.02
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: 0.05
+      y: 0.32
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 0.48
+      g: 0.76
+      b: 0.32
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  - _sceneId: welwitschia
+    _artifactId: artifact:welwitschia
+    _visitorTitle: 错乱案例 · 修复证据链 · 学习记录
+    _summary: '教学案例：标签模糊、适配关系不明、包装证据不全、使用记录缺项。
+
+      完成最后 4 道修复题。'
+    _category: 清洗消毒学习
+    _sortOrder: 5
+    _slotKey: slot:welwitschia
+    _countInTotal: 1
+    _presentationPrefab: {fileID: 6924808448788546712, guid: d80b0475b27fb6b40b21975c0c48d5b1, type: 3}
+    _foldoutImage: {fileID: 2800000, guid: ebc486c64e79f714db7b35076df10492, type: 3}
+    _foldoutDetailImage: {fileID: 2800000, guid: 974637be08c10cc45b61c4227c5dfbc3, type: 3}
+    _presentationScale:
+      x: 0.9
+      y: 0.9
+      z: 0.9
+    _catchOffset:
+      x: -0.015
+      y: -0.12
+      z: -0.04
+    _returnControlOffset:
+      x: 0
+      y: 0.34
+      z: 0.1
+    _dropDuration: 0.82
+    _returnDuration: 1.18
+    _accentColor:
+      r: 0.42
+      g: 0.72
+      b: 0.66
+      a: 1
+    _dropAudio: {fileID: 8300000, guid: 7ead362ff0a7f804682f54d129356ce2, type: 3}
+    _collectAudio: {fileID: 8300000, guid: 9213df1aed3793443a0319554b582fa3, type: 3}
+    _returnAudio: {fileID: 8300000, guid: dd15ce7ad00944ab09c7253c13b49093, type: 3}
+  _milestones:
+  - _milestoneId: first_collection
+    _kind: 0
+    _threshold: 0
+  - _milestoneId: discovery_halfway
+    _kind: 1
+    _threshold: 3
+  - _milestoneId: collection_complete
+    _kind: 2
+    _threshold: 0
+  _presentationTheme:
+    _worldPrefab: {fileID: 3495750136366357234, guid: 47a3d9d0403f62c4f936d1f75b61d013, type: 3}
+    _viewerDistance: 0.6
+    _verticalOffset: -0.14
+    _rewardHoldSeconds: 1.8
+    _pageSealSeconds: 0.9
+    _artifactMotion:
+      _anticipationSeconds: 0.16
+      _readySettleSeconds: 0.18
+      _missReturnSeconds: 0.34
+      _placementSettleSeconds: 0.24
+      _bookRetreatSeconds: 0.34
+      _missReturnLift: 0.08
+      _readyPulseScale: 1.07
+      _heldScale: 1.08
+      _validScale: 1.12
+      _invalidScale: 0.94
+      _placementFeedbackRadiusMultiplier: 2
+      _readyPulseCyclesPerSecond: 1.1

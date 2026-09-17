@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.JourneyNavigation.Runtime",
+  "rootNamespace": "BotanicalGardenQR.JourneyNavigation.Runtime",
+  "references": [
+    "BotanicalGardenQR.JourneyNavigation.Contracts",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.Experience.Contracts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

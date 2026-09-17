@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.FrontendShell.Contracts",
+  "rootNamespace": "BotanicalGardenQR.FrontendShell.Contracts",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Activation.Contracts",
+    "UnityEngine.UI"
+  ],
+  "autoReferenced": true
+}

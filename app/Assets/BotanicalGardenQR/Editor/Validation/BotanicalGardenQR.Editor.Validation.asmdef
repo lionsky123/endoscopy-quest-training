@@ -1,0 +1,25 @@
+{
+  "name": "BotanicalGardenQR.Editor.Validation",
+  "rootNamespace": "BotanicalGardenQR.Editor.Validation",
+  "references": [
+    "BotanicalGardenQR.Bootstrap",
+    "BotanicalGardenQR.Configuration.Editor",
+    "BotanicalGardenQR.Configuration.Runtime",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.ApplicationMode.Contracts",
+    "BotanicalGardenQR.ApplicationMode.Adapters",
+    "BotanicalGardenQR.ApplicationMode.Frontend",
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.FrontendShell.Runtime",
+    "BotanicalGardenQR.JourneyNavigation.Contracts",
+    "BotanicalGardenQR.Model.Contracts",
+    "BotanicalGardenQR.Panorama.Contracts",
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts",
+    "BotanicalGardenQR.SpatialHost.Contracts",
+    "BotanicalGardenQR.SpatialHost.Runtime",
+    "Unity.ugui",
+    "Unity.XR.OpenXR"
+  ],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

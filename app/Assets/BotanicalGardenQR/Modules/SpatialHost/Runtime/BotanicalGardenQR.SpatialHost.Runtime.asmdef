@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.SpatialHost.Runtime",
+  "rootNamespace": "BotanicalGardenQR.SpatialHost.Runtime",
+  "references": [
+    "BotanicalGardenQR.SpatialHost.Contracts",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.Experience.Contracts"
+  ],
+  "autoReferenced": true
+}

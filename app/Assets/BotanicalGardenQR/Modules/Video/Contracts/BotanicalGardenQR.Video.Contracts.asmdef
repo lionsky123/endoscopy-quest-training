@@ -1,0 +1,6 @@
+{
+  "name": "BotanicalGardenQR.Video.Contracts",
+  "rootNamespace": "BotanicalGardenQR.Video.Contracts",
+  "references": ["BotanicalGardenQR.Experience.Contracts"],
+  "autoReferenced": true
+}

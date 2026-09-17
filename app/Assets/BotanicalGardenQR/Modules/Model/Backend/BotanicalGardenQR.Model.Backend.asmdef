@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.Model.Backend",
+  "rootNamespace": "BotanicalGardenQR.Model.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Model.Contracts",
+    "glTFast"
+  ],
+  "autoReferenced": false
+}

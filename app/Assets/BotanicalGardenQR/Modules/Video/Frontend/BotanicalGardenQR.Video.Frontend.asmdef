@@ -1,0 +1,12 @@
+{
+    "name": "BotanicalGardenQR.Video.Frontend",
+    "rootNamespace": "BotanicalGardenQR.Video.Frontend",
+    "references": [
+        "BotanicalGardenQR.Video.Contracts",
+        "BotanicalGardenQR.FrontendShell.Contracts",
+        "BotanicalGardenQR.Experience.Contracts",
+        "Unity.ugui",
+        "Unity.TextMeshPro"
+    ],
+    "autoReferenced": true
+}

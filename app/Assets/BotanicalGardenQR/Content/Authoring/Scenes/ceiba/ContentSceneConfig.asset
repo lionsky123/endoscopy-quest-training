@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a38952645f7994f990784abdb9b46a, type: 3}
+  m_Name: ContentSceneConfig
+  m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.ContentSceneConfig
+  _sceneId: ceiba
+  _content:
+    _title: "\u9519\u4E71\u6848\u4F8B \xB7 \u4FEE\u590D\u5DE5\u5177\u6C34\u8DEF"
+    _subtitle: "\u6E05\u6D17\u6D88\u6BD2\u5BA4 \xB7 \u7B2C 4 \u5173"
+    _summary: "\u6559\u5B66\u6848\u4F8B\uFF1A\u5DE5\u5177\u6E05\u5355\u6709\u7F3A\u9879\u3001\u6BDB\u5237\u7834\u635F\uFF1B\u7EC8\u672B\u6F02\u6D17\u6C34\u8DEF\u4E0E\u6EE4\u819C\u8D44\u6599\u672A\u6838\u5B9E\u3002\n\u5B8C\u6210
+      3 \u9053\u4FEE\u590D\u9898\u3002"
+    _video:
+      rid: -2
+    _panorama:
+      rid: 1234463858117836805
+    _imageRing:
+      rid: 1234463858117836806
+    _knowledgeMiniGame:
+      rid: 1234463858117836807
+    _model:
+      rid: -2
+    _narration:
+      rid: -2
+    _effect:
+      rid: -2
+    _physicalAugmentationPointIds: []
+  _presentation:
+    _titleStyle:
+      rid: -2
+    _subtitleStyle:
+      rid: -2
+    _layout:
+      rid: 7166929538842624036
+    _animation:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1234463858117836805
+      type: {class: PanoramaContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _texture: {fileID: 2800000, guid: fa6aef3db25f54747a6029bae8b352ac, type: 3}
+        _streamingAssetsPath: 
+        _initialYawDegrees: 0
+        _environmentMoments: []
+    - rid: 1234463858117836806
+      type: {class: ImageRingContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _items:
+        - _image: {fileID: 2800000, guid: 1540901631bedb04387ad87c04809fa7, type: 3}
+          _audio: {fileID: 8300000, guid: dd5702f49778b954cbf8d077656e547c, type: 3}
+          _title: "\u6E05\u6D17\u5DE5\u4F4D\u53C2\u8003"
+          _description: "\u89C2\u5BDF\u69FD\u4F4D\u4E0E\u5DE5\u5177\uFF1B\u4EC5\u51ED\u5916\u89C2\u4E0D\u80FD\u786E\u8BA4\u5206\u7C7B\u914D\u7F6E\u6216\u5B8C\u6574\u6D41\u7A0B\u3002"
+        - _image: {fileID: 2800000, guid: ea8a631c6745f534c879ebe44d049ff4, type: 3}
+          _audio: {fileID: 8300000, guid: cc01aa42771f8ae49aa79cdca49255d0, type: 3}
+          _title: "\u6D4B\u6F0F\u8BBE\u5907\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6848\u4F8B\u6838\u5BF9\u6D4B\u6F0F\u8BBE\u5907\u548C\u6BCF\u6B21\u4F7F\u7528\u8BB0\u5F55\uFF0C\u7167\u7247\u4E0D\u4EE3\u66FF\u8BB0\u5F55\u6838\u67E5\u3002"
+        - _image: {fileID: 2800000, guid: d620bbcab0f15dc47b2e6d40bbfecd3b, type: 3}
+          _audio: {fileID: 8300000, guid: 816e5dba556a9794d946d3cd92701e7d, type: 3}
+          _title: "\u5E72\u71E5\u73AF\u8282\u53C2\u8003"
+          _description: "\u7ED3\u5408\u672C\u8BFE\u6D41\u7A0B\u8FA8\u8BA4\u5E72\u71E5\u73AF\u8282\uFF0C\u5904\u7406\u5B8C\u6210\u540E\u4E0D\u5F97\u8FD4\u56DE\u524D\u5E8F\u6C61\u67D3\u73AF\u8282\u3002"
+    - rid: 1234463858117836807
+      type: {class: KnowledgeMiniGameContentSpec, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _questions:
+        - _question: "\u6848\u4F8B 1\uFF1A\u53EA\u6709\u6BDB\u5237\u3001\u6C34\u67AA\u3001\u6C14\u67AA\uFF0C\u7F3A\u6D4B\u6F0F\u4EEA\u4E0E\u704C\u6D41\u5668\u3002\u600E\u6837\u4FEE\u590D\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u5DF2\u6709\u4E09\u7C7B\u5C31\u591F\u4E86"
+          - _answerId: answer_1
+            _text: "\u8865\u9F50\u7F3A\u5C11\u7684\u4E24\u7C7B\u5DE5\u5177"
+          - _answerId: answer_2
+            _text: "\u628A\u6C14\u67AA\u540C\u65F6\u6807\u4F5C\u6D4B\u6F0F\u4EEA"
+          _correctAnswerId: answer_1
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u4E94\u7C7B\u5DE5\u5177\u9010\u9879\u5BF9\u5E94\uFF0C\u7F3A\u5C11\u7684\u6D4B\u6F0F\u4EEA\u548C\u704C\u6D41\u5668\u5DF2\u7EB3\u5165\u914D\u7F6E\u3002"
+          _retryHint: "\u4E0D\u540C\u5DE5\u5177\u627F\u62C5\u4E0D\u540C\u7528\u9014\uFF0C\u6539\u540D\u6216\u4EC5\u7EDF\u8BA1\u6570\u91CF\u4E0D\u80FD\u8865\u9F50\u529F\u80FD\u3002"
+        - _question: "\u6848\u4F8B 2\uFF1A\u6BDB\u5237\u5237\u6BDB\u7F3A\u635F\u3002\u5E94\u9009\u54EA\u79CD\u5904\u7406\u65B9\u6848\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u7EE7\u7EED\u4F7F\u7528\uFF0C\u8BB0\u5F55\u4E00\u4E0B"
+          - _answerId: answer_1
+            _text: "\u53EA\u6362\u5B58\u653E\u76D2"
+          - _answerId: answer_2
+            _text: "\u505C\u6B62\u4F7F\u7528\u7834\u635F\u6BDB\u5237\u5E76\u66F4\u6362"
+          _correctAnswerId: answer_2
+          _successExplanation: "\u6062\u590D\u540E\uFF1A\u7834\u635F\u6BDB\u5237\u9000\u51FA\u4F7F\u7528\uFF0C\u66FF\u6362\u4E3A\u9002\u7528\u4E14\u5B8C\u597D\u7684\u6BDB\u5237\u3002"
+          _retryHint: "\u672C\u8BFE\u8981\u6C42\u6BDB\u5237\u5B8C\u597D\u65E0\u7834\u635F\u3002\u8BB0\u5F55\u6216\u6362\u76D2\u4E0D\u80FD\u4FEE\u590D\u5237\u6BDB\u3002"
+        - _question: "\u6848\u4F8B 3\uFF1A\u53EA\u6709\u201C\u7EAF\u5316\u6C34\u201D\u6807\u7B7E\uFF0C\u6CA1\u6709\u5BF9\u5E94\u7BA1\u8DEF\u4E0E\u6EE4\u819C\u66F4\u6362\u8BB0\u5F55\u3002\u5982\u4F55\u8865\u8DB3\u6838\u67E5\uFF1F"
+          _options:
+          - _answerId: answer_0
+            _text: "\u6838\u5BF9\u5B9E\u9645\u4F9B\u6C34\u3001\u6EE4\u819C\u548C\u5BF9\u5E94\u8BB0\u5F55"
+          - _answerId: answer_1
+            _text: "\u6807\u7B7E\u6E05\u6670\u5373\u53EF\u901A\u8FC7"
+          - _answerId: answer_2
+            _text: "\u968F\u610F\u586B\u5199\u4E00\u4E2A\u66F4\u6362\u65E5\u671F"
+          _correctAnswerId: answer_0
+          _successExplanation: "\u6062\u590D\u65B9\u6848\uFF1A\u6CBF\u7EC8\u672B\u6F02\u6D17\u7BA1\u8DEF\u6838\u5BF9\u4F9B\u6C34\uFF0C\u6838\u5B9E\u6EE4\u819C\u5B8C\u597D\u53CA\u771F\u5B9E\u66F4\u6362\u8BB0\u5F55\uFF1B\u672A\u6838\u5B9E\u9879\u7EE7\u7EED\u6807\u4E3A\u5F85\u786E\u8BA4\u3002"
+          _retryHint: "\u6807\u7B7E\u4E0D\u80FD\u66FF\u4EE3\u6C34\u6E90\u8FDE\u63A5\u6838\u5BF9\uFF0C\u4E5F\u4E0D\u80FD\u865A\u6784\u7EF4\u62A4\u8BB0\u5F55\u3002"
+    - rid: 7166929538842624036
+      type: {class: LayoutOverride, ns: BotanicalGardenQR.Configuration.Runtime, asm: BotanicalGardenQR.Configuration.Runtime}
+      data:
+        _panelSize:
+          _hasValue: 0
+          _value: {x: 0, y: 0}
+        _panelOffset:
+          _hasValue: 1
+          _value: {x: 0, y: -0.22}
+        _spacing:
+          _hasValue: 0
+          _value: 0

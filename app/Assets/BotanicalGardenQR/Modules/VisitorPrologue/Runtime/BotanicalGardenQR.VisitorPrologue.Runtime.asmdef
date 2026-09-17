@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.VisitorPrologue.Runtime",
+  "rootNamespace": "BotanicalGardenQR.VisitorPrologue.Runtime",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.VisitorPrologue.Contracts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

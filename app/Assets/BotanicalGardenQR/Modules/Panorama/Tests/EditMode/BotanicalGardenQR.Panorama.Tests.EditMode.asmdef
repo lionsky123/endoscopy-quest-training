@@ -1,0 +1,18 @@
+{
+  "name": "BotanicalGardenQR.Panorama.Tests.EditMode",
+  "rootNamespace": "BotanicalGardenQR.Panorama.Tests.EditMode",
+  "references": [
+    "BotanicalGardenQR.Panorama.Contracts",
+    "BotanicalGardenQR.Panorama.Frontend",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

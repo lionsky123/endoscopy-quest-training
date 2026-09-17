@@ -1,0 +1,10 @@
+{
+  "name": "BotanicalGardenQR.ApplicationMode.Frontend",
+  "rootNamespace": "BotanicalGardenQR.ApplicationMode.Frontend",
+  "references": [
+    "BotanicalGardenQR.ApplicationMode.Contracts",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "autoReferenced": true
+}

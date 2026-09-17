@@ -1,0 +1,7 @@
+{
+  "name": "BotanicalGardenQR.ApplicationMode.Contracts",
+  "rootNamespace": "BotanicalGardenQR.ApplicationMode.Contracts",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

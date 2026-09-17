@@ -1,0 +1,2905 @@
+{
+  "version": 7400,
+  "file_bytes": 75104240,
+  "object_counts": {
+    "Geometry": 129,
+    "Model": 153,
+    "Material": 56,
+    "Video": 8,
+    "Texture": 8
+  },
+  "array_element_counts": {
+    "Vertices": 3217656,
+    "PolygonVertexIndex": 4270878,
+    "Edges": 2146618,
+    "Normals": 12812634,
+    "NormalsW": 4270878,
+    "UV": 3133726,
+    "UVIndex": 4270878,
+    "Visibility": 15907,
+    "Materials": 7153,
+    "KeyTime": 435,
+    "KeyValueFloat": 435,
+    "KeyAttrFlags": 435,
+    "KeyAttrDataFloat": 1740,
+    "KeyAttrRefCount": 435
+  },
+  "axis_unit_settings": [
+    [
+      "UpAxis",
+      "int",
+      "Integer",
+      "",
+      1
+    ],
+    [
+      "UpAxisSign",
+      "int",
+      "Integer",
+      "",
+      1
+    ],
+    [
+      "FrontAxis",
+      "int",
+      "Integer",
+      "",
+      2
+    ],
+    [
+      "CoordAxis",
+      "int",
+      "Integer",
+      "",
+      0
+    ],
+    [
+      "UnitScaleFactor",
+      "double",
+      "Number",
+      "",
+      100.0
+    ],
+    [
+      "OriginalUnitScaleFactor",
+      "double",
+      "Number",
+      "",
+      100.00000066
+    ]
+  ],
+  "objects": [
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220297264,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220297808,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220298352,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220299440,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220300528,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220301072,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220304336,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220301616,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220303792,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1708220302160,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744264699264,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744264704704,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744264701984,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346104672,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346108480,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346107936,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346109024,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346106304,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346110112,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346109568,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346106848,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346110656,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346107392,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346111200,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346104128,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346105216,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744346105760,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661434384,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661434928,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661438736,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661432752,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661437648,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661435472,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661436016,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661433840,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661433296,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661436560,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661438192,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661439824,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661437104,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744661439280,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549110320,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549109776,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549105968,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549104880,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549105424,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549103792,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549104336,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549106512,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549108144,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549107056,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549107600,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549108688,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549109232,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745549103248,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558302592,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558300416,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558300960,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558303680,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558298784,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558299328,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558299872,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558305856,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558304768,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558305312,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558303136,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558304224,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558301504,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1745558302048,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628290960,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628290416,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628288784,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628280624,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628277360,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628287696,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628283888,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628286608,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628291504,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628285520,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628288240,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628283344,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628281168,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628282800,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628287152,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628282256,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628289328,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628292048,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628284432,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628289872,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628292592,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628277904,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628281712,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628278448,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628278992,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628284976,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628279536,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628280080,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744628286064,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159897936,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159899024,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159905552,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159897392,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159901744,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159907184,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159909360,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159912080,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159898480,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159909904,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159905008,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159906096,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159902832,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159904464,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159910448,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159907728,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159910992,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159903376,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159908272,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159911536,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159900656,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159896848,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159903920,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159899568,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159900112,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159901200,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159902288,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159906640,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744159908816,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744620438304,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Geometry",
+      "properties": [
+        1744620431232,
+        "\u0000\u0001Geometry",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844934160,
+        "基本墙 常规 - 200mm [339793]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844936352,
+        "基本墙 常规 - 200mm [339832]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844914432,
+        "基本墙 常规 - 200mm [339871]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844945120,
+        "基本墙 常规 - 200mm [339907]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844916624,
+        "基本墙 常规 - 200mm [339982]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844918816,
+        "基本墙 常规 - 200mm [340053]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844921008,
+        "单嵌板木门 1 900 x 2100mm [342041]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844923200,
+        "基本墙 常规 - 200mm [342154]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844931968,
+        "基本墙 常规 - 200mm [342188]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745844925392,
+        "基本墙 常规 - 200mm [342241]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656632672,
+        "常规模型 5 常规模型 1 [342383]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656623904,
+        "常规模型 6 常规模型 1 [342395]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656630480,
+        "常规模型 7 常规模型 1 [342515]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656628288,
+        "复合天花板 600 x 600mm 轴网 [342880]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656634864,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [343716]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656626096,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [343716]_1\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744656621712,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [343755]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555506128,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [343755]_2\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555501744,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344055]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555495168,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344055]_3\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555503936,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344285]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555499552,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344285]_4\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555497360,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344755]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745555492976,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [344755]_5\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698839168,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345005]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698852320,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345005]_6\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698847936,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345195]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698845744,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345195]_7\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698843552,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345605]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698850128,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345605]_8\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698841360,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345905]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698411536,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [345905]_9\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698404960,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346065]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698418112,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346065]_10\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698413728,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346355]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698409344,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346355]_11\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698415920,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346655]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744698407152,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346655]_12\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548749072,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346915]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548746880,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [346915]_13\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548753456,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347225]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548755648,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347225]_14\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548757840,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347515]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548751264,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347515]_15\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745548760032,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347855]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537801040,
+        "吸顶灯-格栅式002 600 x 600mm (2 盏灯) [347855]_16\u0000\u0001Model",
+        "Light"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537794464,
+        "楼板 常规 - 150mm [349070]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537787888,
+        "单嵌板木门 1 900 x 2100mm [349289]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537796656,
+        "单嵌板木门 1 900 x 2100mm [349330]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537798848,
+        "常规模型 19 常规模型 1 [350607]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537790080,
+        "常规模型 20 常规模型 1 [350631]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745537792272,
+        "基本墙 常规 - 200mm [351390]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549529184,
+        "基本墙 常规 - 200mm [351413]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549531376,
+        "常规模型 35 常规模型 35 [351654]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549533568,
+        "常规模型 36 常规模型 36 [351722]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549535760,
+        "常规模型 8 常规模型 1 [351779]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549537952,
+        "常规模型 10 常规模型 1 [351796]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549542336,
+        "常规模型 11 常规模型 35 [351821]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745549540144,
+        "常规模型 12 常规模型 36 [351834]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345063856,
+        "常规模型 13 常规模型 1 [351847]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345061664,
+        "常规模型 14 常规模型 1 [351864]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345059472,
+        "常规模型 15 常规模型 35 [351889]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345066048,
+        "常规模型 16 常规模型 36 [351902]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345068240,
+        "常规模型 17 常规模型 1 [351913]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345070432,
+        "常规模型 18 常规模型 1 [351930]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744345072624,
+        "常规模型 37 常规模型 35 [351955]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554662352,
+        "常规模型 38 常规模型 36 [351968]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554653584,
+        "常规模型 39 常规模型 1 [351979]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554655776,
+        "常规模型 40 常规模型 1 [351996]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554649200,
+        "常规模型 41 常规模型 35 [352021]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554651392,
+        "常规模型 42 常规模型 36 [352034]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554660160,
+        "常规模型 43 常规模型 1 [352047]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554657968,
+        "常规模型 44 常规模型 1 [352064]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617710256,
+        "常规模型 45 常规模型 35 [352089]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617714640,
+        "常规模型 46 常规模型 36 [352102]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617701488,
+        "常规模型 9 常规模型 1 [352164]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617703680,
+        "常规模型 26 常规模型 35 [352189]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617712448,
+        "常规模型 27 常规模型 1 [352194]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617705872,
+        "常规模型 28 常规模型 35 [352219]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744617708064,
+        "常规模型 29 常规模型 1 [352224]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547457136,
+        "常规模型 30 常规模型 35 [352249]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547459328,
+        "常规模型 32 常规模型 1 [352254]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547454944,
+        "常规模型 34 常规模型 35 [352279]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547465904,
+        "常规模型 47 常规模型 1 [352284]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547452752,
+        "常规模型 48 常规模型 35 [352309]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547461520,
+        "常规模型 49 常规模型 1 [352314]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745547463712,
+        "常规模型 50 常规模型 35 [352339]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553678784,
+        "常规模型 51 常规模型 1 [352368]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553689744,
+        "常规模型 52 常规模型 35 [352393]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553676592,
+        "常规模型 53 常规模型 1 [352398]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553680976,
+        "常规模型 54 常规模型 35 [352423]\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553683168,
+        "常规模型 7 常规模型 1 [342515]001\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553685360,
+        "常规模型 7 常规模型 1 [342515]002\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553687552,
+        "常规模型 7 常规模型 1 [342515]003\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553601184,
+        "常规模型 7 常规模型 1 [342515]004\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553594608,
+        "常规模型 7 常规模型 1 [342515]005\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553598992,
+        "常规模型 7 常规模型 1 [342515]006\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553596800,
+        "常规模型 7 常规模型 1 [342515]007\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553605568,
+        "常规模型 5 常规模型 1 [342383]001\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553603376,
+        "常规模型 6 常规模型 1 [342395]001\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745553607760,
+        "常规模型 5 常规模型 1 [342383]002\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554286288,
+        "常规模型 6 常规模型 1 [342395]002\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554297248,
+        "常规模型 5 常规模型 1 [342383]003\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554288480,
+        "常规模型 6 常规模型 1 [342395]003\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554299440,
+        "常规模型 5 常规模型 1 [342383]004\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554290672,
+        "常规模型 6 常规模型 1 [342395]004\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554295056,
+        "常规模型 5 常规模型 1 [342383]005\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745554292864,
+        "常规模型 6 常规模型 1 [342395]005\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340199968,
+        "常规模型 5 常规模型 1 [342383]006\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340193392,
+        "常规模型 5 常规模型 1 [342383]007\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340221888,
+        "常规模型 6 常规模型 1 [342395]006\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340202160,
+        "常规模型 6 常规模型 1 [342395]007\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340197776,
+        "tripo_node_51f4bd56\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340195584,
+        "组001\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340206544,
+        "tripo_node_51f4bd058\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340208736,
+        "tripo_node_51f4bd059\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340230656,
+        "tripo_node_51f4bd060\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340217504,
+        "tripo_node_51f4bd057\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340224080,
+        "组002\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340213120,
+        "tripo_node_51f4bd061\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340226272,
+        "tripo_node_51f4bd062\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340204352,
+        "tripo_node_51f4bd063\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340210928,
+        "tripo_node_51f4bd064\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340241616,
+        "组003\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340219696,
+        "tripo_node_51f4bd065\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340228464,
+        "tripo_node_51f4bd066\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340232848,
+        "tripo_node_51f4bd067\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340235040,
+        "tripo_node_51f4bd068\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340237232,
+        "组004\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340239424,
+        "tripo_node_51f4bd069\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340243808,
+        "tripo_node_51f4bd070\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340215312,
+        "tripo_node_51f4bd071\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340246000,
+        "tripo_node_51f4bd072\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340248192,
+        "组005\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340250384,
+        "tripo_node_51f4bd073\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340252576,
+        "tripo_node_51f4bd074\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1744340254768,
+        "tripo_node_51f4bd075\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466974320,
+        "tripo_node_51f4bd076\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466994048,
+        "组006\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466987472,
+        "tripo_node_51f4bd077\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466989664,
+        "tripo_node_51f4bd078\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466991856,
+        "tripo_node_51f4bd079\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466980896,
+        "tripo_node_51f4bd080\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466996240,
+        "组007\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466998432,
+        "tripo_node_51f4bd081\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745467002816,
+        "tripo_node_51f4bd082\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466985280,
+        "tripo_node_51f4bd083\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745467000624,
+        "tripo_node_51f4bd084\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745467005008,
+        "组008\u0000\u0001Model",
+        "Null"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466976512,
+        "tripo_node_51f4bd085\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745467007200,
+        "tripo_node_51f4bd086\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745466978704,
+        "tripo_node_51f4bd087\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Model",
+      "properties": [
+        1745467009392,
+        "tripo_node_51f4bd088\u0000\u0001Model",
+        "Mesh"
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650675024,
+        "Material #38\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650678864,
+        "Material #36\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650684144,
+        "Material #37\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650670224,
+        "Material #32\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650670704,
+        "Material #39\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628334336,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628338976,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628334496,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628335136,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628337376,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628339136,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628334656,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628334976,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628339296,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628336896,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628339456,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628339616,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628334816,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628335456,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628337056,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628337536,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628341056,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628337696,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628337856,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628338016,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628343136,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628344416,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628342336,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628346976,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628347776,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628347136,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628344256,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628347936,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628347296,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628345376,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628345856,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628343776,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628344576,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628342816,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628347456,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628346336,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628348096,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628342496,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628342656,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628346496,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628346016,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628343296,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628344896,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628343456,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744628344736,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744623103616,
+        "金属 - 油漆涂层 - 深灰色, 粗面\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744623103456,
+        "玻璃 - 白色, 高光\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744623101376,
+        "金属 - 铬\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650671184,
+        "Material #35\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650684624,
+        "Material #33\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Material",
+      "properties": [
+        1744650680304,
+        "Material #25\u0000\u0001Material",
+        ""
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744650675504,
+        "贴图 #10\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744650681264,
+        "贴图 #8\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744650681744,
+        "贴图 #9\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744650685104,
+        "贴图 #4\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744650673584,
+        "贴图 #11\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744160686160,
+        "贴图 #7\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744160689040,
+        "贴图 #5\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Video",
+      "properties": [
+        1744160698160,
+        "贴图 #1\u0000\u0001Video",
+        "Clip"
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650679824,
+        "贴图 #10\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650677904,
+        "贴图 #8\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650677424,
+        "贴图 #9\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650675984,
+        "贴图 #4\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650673104,
+        "贴图 #11\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650671664,
+        "贴图 #7\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650679344,
+        "贴图 #5\u0000\u0001Texture",
+        ""
+      ]
+    },
+    {
+      "type": "Texture",
+      "properties": [
+        1744650680784,
+        "贴图 #1\u0000\u0001Texture",
+        ""
+      ]
+    }
+  ]
+}

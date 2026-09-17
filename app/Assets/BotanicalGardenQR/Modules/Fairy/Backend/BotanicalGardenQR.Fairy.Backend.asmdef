@@ -1,0 +1,12 @@
+{
+  "name": "BotanicalGardenQR.Fairy.Backend",
+  "rootNamespace": "BotanicalGardenQR.Fairy.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Fairy.Contracts",
+    "Oculus.VR",
+    "Meta.XR.Audio",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": true
+}

@@ -1,0 +1,12 @@
+{
+  "name": "BotanicalGardenQR.ImageRing.Frontend",
+  "rootNamespace": "BotanicalGardenQR.ImageRing.Frontend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.ImageRing.Contracts",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true
+}

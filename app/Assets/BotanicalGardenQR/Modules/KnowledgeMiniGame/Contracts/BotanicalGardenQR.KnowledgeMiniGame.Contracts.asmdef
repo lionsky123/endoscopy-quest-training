@@ -1,0 +1,8 @@
+{
+  "name": "BotanicalGardenQR.KnowledgeMiniGame.Contracts",
+  "rootNamespace": "BotanicalGardenQR.KnowledgeMiniGame.Contracts",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts"
+  ],
+  "autoReferenced": true
+}

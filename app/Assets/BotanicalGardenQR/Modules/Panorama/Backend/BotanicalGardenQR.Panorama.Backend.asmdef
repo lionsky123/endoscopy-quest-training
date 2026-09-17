@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.Panorama.Backend",
+  "rootNamespace": "BotanicalGardenQR.Panorama.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Panorama.Contracts"
+  ],
+  "autoReferenced": true
+}

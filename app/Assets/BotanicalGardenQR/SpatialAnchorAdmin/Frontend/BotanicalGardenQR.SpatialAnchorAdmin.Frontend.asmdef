@@ -1,0 +1,14 @@
+{
+  "name": "BotanicalGardenQR.SpatialAnchorAdmin.Frontend",
+  "rootNamespace": "BotanicalGardenQR.SpatialAnchorAdmin",
+  "references": [
+    "BotanicalGardenQR.SpatialAnchorAdmin.Contracts",
+    "BotanicalGardenQR.SpatialAnchor.Persistence",
+    "Oculus.VR",
+    "meta.xr.mrutilitykit",
+    "Meta.XR.EnvironmentDepth",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true
+}

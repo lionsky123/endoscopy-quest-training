@@ -1,0 +1,13 @@
+{
+  "name": "BotanicalGardenQR.KnowledgeMiniGame.Frontend",
+  "rootNamespace": "BotanicalGardenQR.KnowledgeMiniGame.Frontend",
+  "references": [
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.KnowledgeMiniGame.Contracts",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true
+}

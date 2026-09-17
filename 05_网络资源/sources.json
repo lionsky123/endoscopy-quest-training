@@ -1,0 +1,110 @@
+[
+  {
+    "asset": "clipboard",
+    "publisher": "Poly Haven",
+    "source": "https://polyhaven.com/a/clipboard",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "downloads": [
+      {
+        "file": "05_网络资源\\clipboard\\clipboard.gltf",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/clipboard/clipboard_1k.gltf",
+        "sha256": "82b06cce3894693d6e2f8d7bf760dbd9d59eca232cdfccda93dbeab7aa4b4549",
+        "bytes": 2738
+      },
+      {
+        "file": "05_网络资源\\clipboard\\textures\\clipboard_nor_gl_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_nor_gl_1k.jpg",
+        "sha256": "ea6700ba026222656f47c654d1631f075aedb57d52977ca22bdf8d417e1eca07",
+        "bytes": 406898
+      },
+      {
+        "file": "05_网络资源\\clipboard\\textures\\clipboard_diff_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_diff_1k.jpg",
+        "sha256": "2e823a490f24a70ff76418c578871f08608bfc370f64f5068d833e5ee63b457a",
+        "bytes": 572026
+      },
+      {
+        "file": "05_网络资源\\clipboard\\textures\\clipboard_arm_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/clipboard/clipboard_arm_1k.jpg",
+        "sha256": "79658043713f9adb64d2dfc956e2818cda727d7a08fd85aa0967f1f4f9ce660f",
+        "bytes": 620747
+      },
+      {
+        "file": "05_网络资源\\clipboard\\clipboard.bin",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/clipboard/clipboard.bin",
+        "sha256": "c108d9cc94bc513ff9f91077e02cbe9f49a96d4907abd06803e379508fd98bb2",
+        "bytes": 184512
+      }
+    ]
+  },
+  {
+    "asset": "plastic_bottle_gallon",
+    "publisher": "Poly Haven",
+    "source": "https://polyhaven.com/a/plastic_bottle_gallon",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "downloads": [
+      {
+        "file": "05_网络资源\\plastic_bottle_gallon\\plastic_bottle_gallon.gltf",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/plastic_bottle_gallon/plastic_bottle_gallon_1k.gltf",
+        "sha256": "1be99f87a6cb9e32917920a5ba4446e6ae83ef69433275b2eda95e8f887108a3",
+        "bytes": 2868
+      },
+      {
+        "file": "05_网络资源\\plastic_bottle_gallon\\textures\\plastic_bottle_gallon_arm_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_bottle_gallon/plastic_bottle_gallon_arm_1k.jpg",
+        "sha256": "9586b0b81719f6a97213f59682822331e77dbf5291b29869413ee526b18403d4",
+        "bytes": 343990
+      },
+      {
+        "file": "05_网络资源\\plastic_bottle_gallon\\textures\\plastic_bottle_gallon_diff_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_bottle_gallon/plastic_bottle_gallon_diff_1k.jpg",
+        "sha256": "b763c4dd071baf9aa319eb3a94e8045614fa7f52404fda9e61c660164f8444f2",
+        "bytes": 317396
+      },
+      {
+        "file": "05_网络资源\\plastic_bottle_gallon\\textures\\plastic_bottle_gallon_nor_gl_1k.jpg",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_bottle_gallon/plastic_bottle_gallon_nor_gl_1k.jpg",
+        "sha256": "8cefc29b47a68200fa9c8b4330a6c76a9c21153d0e5e95ef45a4c45793d110a6",
+        "bytes": 407414
+      },
+      {
+        "file": "05_网络资源\\plastic_bottle_gallon\\plastic_bottle_gallon.bin",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/plastic_bottle_gallon/plastic_bottle_gallon.bin",
+        "sha256": "b1b6177d5f54389102442aeaef488364a685d0c2320aa8911abce9b7c97a15a8",
+        "bytes": 313632
+      }
+    ]
+  },
+  {
+    "asset": "Metal032",
+    "publisher": "ambientCG",
+    "source": "https://ambientcg.com/a/Metal032",
+    "license": "CC0-1.0",
+    "license_url": "https://docs.ambientcg.com/license/",
+    "downloads": [
+      {
+        "file": "05_网络资源\\Metal032\\Metal032_1K-JPG.zip",
+        "url": "https://ambientcg.com/get?file=Metal032_1K-JPG.zip",
+        "sha256": "9e4f363905a647958c273154fa125d2a6440892d0e583f9b3af24bb08b5afc3c",
+        "bytes": 3650556
+      }
+    ]
+  },
+  {
+    "asset": "Plastic010",
+    "publisher": "ambientCG",
+    "source": "https://ambientcg.com/a/Plastic010",
+    "license": "CC0-1.0",
+    "license_url": "https://docs.ambientcg.com/license/",
+    "downloads": [
+      {
+        "file": "05_网络资源\\Plastic010\\Plastic010_1K-JPG.zip",
+        "url": "https://ambientcg.com/get?file=Plastic010_1K-JPG.zip",
+        "sha256": "46a2504dbef278475b85c846713804a36823c7151cb79c90728d5c6eab283a19",
+        "bytes": 3535012
+      }
+    ]
+  }
+]

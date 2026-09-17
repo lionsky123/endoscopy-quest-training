@@ -1,0 +1,25 @@
+RPG Item collection 2 - selected VisitorAtlasHub menu assets
+
+Source page: https://opengameart.org/content/rpg-item-collection-2
+Archive URL: https://opengameart.org/sites/default/files/low-poly%20RPG%20item%20collection%202.zip
+Author credited on source page: Drummyfish
+License declared on source page: Creative Commons Zero (CC0)
+CC0 deed: https://creativecommons.org/publicdomain/zero/1.0/
+Downloaded and audited: 2026-09-04
+
+Downloaded archive:
+- low-poly RPG item collection 2.zip
+- SHA-256: 1A91B47A47B911F74D47CA09DE4D40D58166CFA41139687236D9FC0BCE4588CB
+
+Only these source files were selected from the archive:
+- book.obj - original SHA-256 D02D69AEC7E07F33A1252BC252CB8D968785906BEE8513DF839E818D7E1BF9B4
+- book.png - SHA-256 638A0DD28AE28C65DC93AC6DE6902572B93916E071EEFBF9982D874D15C59D2E
+- scroll.obj - original SHA-256 90480C2C03C738B4FFF8DF5FE025B962F4E259B7D9A75E0344A0C53FECAD1041
+- scroll.png - SHA-256 107E881D9A5C53D66354D4865E1EDB1579385B339D2BF0DC390E23C181C95850
+
+Project modifications:
+- Added mtllib/usemtl declarations and small MTL files so Unity deterministically maps each OBJ to one project-owned URP material.
+- No geometry, UV, normal, or texture pixels were changed.
+- Unused Blend, 3DS, alternate textures, sample renders, and unrelated item models were not imported.
+
+2026-09-09 invitation reuse: VisitorPrologue references the same approved book mesh/material as immutable source assets. FieldbookInvitationRitual folds only an owned runtime Mesh copy and restores/releases it on exit; it does not copy Hub or Collection interactions. The importer permits CPU read access for this deformation.

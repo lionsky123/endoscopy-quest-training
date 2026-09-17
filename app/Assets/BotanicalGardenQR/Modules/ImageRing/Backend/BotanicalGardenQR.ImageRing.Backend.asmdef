@@ -1,0 +1,9 @@
+{
+  "name": "BotanicalGardenQR.ImageRing.Backend",
+  "rootNamespace": "BotanicalGardenQR.ImageRing.Backend",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.ImageRing.Contracts"
+  ],
+  "autoReferenced": true
+}

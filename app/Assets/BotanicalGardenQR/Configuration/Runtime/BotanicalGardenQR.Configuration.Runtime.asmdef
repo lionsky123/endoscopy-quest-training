@@ -1,0 +1,23 @@
+{
+  "name": "BotanicalGardenQR.Configuration.Runtime",
+  "rootNamespace": "BotanicalGardenQR.Configuration.Runtime",
+  "references": [
+    "BotanicalGardenQR.Experience.Contracts",
+    "BotanicalGardenQR.Collection.Contracts",
+    "BotanicalGardenQR.Activation.Contracts",
+    "BotanicalGardenQR.SpatialHost.Contracts",
+    "BotanicalGardenQR.Video.Contracts",
+    "BotanicalGardenQR.Panorama.Contracts",
+    "BotanicalGardenQR.ImageRing.Contracts",
+    "BotanicalGardenQR.KnowledgeMiniGame.Contracts",
+    "BotanicalGardenQR.Model.Contracts",
+    "BotanicalGardenQR.Narration.Contracts",
+    "BotanicalGardenQR.Fairy.Contracts",
+    "BotanicalGardenQR.Effect.Contracts",
+    "BotanicalGardenQR.VisitorCoach.Contracts",
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts",
+    "Unity.TextMeshPro",
+    "BotanicalGardenQR.MapNavigation.Contracts"
+  ],
+  "autoReferenced": true
+}

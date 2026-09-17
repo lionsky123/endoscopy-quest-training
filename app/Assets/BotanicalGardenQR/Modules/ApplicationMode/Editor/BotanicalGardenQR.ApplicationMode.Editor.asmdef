@@ -1,0 +1,15 @@
+{
+  "name": "BotanicalGardenQR.ApplicationMode.Editor",
+  "rootNamespace": "BotanicalGardenQR.ApplicationMode.Editor",
+  "references": [
+    "BotanicalGardenQR.ApplicationMode.Contracts",
+    "BotanicalGardenQR.ApplicationMode.Adapters",
+    "BotanicalGardenQR.ApplicationMode.Frontend",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

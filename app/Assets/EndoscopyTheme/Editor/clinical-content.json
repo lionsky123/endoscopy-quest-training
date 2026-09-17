@@ -1,0 +1,148 @@
+{
+  "stops": [
+    {
+      "id": "baobab",
+      "cards": [
+        {
+          "imageGuid": "6fe045560e7e2714394ac93113091b6c",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "错乱布局案例",
+          "description": "教学模拟：门敞开、设备共用与流程回流；请与正确示意对照。"
+        },
+        {
+          "imageGuid": "622cc2e67092bbf4b834896b19f31a8a",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "正确布局示意",
+          "description": "教学示意：实体隔断、分类分设与单向流程；不是现场合规证明。"
+        },
+        {
+          "imageGuid": "89509830deefd1b429d387fb33c8f447",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "清洗工位参考",
+          "description": "观察槽位与工具；仅凭外观不能确认分类配置或完整流程。"
+        }
+      ],
+      "questionsJson": "{\"_questions\": [{\"_question\": \"案例 1：清洗室与诊疗室之间的门敞开。怎样恢复本课要求的隔离状态？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"保留敞开，增加标牌\"}, {\"_answerId\": \"answer_1\", \"_text\": \"关闭门并核对实体隔断\"}, {\"_answerId\": \"answer_2\", \"_text\": \"挂一块帘子即可\"}], \"_correctAnswerId\": \"answer_1\", \"_successExplanation\": \"恢复后：实体隔断完整，门关闭。\", \"_retryHint\": \"标牌与帘子不能替代实体分隔。还需让门处于关闭状态。\"}, {\"_question\": \"案例 2：消化、呼吸内镜共用同一组清洗槽与清洗消毒机。怎样修复配置？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"只贴不同颜色的标签\"}, {\"_answerId\": \"answer_1\", \"_text\": \"先后使用就算分设\"}, {\"_answerId\": \"answer_2\", \"_text\": \"两类槽组与机器分别配置\"}], \"_correctAnswerId\": \"answer_2\", \"_successExplanation\": \"恢复后：消化、呼吸分别使用各自的槽组和清洗消毒机。\", \"_retryHint\": \"本课要求清洗槽和清洗消毒机均分开配置，标签或错峰不等于设备分设。\"}, {\"_question\": \"案例 3：现场缺终末漂洗位，路线从消毒后折回前序工位。怎样修复？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"补齐五环节并恢复单向衔接\"}, {\"_answerId\": \"answer_1\", \"_text\": \"从消毒直接跳到干燥\"}, {\"_answerId\": \"answer_2\", \"_text\": \"只把地面箭头反过来\"}], \"_correctAnswerId\": \"answer_0\", \"_successExplanation\": \"恢复后：清洗 → 漂洗 → 消毒 → 终末漂洗 → 干燥，工位齐全、流程单向。\", \"_retryHint\": \"要同时修复实际工位配置和衔接关系，不能靠箭头掩盖缺位或回流。\"}]}"
+    },
+    {
+      "id": "bottle_tree",
+      "cards": [
+        {
+          "imageGuid": "89509830deefd1b429d387fb33c8f447",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "清洗工位参考",
+          "description": "观察槽位与工具；仅凭外观不能确认分类配置或完整流程。"
+        },
+        {
+          "imageGuid": "46ffc99f0e5e1ce45b230908e1d5602c",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "测漏设备参考",
+          "description": "结合本课案例核对测漏设备和每次使用记录，照片不代替记录核查。"
+        },
+        {
+          "imageGuid": "3b176ab5f3542644484927b078ae2a11",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "干燥环节参考",
+          "description": "结合本课流程辨认干燥环节，处理完成后不得返回前序污染环节。"
+        }
+      ],
+      "questionsJson": ""
+    },
+    {
+      "id": "ceiba",
+      "cards": [
+        {
+          "imageGuid": "89509830deefd1b429d387fb33c8f447",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "清洗工位参考",
+          "description": "观察槽位与工具；仅凭外观不能确认分类配置或完整流程。"
+        },
+        {
+          "imageGuid": "46ffc99f0e5e1ce45b230908e1d5602c",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "测漏设备参考",
+          "description": "结合本课案例核对测漏设备和每次使用记录，照片不代替记录核查。"
+        },
+        {
+          "imageGuid": "3b176ab5f3542644484927b078ae2a11",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "干燥环节参考",
+          "description": "结合本课流程辨认干燥环节，处理完成后不得返回前序污染环节。"
+        }
+      ],
+      "questionsJson": "{\"_questions\": [{\"_question\": \"案例 1：只有毛刷、水枪、气枪，缺测漏仪与灌流器。怎样修复？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"已有三类就够了\"}, {\"_answerId\": \"answer_1\", \"_text\": \"补齐缺少的两类工具\"}, {\"_answerId\": \"answer_2\", \"_text\": \"把气枪同时标作测漏仪\"}], \"_correctAnswerId\": \"answer_1\", \"_successExplanation\": \"恢复后：五类工具逐项对应，缺少的测漏仪和灌流器已纳入配置。\", \"_retryHint\": \"不同工具承担不同用途，改名或仅统计数量不能补齐功能。\"}, {\"_question\": \"案例 2：毛刷刷毛缺损。应选哪种处理方案？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"继续使用，记录一下\"}, {\"_answerId\": \"answer_1\", \"_text\": \"只换存放盒\"}, {\"_answerId\": \"answer_2\", \"_text\": \"停止使用破损毛刷并更换\"}], \"_correctAnswerId\": \"answer_2\", \"_successExplanation\": \"恢复后：破损毛刷退出使用，替换为适用且完好的毛刷。\", \"_retryHint\": \"本课要求毛刷完好无破损。记录或换盒不能修复刷毛。\"}, {\"_question\": \"案例 3：只有“纯化水”标签，没有对应管路与滤膜更换记录。如何补足核查？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"核对实际供水、滤膜和对应记录\"}, {\"_answerId\": \"answer_1\", \"_text\": \"标签清晰即可通过\"}, {\"_answerId\": \"answer_2\", \"_text\": \"随意填写一个更换日期\"}], \"_correctAnswerId\": \"answer_0\", \"_successExplanation\": \"恢复方案：沿终末漂洗管路核对供水，核实滤膜完好及真实更换记录；未核实项继续标为待确认。\", \"_retryHint\": \"标签不能替代水源连接核对，也不能虚构维护记录。\"}]}"
+    },
+    {
+      "id": "giant_saguaro",
+      "cards": [
+        {
+          "imageGuid": "622cc2e67092bbf4b834896b19f31a8a",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "正确布局示意",
+          "description": "教学示意：实体隔断、分类分设与单向流程；不是现场合规证明。"
+        },
+        {
+          "imageGuid": "89509830deefd1b429d387fb33c8f447",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "清洗工位参考",
+          "description": "观察槽位与工具；仅凭外观不能确认分类配置或完整流程。"
+        },
+        {
+          "imageGuid": "9885f39d238ebdd428965bc83b0c95d9",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "空间关系参考",
+          "description": "用户提供的全景图；观察隔断和工位关系，用途、水路与记录仍需另核对。"
+        }
+      ],
+      "questionsJson": ""
+    },
+    {
+      "id": "macrozamia",
+      "cards": [
+        {
+          "imageGuid": "ebc486c64e79f714db7b35076df10492",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "产品标签参考",
+          "description": "核对标签完整清晰以及内镜适用范围，不能仅凭商品名称判断。"
+        },
+        {
+          "imageGuid": "974637be08c10cc45b61c4227c5dfbc3",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "产品说明参考",
+          "description": "核对说明书中的适用范围与使用要求，本素材用于教学观察。"
+        },
+        {
+          "imageGuid": "46ffc99f0e5e1ce45b230908e1d5602c",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "测漏设备参考",
+          "description": "结合本课案例核对测漏设备和每次使用记录，照片不代替记录核查。"
+        }
+      ],
+      "questionsJson": ""
+    },
+    {
+      "id": "welwitschia",
+      "cards": [
+        {
+          "imageGuid": "ebc486c64e79f714db7b35076df10492",
+          "audioGuid": "41e9b4d0c4d943c892e591eaff841b81",
+          "title": "产品标签参考",
+          "description": "核对标签完整清晰以及内镜适用范围，不能仅凭商品名称判断。"
+        },
+        {
+          "imageGuid": "974637be08c10cc45b61c4227c5dfbc3",
+          "audioGuid": "f831a5b3c0344e728171a33625c5bc99",
+          "title": "产品说明参考",
+          "description": "核对说明书中的适用范围与使用要求，本素材用于教学观察。"
+        },
+        {
+          "imageGuid": "46ffc99f0e5e1ce45b230908e1d5602c",
+          "audioGuid": "fb6a0ba634194635bff3f1dd67a8955f",
+          "title": "测漏设备参考",
+          "description": "结合本课案例核对测漏设备和每次使用记录，照片不代替记录核查。"
+        }
+      ],
+      "questionsJson": "{\"_questions\": [{\"_question\": \"案例 1：消毒剂标签模糊，看不清对应产品。下一步怎样处理？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"按瓶子颜色猜产品\"}, {\"_answerId\": \"answer_1\", \"_text\": \"照旁边另一瓶说明书使用\"}, {\"_answerId\": \"answer_2\", \"_text\": \"核实产品身份和完整配套资料\"}], \"_correctAnswerId\": \"answer_2\", \"_successExplanation\": \"恢复方案：核实该瓶产品身份，取得清晰完整标签及同产品说明书，未确认前不判为适用。\", \"_retryHint\": \"需要先确认实际产品，不能把其他产品说明书当作该瓶的依据。\"}, {\"_question\": \"案例 2：说明书未确认适配该内镜。怎样选择修复方案？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"核对高水平消毒用途和材料适配\"}, {\"_answerId\": \"answer_1\", \"_text\": \"消毒剂越强越好\"}, {\"_answerId\": \"answer_2\", \"_text\": \"只看品牌就判为适用\"}], \"_correctAnswerId\": \"answer_0\", \"_successExplanation\": \"恢复方案：结合消毒剂与内镜说明书确认高水平消毒用途、材料适配及使用限制。\", \"_retryHint\": \"消毒用途和内镜材料适配均需核对，不可仅凭品牌或强弱判断。\"}, {\"_question\": \"案例 3：宫腔镜附件盒只贴“已灭菌”，包装标识及批次证据缺失。怎么修复？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"再贴一张“已灭菌”\"}, {\"_answerId\": \"answer_1\", \"_text\": \"核查包装标识与对应灭菌证据\"}, {\"_answerId\": \"answer_2\", \"_text\": \"外观整洁就可以\"}], \"_correctAnswerId\": \"answer_1\", \"_successExplanation\": \"恢复方案：核查完整包装标识与对应批次灭菌、放行证据，缺失证据保留待确认。\", \"_retryHint\": \"单独一个“已灭菌”标签不足以证明对应附件已完成规范灭菌处理。\"}, {\"_question\": \"案例 4：当天示例有三次测漏使用，却只有一条记录。怎么修复？\", \"_options\": [{\"_answerId\": \"answer_0\", \"_text\": \"一天一条就足够\"}, {\"_answerId\": \"answer_1\", \"_text\": \"复制同一条记录三遍\"}, {\"_answerId\": \"answer_2\", \"_text\": \"逐次核对真实使用与对应记录\"}], \"_correctAnswerId\": \"answer_2\", \"_successExplanation\": \"恢复方案：逐次核对三次使用和真实记录，明确缺项并按实际情况处理；同时检查设备当前状态。\", \"_retryHint\": \"本课要求每次使用均有对应记录，不能复制或补造无法核实的内容。\"}]}"
+    }
+  ]
+}

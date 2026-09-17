@@ -1,0 +1,11 @@
+{
+  "name": "BotanicalGardenQR.PhysicalAugmentation.Backend",
+  "rootNamespace": "BotanicalGardenQR.PhysicalAugmentation.Backend",
+  "references": [
+    "BotanicalGardenQR.PhysicalAugmentation.Contracts",
+    "BotanicalGardenQR.PhysicalAugmentation.Installation",
+    "Meta.XR.EnvironmentDepth",
+    "Oculus.VR"
+  ],
+  "autoReferenced": false
+}

@@ -1,0 +1,16 @@
+{
+  "name": "BotanicalGardenQR.MapNavigation.Tests.EditMode",
+  "references": [
+    "BotanicalGardenQR.FrontendShell.Contracts",
+    "BotanicalGardenQR.MapNavigation.Contracts",
+    "BotanicalGardenQR.MapNavigation.Runtime",
+    "BotanicalGardenQR.Experience.Application"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false
+}
