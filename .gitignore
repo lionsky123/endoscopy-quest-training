@@ -61,6 +61,8 @@ Thumbs.db
 /app/Assets/Resources/PerformanceTestRunSettings.json
 /app/Assets/StreamingAssets/RuntimeActionBindings.json
 /app/Assets/XR/Temp*
+/app/Assets/XR/Resources/
+/app/Assets/XR/UserSimulationSettings/Resources/
 /app/Assets/_Recovery/
 /app/Assets/StreamingAssets/VisitorAtlasHub/xia.glb
 /app/Assets/StreamingAssets/VisitorAtlasHub/xia.glb.meta
