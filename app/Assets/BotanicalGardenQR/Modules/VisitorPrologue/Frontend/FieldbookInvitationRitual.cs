@@ -16,6 +16,8 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         VisitorPrologueThemeAsset _theme;
         Mesh _ownedMesh, _ownedSealMesh, _sourceSealMesh;
         MeshFilter _sealFilter;
+        Material _handprintMaterial, _sourceSealMaterial;
+        Vector3 _sourceSealScale;
         Mesh _sourceMesh;
         Vector3[] _vertices, _normals, _folded, _foldedNormals;
         Vector3 _restScale, _sealRestScale;
@@ -32,6 +34,9 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         public event Action<VisitorPrologueInputModality> InvitationRequested;
         public event Action BookOpened;
         public float HoldProgress => _hold.Progress;
+        public string Instruction => _hold.Progress > 0
+            ? $"手掌已对准，保持不动 · {Mathf.FloorToInt(_hold.Progress * 100)}%\n手印亮满后，魔法书会自动打开。"
+            : "① 张开一只手，掌心朝向发光手印。\n② 靠近保持约1秒，等手印亮满。\n看不到手时，把双手放到视野前方。";
 
         public void Configure(VisitorPrologueThemeAsset theme)
         {
@@ -46,8 +51,17 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             _folded = new Vector3[_vertices.Length]; _foldedNormals = new Vector3[_normals.Length];
             _sealFilter = _seal.GetComponent<MeshFilter>();
             _sourceSealMesh = _sealFilter.sharedMesh;
-            _ownedSealMesh = CreateLeafSeal();
+            _ownedSealMesh = CreateHandprint();
             _sealFilter.sharedMesh = _ownedSealMesh;
+            var sealRenderer = _seal.GetComponent<MeshRenderer>();
+            _sourceSealMaterial = sealRenderer.sharedMaterial;
+            _handprintMaterial = new Material(_sourceSealMaterial) { name = "Invitation handprint glow" };
+            _handprintMaterial.EnableKeyword("_EMISSION");
+            _handprintMaterial.SetFloat("_Cull", 0);
+            _handprintMaterial.SetColor("_BaseColor", new Color(.45f, 1, .83f));
+            sealRenderer.sharedMaterial = _handprintMaterial;
+            _sourceSealScale = _seal.localScale;
+            _seal.localScale = new Vector3(.12f, .16f, .008f);
             _restScale = _bookVisual.localScale;
             _sealRestScale = _seal.localScale;
             _bookRestPosition = _bookVisual.localPosition;
@@ -131,7 +145,9 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
                 if (candidate != _hold.HandId) _contactAudio.Stop();
                 if (_hold.Step(candidate, seconds, _theme.PalmHoldSeconds)) Commit(VisitorPrologueInputModality.PalmHold);
                 _bookVisual.localScale = _restScale * (1f + .035f * _hold.Progress);
-                _seal.localScale = _sealRestScale * (1f + .35f * _hold.Progress);
+                _seal.localScale = _sealRestScale * (1f + .04f * Mathf.Sin(_appearElapsed * 3));
+                var glow = 1.15f + .4f * Mathf.Sin(_appearElapsed * 3) + _hold.Progress * 2;
+                _handprintMaterial.SetColor("_EmissionColor", new Color(.22f, .9f, .62f) * glow);
                 if (_available && _hold.Progress > 0f)
                 {
                     _contactAudio.volume = .55f + .4f * _hold.Progress;
@@ -172,7 +188,7 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             if (_normals.Length == _vertices.Length) _ownedMesh.normals = _foldedNormals;
             _ownedMesh.RecalculateBounds();
         }
-        static Mesh CreateLeafSeal()
+        static Mesh CreateHandprint()
         {
             var vertices = new System.Collections.Generic.List<Vector3>();
             var triangles = new System.Collections.Generic.List<int>();
@@ -183,23 +199,33 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
                 vertices.Add(a - n); vertices.Add(a + n); vertices.Add(b + n); vertices.Add(b - n);
                 triangles.AddRange(new[] { index, index + 2, index + 1, index, index + 3, index + 2 });
             }
-            for (int side = -1; side <= 1; side += 2)
+            // Recognisable open palm: four separate rounded fingers, an outward
+            // thumb and a wrist. The mesh lies on the actual contact plane.
+            var contour = new System.Collections.Generic.List<Vector3>
             {
-                var previous = new Vector3(0, -.5f, 0);
-                for (int i = 1; i <= 24; i++)
+                new Vector3(-.18f, -.48f), new Vector3(.18f, -.48f),
+                new Vector3(.20f, -.29f), new Vector3(.32f, -.14f)
+            };
+            void Finger(float x, float top, float bottom)
+            {
+                const float radius = .054f;
+                contour.Add(new Vector3(x + radius, bottom));
+                for (int i = 0; i <= 12; i++)
                 {
-                    var t = i / 24f;
-                    var next = new Vector3(side * .42f * Mathf.Sin(Mathf.PI * t), t - .5f, 0);
-                    Line(previous, next, .013f); previous = next;
+                    float angle = i * Mathf.PI / 12;
+                    contour.Add(new Vector3(x + Mathf.Cos(angle) * radius, top + Mathf.Sin(angle) * radius));
                 }
-                for (int i = 1; i <= 3; i++)
-                {
-                    var y = -.36f + i * .19f;
-                    Line(new Vector3(0, y - .10f, 0), new Vector3(side * .29f, y + .08f, 0), .009f);
-                }
+                contour.Add(new Vector3(x - radius, bottom));
             }
-            Line(new Vector3(0, -.55f, 0), new Vector3(0, .45f, 0), .012f);
-            var mesh = new Mesh { name = "Invitation leaf outline" };
+            Finger(.267f, .23f, -.02f); Finger(.11f, .40f, .05f);
+            Finger(-.05f, .48f, .08f); Finger(-.21f, .37f, -.12f);
+            contour.AddRange(new[] { new Vector3(-.35f, .01f), new Vector3(-.43f, .05f),
+                new Vector3(-.48f, .015f), new Vector3(-.47f, -.04f),
+                new Vector3(-.35f, -.27f), new Vector3(-.20f, -.37f) });
+            for (int i = 0; i < contour.Count; i++) Line(contour[i], contour[(i + 1) % contour.Count], .014f);
+            Line(new Vector3(-.14f, -.13f), new Vector3(.12f, -.09f), .009f);
+            Line(new Vector3(-.13f, -.19f), new Vector3(.08f, -.25f), .009f);
+            var mesh = new Mesh { name = "Invitation open palm handprint" };
             mesh.SetVertices(vertices); mesh.SetTriangles(triangles, 0); mesh.RecalculateNormals(); mesh.RecalculateBounds();
             return mesh;
         }
@@ -210,6 +236,13 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             PresentHidden();
             if (_bookMesh != null) _bookMesh.sharedMesh = _sourceMesh;
             if (_sealFilter != null) _sealFilter.sharedMesh = _sourceSealMesh;
+            if (_seal != null)
+            {
+                _seal.localScale = _sourceSealScale;
+                _seal.GetComponent<MeshRenderer>().sharedMaterial = _sourceSealMaterial;
+            }
+            if (_handprintMaterial != null) Release(_handprintMaterial);
+            _handprintMaterial = null;
             if (Application.isPlaying) Destroy(_ownedSealMesh); else DestroyImmediate(_ownedSealMesh);
             _ownedSealMesh = null;
             if (Application.isPlaying) Destroy(_ownedMesh); else DestroyImmediate(_ownedMesh);

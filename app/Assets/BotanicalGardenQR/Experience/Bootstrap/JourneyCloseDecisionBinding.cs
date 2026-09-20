@@ -54,6 +54,7 @@ namespace BotanicalGardenQR.Bootstrap
             if (_disposed || fact == null) return;
             _lastOpened = fact;
             _lastClosed = null;
+            _prompts.SetClosedContentRequiresLearning(!_collectionsEnabled && ClinicalCourseScenes.Contains(fact.SceneId.Value));
             _prompts.SetClosedContentContext(string.Empty);
             _prompts.ClearJourneyPrompt();
             _journey.AcceptContentOpened(fact);
@@ -89,6 +90,16 @@ namespace BotanicalGardenQR.Bootstrap
             PresentDispatchResult(result);
         }
 
+        public void AcceptClinicalLessonCompleted(SessionToken contentSession)
+        {
+            var closed = _lastClosed;
+            if (_disposed || closed == null || closed.ContentSession != contentSession ||
+                !ClinicalCourseScenes.Contains(closed.SceneId.Value) || !IsSameContent(_lastOpened, closed)) return;
+            AcceptObservationCompleted(new ObservationCompletedFact(closed.ContentSession,
+                closed.JourneySession, closed.SceneId, ObservationCompletionKind.Confirmation,
+                "clinical-picture:" + closed.SceneId.Value));
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
@@ -103,6 +114,7 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if (_disposed) return;
             var closed = _lastClosed;
+            if (!_collectionsEnabled && ClinicalCourseScenes.Contains(closed?.SceneId.Value)) return;
             var state = _journey.CurrentState;
             if (closed == null || !IsSameContent(_lastOpened, closed) ||
                 closed.JourneySession != state.Session)
@@ -151,6 +163,7 @@ namespace BotanicalGardenQR.Bootstrap
             }
 
             // The guidance owner presents the next geometric leg. No plant is selected here.
+            _prompts.CompleteClosedContent();
             _prompts.ClearJourneyPrompt();
         }
 

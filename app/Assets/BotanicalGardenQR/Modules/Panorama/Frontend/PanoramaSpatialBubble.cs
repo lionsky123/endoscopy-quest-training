@@ -437,7 +437,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             canvasGroup.blocksRaycasts = true;
 
             var buttonRect = CreateRect(canvasRect, "SpatialButton", Vector2.one * GazeSurfacePixels);
-            var button = buttonRect.gameObject.AddComponent<BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton>();
+            var button = buttonRect.gameObject.AddComponent<Button>();
             button.transition = Selectable.Transition.None;
             button.navigation = new Navigation { mode = Navigation.Mode.None };
 

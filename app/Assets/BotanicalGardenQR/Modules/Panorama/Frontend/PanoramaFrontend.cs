@@ -29,6 +29,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         SessionToken _session;
         bool _bound;
         bool _clinicalLearning;
+        float _panoramaYaw;
         Texture _clinicalTexture;
         IReadOnlyList<Texture> _teachingComparisons;
 
@@ -48,7 +49,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
             bool clinicalLearning = false,
             Texture clinicalTexture = null,
             IReadOnlyList<Texture> teachingComparisons = null,
-            Action requestClinicalCompletion = null)
+            Action requestClinicalCompletion = null,
+            float panoramaYaw = 0)
         {
             if (!session.IsValid) throw new ArgumentException("A valid session is required.", nameof(session));
             _gazeSurfaces = gazeSurfaces ?? throw new ArgumentNullException(nameof(gazeSurfaces));
@@ -65,6 +67,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 : null;
             _session = session;
             _clinicalLearning = clinicalLearning;
+            _panoramaYaw = panoramaYaw;
             _clinicalTexture = clinicalTexture;
             _teachingComparisons = teachingComparisons;
             _requestClinicalCompletion = requestClinicalCompletion;
@@ -147,7 +150,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 clinicalLearning: _clinicalLearning,
                 clinicalTexture: _clinicalTexture,
                 teachingComparisons: _teachingComparisons,
-                requestClinicalCompletion: _requestClinicalCompletion);
+                requestClinicalCompletion: _requestClinicalCompletion,
+                panoramaYaw: _panoramaYaw);
         }
 
         void HandleExitSelected()

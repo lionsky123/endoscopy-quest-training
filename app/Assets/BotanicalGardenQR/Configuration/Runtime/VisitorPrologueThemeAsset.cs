@@ -55,7 +55,7 @@ namespace BotanicalGardenQR.Configuration.Runtime
     public sealed class VisitorPrologueThemeAsset : ScriptableObject
     {
         [SerializeField] GameObject _presentationPrefab;
-        [SerializeField, Range(.45f, .65f)] float _viewerDistance = .55f;
+        [SerializeField, Range(.45f, .65f)] float _viewerDistance = .45f;
         [SerializeField] float _verticalOffset = -.08f;
         [SerializeField] float _minimumStandingPanelCenterHeight = 1.35f;
         [SerializeField] float _initialPlacementDelaySeconds = .18f;

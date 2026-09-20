@@ -33,6 +33,15 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         Vector3 _lastTargetNormal;
         readonly HashSet<long> _inputSuspensions = new HashSet<long>();
         long _nextSuspensionId;
+        public bool HandOnly { get; private set; }
+        public void SetHandOnly(bool handOnly)
+        {
+            HandOnly = handOnly;
+            ResetInteractionState();
+            if (!handOnly) return;
+            _reticlePresenter?.SetPresentationEnabled(false);
+            foreach (var binding in _gazeSurfaces.Values) ClinicalNearTouch.Bind(binding.Canvas.transform);
+        }
 
         public void Configure(Camera camera, EventSystem eventSystem, GazeReticlePresenter reticlePresenter = null)
         {
@@ -98,30 +107,18 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
             var binding = CreateCanvasBinding(surfaceRoot, priority, label);
             binding.Canvas.worldCamera = _camera;
+            if (HandOnly) ClinicalNearTouch.Bind(surfaceRoot);
             var id = ++_nextSurfaceId;
             _gazeSurfaces.Add(id, binding);
             ResetInteractionState();
             return new GazeSurfaceRegistration(this, id);
         }
 
-        float _nextNearBinding;
-        void Update()
-        {
-            if (_eventSystem != null) _eventSystem.sendNavigationEvents = false;
-            if (Time.unscaledTime >= _nextNearBinding)
-            {
-                _nextNearBinding = Time.unscaledTime + .25f;
-                foreach (var binding in _gazeSurfaces.Values)
-                    if (binding.Canvas != null) ClinicalNearTouch.Bind(binding.Canvas.transform, () => isActiveAndEnabled && _inputSuspensions.Count == 0);
-            }
-            ResetInteractionState();
-            if (ClinicalNearTouch.Focused != null)
-                _focusedSurfaceId = ResolveSurfaceId(ClinicalNearTouch.Focused.Button);
-        }
+        void Update() => TickInput(Time.unscaledDeltaTime);
 
         internal void TickInput(float unscaledDeltaTime)
         {
-            if (!isActiveAndEnabled || _camera == null || _eventSystem == null || _inputSuspensions.Count != 0)
+            if (HandOnly || !isActiveAndEnabled || _camera == null || _eventSystem == null || _inputSuspensions.Count != 0)
             {
                 ResetInteractionState();
                 return;

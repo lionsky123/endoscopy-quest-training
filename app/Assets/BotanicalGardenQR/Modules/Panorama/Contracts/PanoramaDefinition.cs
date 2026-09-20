@@ -29,6 +29,8 @@ namespace BotanicalGardenQR.Panorama.Contracts
     }
     public sealed class PanoramaDefinition
     {
+        // Shared by the background mesh and hand-held optical sampling.
+        public const float RadiusMetres = 2.8f;
         readonly ReadOnlyCollection<PanoramaEnvironmentMomentDefinition> _environmentMoments;
         public IReadOnlyList<Texture> TeachingComparisons { get; }
 

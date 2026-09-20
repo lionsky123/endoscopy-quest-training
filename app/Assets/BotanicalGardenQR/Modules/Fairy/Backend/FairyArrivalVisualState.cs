@@ -24,7 +24,6 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         internal FairyArrivalVisualState(OVRPassthroughLayer passthroughLayer, Light environmentLight)
         {
-            if (passthroughLayer == null) throw new ArgumentNullException(nameof(passthroughLayer));
             if (environmentLight == null) throw new ArgumentNullException(nameof(environmentLight));
             _passthrough = passthroughLayer;
             _light = environmentLight;
@@ -34,23 +33,26 @@ namespace BotanicalGardenQR.Fairy.Backend
         {
             if (_captured)
                 throw new InvalidOperationException("Fairy arrival render state is already captured.");
-            _premultipliedAlphaEnabled = OVRManager.eyeFovPremultipliedAlphaModeEnabled;
-            _edgeEnabled = _passthrough.edgeRenderingEnabled;
-            _edgeColor = _passthrough.edgeColor;
-            _mapType = _passthrough.colorMapEditorType;
-            _brightness = _passthrough.colorMapEditorBrightness;
-            _contrast = _passthrough.colorMapEditorContrast;
-            _saturation = _passthrough.colorMapEditorSaturation;
-            _posterize = _passthrough.colorMapEditorPosterize;
-            _gradient = _passthrough.colorMapEditorGradient;
-            _canGrade = _mapType == OVRPassthroughLayer.ColorMapEditorType.None ||
-                _mapType == OVRPassthroughLayer.ColorMapEditorType.ColorAdjustment ||
-                _mapType == OVRPassthroughLayer.ColorMapEditorType.Grayscale ||
-                _mapType == OVRPassthroughLayer.ColorMapEditorType.GrayscaleToColor;
+            if (_passthrough != null)
+            {
+                _premultipliedAlphaEnabled = OVRManager.eyeFovPremultipliedAlphaModeEnabled;
+                _edgeEnabled = _passthrough.edgeRenderingEnabled;
+                _edgeColor = _passthrough.edgeColor;
+                _mapType = _passthrough.colorMapEditorType;
+                _brightness = _passthrough.colorMapEditorBrightness;
+                _contrast = _passthrough.colorMapEditorContrast;
+                _saturation = _passthrough.colorMapEditorSaturation;
+                _posterize = _passthrough.colorMapEditorPosterize;
+                _gradient = _passthrough.colorMapEditorGradient;
+                _canGrade = _mapType == OVRPassthroughLayer.ColorMapEditorType.None ||
+                    _mapType == OVRPassthroughLayer.ColorMapEditorType.ColorAdjustment ||
+                    _mapType == OVRPassthroughLayer.ColorMapEditorType.Grayscale ||
+                    _mapType == OVRPassthroughLayer.ColorMapEditorType.GrayscaleToColor;
+            }
             _lightColor = _light.color;
             _lightIntensity = _light.intensity;
             _captured = true;
-            OVRManager.eyeFovPremultipliedAlphaModeEnabled = false;
+            if (_passthrough != null) OVRManager.eyeFovPremultipliedAlphaModeEnabled = false;
         }
 
         internal void SetWorldShift(float amount)
@@ -86,7 +88,7 @@ namespace BotanicalGardenQR.Fairy.Backend
         internal void Restore()
         {
             if (!_captured) return;
-            OVRManager.eyeFovPremultipliedAlphaModeEnabled = _premultipliedAlphaEnabled;
+            if (_passthrough != null) OVRManager.eyeFovPremultipliedAlphaModeEnabled = _premultipliedAlphaEnabled;
             if (_passthrough != null)
             {
                 if (_canGrade)

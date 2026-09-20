@@ -1,6 +1,6 @@
 {
     "name": "BotanicalGardenQR.Panorama.Frontend",
     "rootNamespace": "BotanicalGardenQR.Panorama.Frontend",
-    "references": ["BotanicalGardenQR.Panorama.Contracts", "BotanicalGardenQR.FrontendShell.Contracts", "BotanicalGardenQR.FrontendShell.Runtime", "BotanicalGardenQR.Experience.Contracts", "Unity.TextMeshPro", "Unity.ugui"],
+    "references": ["BotanicalGardenQR.Panorama.Contracts", "BotanicalGardenQR.FrontendShell.Contracts", "BotanicalGardenQR.FrontendShell.Runtime", "BotanicalGardenQR.Experience.Contracts", "BotanicalGardenQR.Configuration.Runtime", "BotanicalGardenQR.VisitorCoach.Frontend", "Unity.TextMeshPro", "Unity.ugui"],
     "autoReferenced": true
 }

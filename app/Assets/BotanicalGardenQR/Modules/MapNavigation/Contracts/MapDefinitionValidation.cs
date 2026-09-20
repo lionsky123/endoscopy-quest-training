@@ -10,6 +10,8 @@ namespace BotanicalGardenQR.MapNavigation.Contracts
             if (d == null || string.IsNullOrWhiteSpace(d.mapId) || !d.start.IsFinite || !Positive(d.scale) || !Positive(d.speed) || !Positive(d.waitDistance) || !Positive(d.resumeDistance) || d.resumeDistance >= d.waitDistance || !Positive(d.departureRadius) || d.points == null || d.points.Length == 0 || d.routes == null || d.routes.Length != d.points.Length)
                 throw new ArgumentException("Invalid map definition or motion limits.");
             var ids = new HashSet<string>(StringComparer.Ordinal);
+            if (!Positive(d.fairyJoinRadius))
+                throw new ArgumentException("Invalid fairy route joining distance.");
             for (var i = 0; i < d.points.Length; i++)
             {
                 var p = d.points[i];

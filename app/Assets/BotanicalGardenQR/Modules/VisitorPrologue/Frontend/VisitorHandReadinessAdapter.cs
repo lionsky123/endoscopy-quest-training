@@ -1,7 +1,9 @@
 using System;
 using BotanicalGardenQR.VisitorPrologue.Contracts;
 using Oculus.Interaction.Input;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BotanicalGardenQR.VisitorPrologue.Frontend
 {
@@ -20,21 +22,26 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         float _reliableDuration;
         float _lostDuration;
         float _noHandDuration;
-        float _gazeFallbackDelay;
+        Transform _viewer;
+        TMP_FontAsset _font;
+        GameObject _trackingNotice;
         bool _reportedReliable;
         bool _configured;
 
         public void Configure(
             Transform interactionRigRoot,
             IVisitorPrologue prologue,
-            float gazeFallbackDelaySeconds)
+            float gazeFallbackDelaySeconds,
+            Transform viewer = null,
+            TMP_FontAsset font = null)
         {
             if (_configured) throw new InvalidOperationException("Hand readiness adapter is already configured.");
             if (interactionRigRoot == null) throw new ArgumentNullException(nameof(interactionRigRoot));
             _prologue = prologue ?? throw new ArgumentNullException(nameof(prologue));
             if (gazeFallbackDelaySeconds <= 0f || float.IsNaN(gazeFallbackDelaySeconds) || float.IsInfinity(gazeFallbackDelaySeconds))
                 throw new ArgumentOutOfRangeException(nameof(gazeFallbackDelaySeconds));
-            _gazeFallbackDelay = gazeFallbackDelaySeconds;
+            _viewer = viewer;
+            _font = font;
             _hands = interactionRigRoot.GetComponentsInChildren<Hand>(true);
             if (_hands.Length == 0)
                 throw new InvalidOperationException("The configured Interaction SDK rig contains no current-SDK Hand data sources.");
@@ -51,6 +58,14 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             _lostDuration = 0f;
             _noHandDuration = 0f;
             _reportedReliable = false;
+            _viewer = null;
+            _font = null;
+            if (_trackingNotice)
+            {
+                if (Application.isPlaying) Destroy(_trackingNotice);
+                else DestroyImmediate(_trackingNotice);
+                _trackingNotice = null;
+            }
             enabled = false;
         }
 
@@ -58,19 +73,35 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         {
             if (!_configured || _prologue == null) return;
             var reliableNow = false;
+            var sourcesActive = false;
             for (var index = 0; index < _hands.Length; index++)
             {
                 var hand = _hands[index];
-                if (hand != null && hand.IsConnected && hand.IsTrackedDataValid && hand.IsHighConfidence)
+                sourcesActive |= hand != null && hand.isActiveAndEnabled;
+                if (hand != null && hand.isActiveAndEnabled && hand.IsConnected && hand.IsTrackedDataValid && hand.IsHighConfidence)
                 {
                     reliableNow = true;
                     break;
                 }
             }
 
+            // The world-tracking guard disables the interaction rig and owns its
+            // recovery notice. Do not stack a hand notice over that interruption.
+            if (!sourcesActive)
+            {
+                _noHandDuration = _reliableDuration = _lostDuration = 0f;
+                SetTrackingNoticeVisible(false);
+                return;
+            }
+            UpdateAvailability(reliableNow, Time.unscaledDeltaTime);
+        }
+
+        void UpdateAvailability(bool reliableNow, float seconds)
+        {
+            seconds = Mathf.Max(0, seconds);
             if (reliableNow)
             {
-                _reliableDuration += Time.unscaledDeltaTime;
+                _reliableDuration += seconds;
                 _lostDuration = 0f;
                 _noHandDuration = 0f;
                 // Retry starts a new prologue epoch with an intentionally empty
@@ -86,18 +117,55 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             else
             {
                 _reliableDuration = 0f;
-                _lostDuration += Time.unscaledDeltaTime;
-                _noHandDuration += Time.unscaledDeltaTime;
+                _lostDuration += seconds;
+                _noHandDuration += seconds;
                 if (_reportedReliable && _lostDuration >= _lostGraceSeconds)
                 {
                     _reportedReliable = false;
                     _prologue.ReportHandAvailability(false);
                 }
-                // Endoscopy retains real hands as the only invitation input.
+                // VR uses tracked hands throughout; loss of tracking must never enable a second input mode.
             }
 
-            if (_prologue.CurrentState.IsExplorationReady) enabled = false;
+            var phase = _prologue.CurrentState.Phase;
+            // Invitation already carries this instruction. Continue monitoring after
+            // the encounter, when every lesson and departure still depends on hands.
+            var showNotice = !reliableNow && _noHandDuration >= 2f &&
+                (phase == VisitorProloguePhase.Encounter || phase == VisitorProloguePhase.ExplorationIdle);
+            SetTrackingNoticeVisible(showNotice);
         }
+
+        void SetTrackingNoticeVisible(bool visible)
+        {
+            if (!visible) { if (_trackingNotice) _trackingNotice.SetActive(false); return; }
+            if (!_viewer || !_font || (_trackingNotice && _trackingNotice.activeSelf)) return;
+            if (!_trackingNotice)
+            {
+                _trackingNotice = new GameObject("HandTrackingRecoveryNotice", typeof(RectTransform), typeof(Canvas), typeof(Image));
+                var rect = (RectTransform)_trackingNotice.transform;
+                rect.sizeDelta = new Vector2(800, 110);
+                var canvas = _trackingNotice.GetComponent<Canvas>();
+                canvas.renderMode = RenderMode.WorldSpace; canvas.overrideSorting = true; canvas.sortingOrder = 600;
+                canvas.worldCamera = _viewer.GetComponent<Camera>();
+                var background = _trackingNotice.GetComponent<Image>();
+                background.color = new Color(.025f, .04f, .06f, .96f); background.raycastTarget = false;
+                var label = new GameObject("RecoveryMessage", typeof(RectTransform), typeof(TextMeshProUGUI));
+                label.transform.SetParent(rect, false);
+                ((RectTransform)label.transform).sizeDelta = new Vector2(760, 90);
+                var text = label.GetComponent<TextMeshProUGUI>();
+                text.font = _font; text.fontSize = 28; text.color = Color.white;
+                text.alignment = TextAlignmentOptions.Center; text.raycastTarget = false;
+                text.text = "暂未识别到双手\n请把双手放到视野前方，恢复后继续。";
+            }
+            var forward = Vector3.ProjectOnPlane(_viewer.forward, Vector3.up);
+            if (forward.sqrMagnitude < .001f) forward = Vector3.forward;
+            var position = _viewer.position + forward.normalized * .55f + Vector3.up * .26f;
+            _trackingNotice.transform.SetPositionAndRotation(position, Quaternion.LookRotation(position - _viewer.position, Vector3.up));
+            _trackingNotice.transform.localScale = Vector3.one * .0005f;
+            _trackingNotice.SetActive(true);
+        }
+
+        void OnDisable() => SetTrackingNoticeVisible(false);
 
         internal int FindPalmAtSeal(Transform seal, float radius, float alignment, int preferredHand)
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.FrontendShell.Contracts;
 using BotanicalGardenQR.FrontendShell.Runtime;
@@ -14,9 +15,10 @@ namespace BotanicalGardenQR.Tests.EditMode.FrontendShell
     public sealed class HeadGazeDwellControllerLifecycleTests
     {
         [Test]
-        public void ProductionDialogueCanRegisterWithRealGazeInputAndShowItsFirstPage()
+        public void ProductionDialogueUsesGazeWithoutMovingOrRepeatingAcrossPages()
         {
             using var fixture = Fixture.Create();
+            fixture.Surface.SetActive(false);
             var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(
                 "Assets/BotanicalGardenQR/Content/Authoring/VisitorCoachTheme.asset");
             var defaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(
@@ -30,11 +32,52 @@ namespace BotanicalGardenQR.Tests.EditMode.FrontendShell
                 presenter.SetInputMode(VisitorDialogueInputMode.HeadGaze);
                 var page = new VisitorDialogueSurfaceState(1, new VisitorDialogueContextId("startup-regression"),
                     VisitorDialogueOwner.Prologue, VisitorDialogueSurfaceMode.Dialogue,
-                    "探索教学", "小精灵", "把准星对准按钮，保持到圆环填满。", 0, 1);
+                    "探索教学", "小精灵", "把准星对准按钮，保持到圆环填满。", 0, 2);
                 presenter.Present(page);
                 Assert.That(presenter.CurrentState, Is.SameAs(page));
                 Assert.That(presenter.gameObject.activeInHierarchy, Is.True);
                 Assert.That(presenter.BodyCharacterCount, Is.GreaterThan(0));
+                var continueButton = (Button)typeof(VisitorCoachPresenter).GetField("_continueButton",
+                    BindingFlags.Instance | BindingFlags.NonPublic).GetValue(presenter);
+                var readyAt = typeof(VisitorCoachPresenter).GetField("_inputReadyAt",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                // EditMode has no wall-clock frame advance; bypass only the initial debounce clock.
+                readyAt.SetValue(presenter, -1f);
+                presenter.Tick(1f);
+                Canvas.ForceUpdateCanvases();
+                var position = presenter.transform.position;
+                var rotation = presenter.transform.rotation;
+                var targetPosition = continueButton.transform.position;
+                var confirmations = 0;
+                presenter.IntentRequested += _ =>
+                {
+                    confirmations++;
+                    if (confirmations != 1) return;
+                    presenter.Present(new VisitorDialogueSurfaceState(2, page.Context,
+                        VisitorDialogueOwner.Prologue, VisitorDialogueSurfaceMode.Dialogue,
+                        "探索教学", "小精灵", "现在我们跟着路线走。", 1, 2));
+                    readyAt.SetValue(presenter, -1f);
+                };
+                fixture.Viewer.transform.position += Vector3.forward * .1f;
+                fixture.Viewer.transform.LookAt(continueButton.transform.position);
+                fixture.Controller.TickInput(.3f);
+                Assert.That(confirmations, Is.Zero);
+                Assert.That(continueButton.transform.position, Is.EqualTo(targetPosition),
+                    "Focus feedback must not move the button hit plane.");
+                fixture.Controller.TickInput(.4f);
+                Assert.That(confirmations, Is.EqualTo(1));
+                fixture.Controller.TickInput(2f);
+                Assert.That(confirmations, Is.EqualTo(1), "Holding gaze across a page refresh cannot advance again.");
+                Assert.That(presenter.transform.position, Is.EqualTo(position));
+                Assert.That(Quaternion.Angle(presenter.transform.rotation, rotation), Is.LessThan(.001f));
+                foreach (var poke in instance.GetComponentsInChildren<VisitorDialoguePointableTarget>(true))
+                    foreach (var collider in poke.GetComponents<Collider>())
+                        Assert.That(collider.enabled, Is.False, "A gaze panel must not also submit hand pokes.");
+                fixture.Viewer.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                fixture.Controller.TickInput(.25f);
+                fixture.Viewer.transform.LookAt(continueButton.transform.position);
+                fixture.Controller.TickInput(.7f);
+                Assert.That(confirmations, Is.EqualTo(2));
             }
             finally
             {

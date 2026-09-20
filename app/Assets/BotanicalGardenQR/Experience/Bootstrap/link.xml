@@ -1,0 +1,9 @@
+<linker>
+  <!-- Meta Core 205's public origin event omits the native ChangeTime. -->
+  <assembly fullname="Oculus.VR">
+    <type fullname="OVRManager" preserve="nothing">
+      <field name="eventDataBuffer" />
+    </type>
+    <type fullname="OVRDeserialize/EventDataReferenceSpaceChangePending" preserve="all" />
+  </assembly>
+</linker>

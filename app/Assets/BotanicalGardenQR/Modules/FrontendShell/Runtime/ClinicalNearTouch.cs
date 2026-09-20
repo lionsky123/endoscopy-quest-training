@@ -10,22 +10,25 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
     {
         public static ClinicalNearTouch Focused {get;private set;}
         public Button Button=>button;
+        public event System.Action<ClinicalNearTouch,bool> ContactChanged;
+        readonly System.Collections.Generic.HashSet<int> contacts=new System.Collections.Generic.HashSet<int>();
+        bool preserveGaze;
         Button button;RectTransform rect;BoundsClipper clip;PokeInteractable poke;Graphic graphic;Color rest;
         bool committed;int pointer;float readyAt;static float lastCommit;
         System.Func<bool> inputAllowed;
         bool CanPress=>button&&button.IsActive()&&button.IsInteractable()&&(inputAllowed==null||inputAllowed());
-        public static void Bind(Transform root,System.Func<bool> inputAllowed=null)
+        public static void Bind(Transform root,System.Func<bool> inputAllowed=null,bool preserveGaze=false)
         {
             foreach(var button in root.GetComponentsInChildren<Button>(true))
             {
                 button.navigation=new Navigation{mode=Navigation.Mode.None};
-                foreach(var graphic in button.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
+                if(!preserveGaze)foreach(var graphic in button.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
                 // Authored dialogue controls already own their Select handlers and surface.
                 var existing=button.GetComponent<ClinicalNearTouch>();
-                if(existing){existing.inputAllowed=inputAllowed;continue;}
+                if(existing){existing.inputAllowed=inputAllowed;existing.preserveGaze=preserveGaze;continue;}
                 if(button.GetComponentInChildren<PokeInteractable>(true))continue;
                 var touch=button.gameObject.AddComponent<ClinicalNearTouch>();
-                touch.inputAllowed=inputAllowed;touch.Initialize(button);
+                touch.inputAllowed=inputAllowed;touch.preserveGaze=preserveGaze;touch.Initialize(button);
             }
         }
         void Initialize(Button target)
@@ -37,20 +40,42 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             poke=gameObject.AddComponent<PokeInteractable>();poke.InjectAllPokeInteractable(surface);poke.WhenPointerEventRaised+=OnPointer;
         }
         void Resize(){if(clip&&rect){clip.Position=rect.rect.center;clip.Size=new Vector3(rect.rect.width,rect.rect.height,1);}}
-        void LateUpdate(){Resize();if(poke)poke.enabled=CanPress;}
-        void OnEnable(){readyAt=Time.unscaledTime+.35f;committed=false;}
+        void OnRectTransformDimensionsChange()=>Resize();
+        void LateUpdate(){Resize();if(!CanPress)ClearContacts();if(poke)poke.enabled=CanPress;}
+        void OnEnable(){Resize();readyAt=Time.unscaledTime+.35f;committed=false;}
         void OnPointer(PointerEvent e)
         {
+            // Releases can arrive after a page has hidden/disabled this button.
+            // Always rearm on withdrawal, before testing whether a new press is allowed.
+            if(pointer==e.Identifier&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unselect||e.Type==PointerEventType.Unhover))committed=false;
+            if(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover)
+            {
+                contacts.Remove(e.Identifier);
+                if(contacts.Count==0)ContactChanged?.Invoke(this,false);
+                if(Focused==this)Focused=null;
+            }
             if(!CanPress)return;
+            if(e.Type==PointerEventType.Hover||e.Type==PointerEventType.Select)
+            {
+                if(contacts.Add(e.Identifier)&&contacts.Count==1)ContactChanged?.Invoke(this,true);
+            }
             if(e.Type==PointerEventType.Hover||e.Type==PointerEventType.Select)Focused=this;
             if((e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover)&&Focused==this)Focused=null;
-            if(graphic&&(e.Type==PointerEventType.Hover||e.Type==PointerEventType.Select))graphic.color=Color.Lerp(rest,Color.white,e.Type==PointerEventType.Select?.34f:.16f);
-            if(graphic&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover))graphic.color=rest;
-            if(committed){if(pointer==e.Identifier&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unselect))committed=false;return;}
+            if(!preserveGaze&&(e.Type==PointerEventType.Hover||e.Type==PointerEventType.Select))RefreshVisual(.5f);
+            if(!preserveGaze&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover))RefreshVisual(0);
+            if(committed)return;
             if(e.Type!=PointerEventType.Select||Time.unscaledTime<readyAt||Time.unscaledTime-lastCommit<.35f)return;
             committed=true;pointer=e.Identifier;lastCommit=Time.unscaledTime;button.onClick.Invoke();
         }
-        void OnDisable(){committed=false;if(Focused==this)Focused=null;if(graphic)graphic.color=rest;}
+        void ClearContacts(){if(contacts.Count==0)return;contacts.Clear();ContactChanged?.Invoke(this,false);}
+        void RefreshVisual(float hover)
+        {
+            // Retain the session's selected/incorrect state after the finger withdraws.
+            foreach(var component in GetComponents<MonoBehaviour>())
+                if(component is BotanicalGardenQR.FrontendShell.Contracts.IFrontendGazeProgressPresenter visual) { visual.PresentGazeProgress(hover); return; }
+            if(graphic)graphic.color=Color.Lerp(rest,Color.white,hover*.32f);
+        }
+        void OnDisable(){committed=false;ClearContacts();if(Focused==this)Focused=null;if(!preserveGaze)RefreshVisual(0);}
         void OnDestroy(){if(poke)poke.WhenPointerEventRaised-=OnPointer;}
     }
 }

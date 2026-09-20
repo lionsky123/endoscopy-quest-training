@@ -16,6 +16,8 @@ namespace BotanicalGardenQR.Configuration.Runtime
         [SerializeField, Min(0f)] float _scanGazeLostGraceSeconds = 0.15f;
         [SerializeField, Min(0.1f)] float _videoPrepareTimeoutSeconds = 15f;
         [SerializeField] bool _fieldbookEnabled;
+        [SerializeField] bool _virtualRoomEnabled;
+        public bool VirtualRoomEnabled => _virtualRoomEnabled;
         [SerializeField, Min(.1f)] float _arrivalRadius = 1.2f;
         [SerializeField, Min(.1f)] float _arrivalExitRadius = 1.5f;
         [SerializeField, Min(.1f)] float _arrivalStableSeconds = .35f;

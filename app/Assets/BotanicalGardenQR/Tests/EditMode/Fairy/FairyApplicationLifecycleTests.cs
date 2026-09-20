@@ -123,14 +123,17 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
             UnityEngine.Object.DestroyImmediate(_speechClip);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void AuthoredFirstLegMovesActualFairyToFirstPoint(bool beginAfterDialogue)
+        [TestCase(false, 0f)]
+        [TestCase(true, 0f)]
+        [TestCase(true, 90f)]
+        [TestCase(true, 180f)]
+        public void AuthoredFirstLegMovesActualFairyToFirstPoint(bool beginAfterDialogue, float openingYaw)
         {
             var runtimeRoot = new GameObject("FairyRuntimeTestRoot");
             var viewer = new GameObject("FairyViewerTestRoot");
             var groundReference = new GameObject("FairyGroundReferenceTestRoot");
             viewer.transform.position = new Vector3(0f, 1.65f, 0f);
+            viewer.transform.rotation = Quaternion.Euler(0, openingYaw, 0);
             groundReference.transform.position = new Vector3(0f, 0.18f, 0f);
             var prefab = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/BotanicalGardenQR/Content/Shared/Fairy/Models/Oppy/OppyFairyGuide.prefab"));
@@ -173,8 +176,12 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
                     .Single(item => item.name == "FairyRuntimeInstance");
                 var definition = VisitorMapConfiguration.Resolve(AssetDatabase.LoadAssetAtPath<TextAsset>(
                     "Assets/BotanicalGardenQR/Content/Published/VisitorMapDefinition.json"));
+                var start = definition.start;
+                var origin = groundReference.transform.position - Quaternion.Euler(0, 90, 0) * new Vector3(start.x, start.y, start.z);
+                var roomFrame = new BotanicalGardenQR.MapNavigation.Contracts.MapFrame(
+                    new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(origin.x, origin.y, origin.z), 90, definition.scale);
                 using var navigation = new BotanicalGardenQR.MapNavigation.Runtime.MapNavigationController(
-                    definition, new ActualFairyMotion((IFairyMotion)binding, definition));
+                    definition, new FairyMapMotionSink((IFairyMotion)binding, definition), roomFrame);
                 for (int i = 0; i < 12; i++)
                     navigation.TryInitialize(new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(0, 1.65f, 0), 0, .18f, .02f);
                 var driver = instance.GetComponent<FairyOrbitDriver>();
@@ -282,7 +289,9 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
                 navigation.Begin(definition.points[1].id);
                 ((IFairyMotion)binding).ReleaseMotion(oldRequest);
                 binding.PresentCue(FairyCompanionCue.Idle);
-                for (int i = 0; i < 170; i++)
+                // Include the 2.2 m cue return plus turning at the published walking speed.
+                var cueReturnFrames = Mathf.CeilToInt((2.2f / definition.speed + 2f) / .02f);
+                for (int i = 0; i < cueReturnFrames; i++)
                 {
                     viewer.transform.position = instance.position + new Vector3(.5f, 1.65f, 0);
                     navigation.Tick(new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(viewer.transform.position.x, 1.65f, viewer.transform.position.z), true, false, .02f);
@@ -312,13 +321,29 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
                     driver.Tick(.02f);
                     Assert.That(instance.position, Is.EqualTo(before), "An unrelated remaining reading blocker must keep restoration paused.");
                 }
-                for (int i = 0; i < 180; i++)
+                for (int i = 0; i < cueReturnFrames; i++)
                 {
                     viewer.transform.position = instance.position + new Vector3(.5f, 1.65f, 0);
                     navigation.Tick(new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(viewer.transform.position.x, 1.65f, viewer.transform.position.z), true, false, .02f);
                     driver.Tick(.02f);
                 }
                 Assert.That(navigation.State.Progress, Is.GreaterThan(savedProgress));
+
+                // Run the remaining published legs through the production adapter and driver.
+                for (var leg = 1; leg < definition.points.Length; leg++)
+                {
+                    if (leg > 1) Assert.That(navigation.Begin(definition.points[leg].id), Is.True);
+                    for (var frame = 0; frame < 3000 && navigation.State.Phase != BotanicalGardenQR.MapNavigation.Contracts.MapNavigationPhase.Arrived; frame++)
+                    {
+                        var before = instance.position;
+                        viewer.transform.position = before + new Vector3(.5f, 1.65f, 0);
+                        navigation.Tick(new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(
+                            viewer.transform.position.x, viewer.transform.position.y, viewer.transform.position.z), true, false, .02f);
+                        driver.Tick(.02f);
+                        Assert.That(Vector3.Distance(before, instance.position), Is.LessThanOrEqualTo(definition.speed * .02f + .001f));
+                    }
+                    Assert.That(navigation.State.Phase, Is.EqualTo(BotanicalGardenQR.MapNavigation.Contracts.MapNavigationPhase.Arrived), definition.points[leg].id);
+                }
 
             }
             finally
@@ -466,24 +491,6 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
             readonly Action<FairyState> _publish;
             public ArrivalStateSink(Action<FairyState> publish) => _publish = publish;
             public void Publish(FairyState state) => _publish(state);
-        }
-
-        sealed class ActualFairyMotion : BotanicalGardenQR.MapNavigation.Contracts.IMapMotionSink
-        {
-            readonly IFairyMotion _fairy;
-            readonly BotanicalGardenQR.MapNavigation.Contracts.MapDefinition _definition;
-            public ActualFairyMotion(IFairyMotion fairy, BotanicalGardenQR.MapNavigation.Contracts.MapDefinition definition)
-            { _fairy = fairy; _definition = definition; }
-            public bool TryGetPosition(out BotanicalGardenQR.MapNavigation.Contracts.MapPosition position)
-            {
-                var valid = _fairy.TryGetMotionPosition(out var p);
-                position = new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(p.x, p.y, p.z);
-                return valid;
-            }
-            public bool Apply(long id, BotanicalGardenQR.MapNavigation.Contracts.MapPosition p, BotanicalGardenQR.MapNavigation.Contracts.MapPosition f, bool moving)
-                => _fairy.ApplyMotion(id, new Vector3(p.x,p.y,p.z), new Vector3(f.x,f.y,f.z), moving, _definition.departureRadius, _definition.speed);
-            public void Hold(long id) => _fairy.HoldMotion(id);
-            public void Release(long id) => _fairy.ReleaseMotion(id);
         }
 
         [Test]
@@ -778,7 +785,8 @@ namespace BotanicalGardenQR.Tests.EditMode.Fairy
                     Is.EqualTo(originalPremultipliedAlpha));
                 var runtimeController = (FairyController)controller;
                 Assert.That(binding.Speak(new FairySpeech(_speechClip)).FailureCode,
-                    Is.EqualTo(FairyFailureCode.AudioUnavailable));
+                    Is.EqualTo(_speechClip.length > 0 ? FairyFailureCode.AudioUnavailable : FairyFailureCode.InvalidSpeech),
+                    "The muted editor may create a zero-length clip; both cases must reject playback.");
                 Assert.That(runtimeController.SpeechPlayCount, Is.Zero,
                     "EditMode must not count a request as actual audio playback.");
                 Assert.That(runtimeController.LastSpeechClip, Is.Null);

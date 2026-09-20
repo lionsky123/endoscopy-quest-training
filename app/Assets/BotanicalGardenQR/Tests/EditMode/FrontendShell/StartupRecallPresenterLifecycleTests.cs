@@ -13,6 +13,42 @@ namespace BotanicalGardenQR.Tests.EditMode.FrontendShell
     public sealed class StartupRecallPresenterLifecycleTests
     {
         [Test]
+        public void UnfinishedPictureLessonOnlyOffersRestartAndConsumesItsCloseDecision()
+        {
+            using var fixture = new Fixture();
+            int quizzes = 0, skips = 0;
+            fixture.Presenter.ObservationCompletionRequested += () => quizzes++;
+            fixture.Presenter.SkipQuizAndCollectRequested += () => skips++;
+            fixture.Presenter.SetClosedContentRequiresLearning(true);
+            var buttons = fixture.Root.GetComponentsInChildren<Button>();
+            Assert.That(buttons, Has.Length.EqualTo(1));
+            Assert.That(buttons[0].GetComponentInChildren<TMP_Text>().text, Is.EqualTo("重新进入学习"));
+            fixture.Presenter.BeginClosedContentQuiz();
+            Assert.That(quizzes + skips, Is.Zero);
+            fixture.Presenter.CompleteClosedContent();
+            fixture.Recall.Publish(Closed(2));
+            Assert.That(fixture.Root.activeSelf, Is.False);
+            Assert.That(fixture.Presenter.IsCloseDecisionVisible, Is.False);
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void VisiblePanelKeepsItsPoseWhenAnActionRefreshesStatus(bool journeyStatus)
+        {
+            using var fixture = new Fixture();
+            var position = fixture.Root.transform.position;
+            var rotation = fixture.Root.transform.rotation;
+            // Leaning forward while reaching must not push an already visible panel away.
+            fixture.Viewer.transform.position += Vector3.forward * .35f;
+            fixture.Viewer.transform.rotation = Quaternion.Euler(0, 35, 0);
+            if (journeyStatus) fixture.Presenter.ShowJourneyStatus("请继续观察");
+            else fixture.Recall.Publish(Closed(2));
+            InvokeLifecycle(fixture.Presenter, "Update");
+            Assert.That(Vector3.Distance(fixture.Root.transform.position, position), Is.LessThan(.001f),
+                "Status feedback after interaction must not relocate the visible panel away from the visitor.");
+            Assert.That(Quaternion.Angle(fixture.Root.transform.rotation, rotation), Is.LessThan(.01f));
+        }
+
+        [Test]
         public void PrimeDoesNotRequireRecallOrActivateTheSurface()
         {
             using var fixture = new Fixture(false);

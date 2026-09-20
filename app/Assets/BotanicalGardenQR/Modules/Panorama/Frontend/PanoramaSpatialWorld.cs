@@ -24,7 +24,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         readonly PanoramaSpatialWorldTicker _ticker;
         readonly GameObject _tutorialHintRoot;
         readonly TMP_Text _tutorialHint;
-        readonly ClinicalPanoramaControls _clinicalControls;
+        readonly ClinicalGuidedObservationControls _clinicalControls;
 
         bool _placed;
         bool _visible;
@@ -45,7 +45,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
             bool clinicalLearning = false,
             Texture clinicalTexture = null,
             IReadOnlyList<Texture> teachingComparisons = null,
-            Action requestClinicalCompletion = null)
+            Action requestClinicalCompletion = null,
+            float panoramaYaw = 0)
         {
             if (runtimeRoot == null) throw new ArgumentNullException(nameof(runtimeRoot));
             _viewer = viewer != null ? viewer : throw new ArgumentNullException(nameof(viewer));
@@ -59,8 +60,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
 
             if (clinicalLearning)
             {
-                _clinicalControls = new ClinicalPanoramaControls(_root.transform, sharedFont, gazeSurfaces,
-                    requestClinicalCompletion ?? HandleExitSelected, clinicalTexture, teachingComparisons);
+                _clinicalControls = new ClinicalGuidedObservationControls(_root.transform, sharedFont, gazeSurfaces,
+                    requestClinicalCompletion ?? HandleExitSelected, clinicalTexture, viewer, panoramaYaw);
                 (_tutorialHintRoot, _tutorialHint) = CreateTutorialHint(_root.transform, sharedFont);
                 _ticker = _root.AddComponent<PanoramaSpatialWorldTicker>();
                 _ticker.Bind(this);
@@ -119,6 +120,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         {
             if (_disposed || _visible == visible) return;
             _visible = visible;
+            _clinicalControls?.InvalidateInput();
 
             if (!visible)
             {
@@ -142,6 +144,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         {
             if (_disposed || !_visible || _controlsVisible == visible) return;
             _controlsVisible = visible;
+            _clinicalControls?.InvalidateInput();
             ResetEnvironmentMoment();
             _root.SetActive(visible);
             ApplyTutorialHintVisibility();

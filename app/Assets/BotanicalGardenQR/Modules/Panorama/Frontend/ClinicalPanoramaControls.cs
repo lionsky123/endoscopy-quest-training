@@ -9,7 +9,7 @@ using static BotanicalGardenQR.FrontendShell.Runtime.ClinicalPanelStyle;
 
 namespace BotanicalGardenQR.Panorama.Frontend
 {
-    // One spatial card at a time. Readiness is an explicit near touch, never a timer or gaze dwell.
+    // One spatial card at a time. Explicit button dwell uses the shared template input.
     internal sealed class ClinicalPanoramaControls : IDisposable
     {
         readonly GameObject _root;
@@ -54,7 +54,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             _root = new GameObject("ClinicalPanoramaControls", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
             var root = (RectTransform)_root.transform;
             root.SetParent(parent, false);
-            root.localPosition = new Vector3(0, -.07f, .60f);
+            root.localPosition = new Vector3(0, -.07f, .45f);
             root.localScale = Vector3.one * .00065f;
             root.sizeDelta = new Vector2(880, 690);
             var canvas = _root.GetComponent<Canvas>();
@@ -79,6 +79,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         }
         public void Reset()
         {
+            _registration.Invalidate();
             _completed = false;
             _transition = -1;
             _next.interactable = true;
@@ -87,6 +88,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         void Advance()
         {
             if (_disposed || !_root.activeInHierarchy || !_next.interactable || _transition >= 0 || _completed) return;
+            _registration.Invalidate();
             if (_step == 6)
             {
                 _completed = true;
@@ -98,8 +100,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
             if (!Application.isPlaying) { Show(_pending); return; }
             _transition = 0;
             _swapped = false;
-            // Keep the same poke surface alive until the finger releases. Advance's
-            // transition guard ignores additional taps without rearming a held finger.
+            _next.interactable = false;
+            // The shared dwell controller requires a gaze exit before another page.
         }
         public void Tick(float deltaTime)
         {

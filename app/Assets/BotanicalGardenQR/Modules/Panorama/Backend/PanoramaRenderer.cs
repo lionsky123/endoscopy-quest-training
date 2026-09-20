@@ -27,7 +27,7 @@ namespace BotanicalGardenQR.Panorama.Backend
     {
         const int LongitudeSegments = 64;
         const int LatitudeSegments = 32;
-        const float Radius = 2.8f;
+        const float Radius = PanoramaDefinition.RadiusMetres;
 
         Mesh _mesh;
         Material _material;
@@ -37,6 +37,7 @@ namespace BotanicalGardenQR.Panorama.Backend
         Coroutine _load;
         Action<PanoramaRenderResult> _completed;
         Transform _viewer;
+        Vector3 _entryWorldPosition;
         PanoramaSource _source;
         string _shaderName = "<not-resolved>";
         int _generation;
@@ -54,7 +55,8 @@ namespace BotanicalGardenQR.Panorama.Backend
             _completed = completed;
             _viewer = viewer;
             _source = source;
-            transform.position = _viewer.position;
+            _entryWorldPosition = _viewer.position;
+            transform.position = _entryWorldPosition;
             SetYaw(yawDegrees);
             bool surfaceBuilt;
             try
@@ -106,7 +108,7 @@ namespace BotanicalGardenQR.Panorama.Backend
 
         void LateUpdate()
         {
-            if (!_released && _viewer != null) transform.position = _viewer.position;
+            if (!_released) transform.position = _entryWorldPosition;
         }
 
         public void Release()
@@ -130,17 +132,17 @@ namespace BotanicalGardenQR.Panorama.Backend
             if (_material != null)
             {
                 _material.mainTexture = null;
-                Destroy(_material);
+                ReleaseObject(_material);
                 _material = null;
             }
             if (_dynamicTexture != null)
             {
-                Destroy(_dynamicTexture);
+                ReleaseObject(_dynamicTexture);
                 _dynamicTexture = null;
             }
             if (_mesh != null)
             {
-                Destroy(_mesh);
+                ReleaseObject(_mesh);
                 _mesh = null;
             }
             _meshRenderer = null;
@@ -150,6 +152,8 @@ namespace BotanicalGardenQR.Panorama.Backend
         }
 
         void OnDestroy() => Release();
+        static void ReleaseObject(UnityEngine.Object value)
+        { if (Application.isPlaying) Destroy(value); else DestroyImmediate(value); }
 
         IEnumerator LoadStreamingTexture(string relativePath, int generation)
         {

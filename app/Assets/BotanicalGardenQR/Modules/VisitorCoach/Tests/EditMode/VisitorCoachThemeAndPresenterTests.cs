@@ -33,6 +33,7 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
             var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(ThemePath);
             var defaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(UiDefaultsPath);
             var viewer = new GameObject("TravelViewer"); viewer.AddComponent<Camera>();
+            viewer.transform.SetPositionAndRotation(new Vector3(2, 1.65f, 3), Quaternion.Euler(15, 70, 8));
             var instance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
             var presenter = instance.GetComponentInChildren<VisitorCoachPresenter>(true);
             try
@@ -41,6 +42,10 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                 VisitorDialogueIntentKind? selected = null;
                 presenter.IntentRequested += intent => selected = intent.Kind;
                 presenter.PresentGuidance(new VisitorGuidanceSurface(VisitorGuidanceSurfaceKind.Unavailable, ""));
+                Assert.That(Vector3.Angle(presenter.transform.forward, presenter.transform.position - viewer.transform.position), Is.LessThan(1));
+                Assert.That(Vector3.Distance(presenter.transform.position, viewer.transform.position), Is.LessThan(.7f));
+                Assert.That(viewer.transform.position.y - presenter.transform.position.y, Is.InRange(.12f, .22f));
+                Assert.That(presenter.SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HeadGaze, float.MaxValue), Is.False);
                 Assert.That(presenter.BodyFits, Is.True);
                 Assert.That(presenter.CurrentState.AllowRestart, Is.False);
                 Assert.That(presenter.CurrentState.AllowDefer, Is.False);
@@ -107,7 +112,8 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                 VisitorCoachCueKeys.QrConfirm,
                 VisitorCoachHintLevel.Recovery,
                 out var qrRecovery), Is.True);
-            Assert.That(qrRecovery, Does.Contain("展牌"));
+            Assert.That(qrRecovery, Does.Contain("路线到站"));
+            Assert.That(qrRecovery, Does.Contain("轻触"));
             Assert.That(theme.TryResolveGlobalCopy(
                 VisitorCoachCueKeys.ArtifactGrab,
                 VisitorCoachHintLevel.Initial,
@@ -124,10 +130,10 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
             var worldWidth = theme.PanelPixels.x * theme.CanvasScale;
             var worldHeight = theme.PanelPixels.y * theme.CanvasScale;
             Assert.That(theme.PanelColor.a, Is.GreaterThanOrEqualTo(0.98f));
-            Assert.That(worldWidth, Is.InRange(0.8f, 0.9f));
-            Assert.That(worldHeight, Is.InRange(0.3f, 0.38f));
-            Assert.That(theme.ViewerDistance, Is.InRange(0.85f, 1.05f));
-            Assert.That(theme.DialogueVerticalOffset, Is.InRange(-0.12f, 0f));
+            Assert.That(worldWidth, Is.InRange(0.5f, 0.65f));
+            Assert.That(worldHeight, Is.InRange(0.2f, 0.28f));
+            Assert.That(theme.ViewerDistance, Is.InRange(.45f, .55f));
+            Assert.That(theme.DialogueVerticalOffset, Is.InRange(-0.22f, -.12f));
             Assert.That(theme.FairyDialogueHorizontalOffset.x, Is.InRange(-0.42f, -0.28f));
             Assert.That(theme.FairyDialogueHorizontalOffset.y, Is.GreaterThanOrEqualTo(0f));
             Assert.That(theme.DialogueFontSize, Is.GreaterThanOrEqualTo(28f));

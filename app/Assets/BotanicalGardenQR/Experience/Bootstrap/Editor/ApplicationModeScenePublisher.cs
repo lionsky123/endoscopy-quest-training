@@ -352,6 +352,26 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 ApplicationModeRole.Visitor,
                 viewer,
                 shell.GetComponent<CanvasGroup>());
+            var runtimeOptions = installerSerialized.FindProperty("_runtimeOptions").objectReferenceValue
+                as BotanicalGardenQR.Configuration.Runtime.RuntimeEnvironmentOptions;
+            if (runtimeOptions != null && runtimeOptions.VirtualRoomEnabled)
+            {
+                gateway.SetActive(false);
+                managerSerialized.Update();
+                managerSerialized.FindProperty("isInsightPassthroughEnabled").boolValue = false;
+                managerSerialized.ApplyModifiedPropertiesWithoutUndo();
+                var mruk = installerSerialized.FindProperty("_mrukRoot").objectReferenceValue as GameObject;
+                if (mruk != null) mruk.SetActive(false);
+                foreach (var root in scene.GetRootGameObjects())
+                {
+                    foreach (var layer in root.GetComponentsInChildren<OVRPassthroughLayer>(true)) layer.enabled = false;
+                    foreach (var camera in root.GetComponentsInChildren<Camera>(true))
+                    {
+                        camera.clearFlags = CameraClearFlags.SolidColor;
+                        camera.backgroundColor = new Color(.16f, .2f, .24f, 1);
+                    }
+                }
+            }
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
         }

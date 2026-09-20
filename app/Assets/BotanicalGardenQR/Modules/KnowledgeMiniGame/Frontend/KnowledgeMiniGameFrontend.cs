@@ -62,7 +62,7 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
         [SerializeField, Min(20f)] float _completedFeedbackFontSize = 30f;
 
         [Header("Placement")]
-        [SerializeField, Min(0.2f)] float _viewerDistance = .55f;
+        [SerializeField, Min(0.2f)] float _viewerDistance = .45f;
         [SerializeField] float _verticalOffset = -0.04f;
         [SerializeField] int _sortingOrder = 430;
         [SerializeField] int _gazePriority = 430;
@@ -319,8 +319,8 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
                     else
                     {
                         _feedback.text = confirmation
-                            ? "食指触碰确认卡后继续"
-                            : "食指触碰选项完成选择 · 答错可以再试";
+                            ? "准星对准确认卡，停留到进度完成"
+                            : "准星对准选项并停留确认 · 答错可以再试";
                         _feedback.color = _secondaryText;
                     }
                     break;

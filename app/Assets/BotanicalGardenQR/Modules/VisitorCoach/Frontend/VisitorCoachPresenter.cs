@@ -232,13 +232,14 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             _state = state;
             _deferLabel.text = string.IsNullOrWhiteSpace(state.SecondaryActionLabel) ? "稍后再学" : state.SecondaryActionLabel;
             _deferButton.gameObject.SetActive(state.AllowDefer);
-            _deferButton.interactable = state.AllowDefer && _inputMode == VisitorDialogueInputMode.HandPoke;
+            _deferButton.interactable = state.AllowDefer && _inputMode == VisitorDialogueInputMode.HeadGaze;
             if (previous?.AllowDefer != state.AllowDefer) _gazeRegistration.Invalidate();
             if (pageChanged) _gazeRegistration.Invalidate();
             if (contextChanged)
             {
                 var pose = WorldSurfacePlacement.CreateViewerFrontPose(
                     _viewer, _theme.ViewerDistance, _theme.DialogueVerticalOffset);
+                pose.rotation = Quaternion.LookRotation(pose.position - _viewer.position, Vector3.up);
                 transform.SetPositionAndRotation(pose.position, pose.rotation);
                 var fairyPosition = pose.position +
                                     pose.rotation * Vector3.right * _theme.FairyDialogueHorizontalOffset.x +
@@ -454,10 +455,10 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             label.color = _theme.TextColor;
         }
 
-        void HandleContinueSelected() => SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HandPoke, Time.unscaledTime);
+        void HandleContinueSelected() => SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HeadGaze, Time.unscaledTime);
         void HandleRestartSelected() => HandleReplaySelected();
-        void HandleReplaySelected() => SubmitInput(VisitorDialogueIntentKind.Replay, VisitorDialogueInputMode.HandPoke, Time.unscaledTime);
-        void HandleDeferSelected() => SubmitInput(VisitorDialogueIntentKind.Defer, VisitorDialogueInputMode.HandPoke, Time.unscaledTime);
+        void HandleReplaySelected() => SubmitInput(VisitorDialogueIntentKind.Replay, VisitorDialogueInputMode.HeadGaze, Time.unscaledTime);
+        void HandleDeferSelected() => SubmitInput(VisitorDialogueIntentKind.Defer, VisitorDialogueInputMode.HeadGaze, Time.unscaledTime);
         void HandleContinuePoke() => SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HandPoke, Time.unscaledTime);
         void HandleReplayPoke() => SubmitInput(VisitorDialogueIntentKind.Replay, VisitorDialogueInputMode.HandPoke, Time.unscaledTime);
 
@@ -472,11 +473,11 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
 
         bool RequestDefer(float now, bool bypassFrameGate)
         {
-            if (_disposed || _inputMode != VisitorDialogueInputMode.HandPoke || _state == null ||
+            if (_disposed || _inputMode != VisitorDialogueInputMode.HeadGaze || _state == null ||
                 !_state.AllowDefer || now < _inputReadyAt || !AcceptFrame(bypassFrameGate)) return false;
             _gazeRegistration.Invalidate();
             IntentRequested?.Invoke(new VisitorDialogueIntent(_state.Context, _state.Owner, VisitorDialogueIntentKind.Defer,
-                _state.Revision, VisitorDialogueInputOrigin.HandPoke));
+                _state.Revision, VisitorDialogueInputOrigin.GazeDwell));
             return true;
         }
 
@@ -545,7 +546,7 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             _replayButton.interactable = replayArmed;
             if (_deferButton != null)
                 _deferButton.interactable = _targetVisible && _state?.AllowDefer == true &&
-                    _inputMode == VisitorDialogueInputMode.HandPoke;
+                    _inputMode == VisitorDialogueInputMode.HeadGaze;
             var hand = _inputMode == VisitorDialogueInputMode.HandPoke;
             _continuePokeTarget.SetArmed(continueArmed && hand);
             _restartPokeTarget.SetArmed(restartArmed && hand);

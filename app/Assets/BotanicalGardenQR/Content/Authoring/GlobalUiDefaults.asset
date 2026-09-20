@@ -29,4 +29,4 @@ MonoBehaviour:
     _spacing: 24
   _animation:
     _transitionSeconds: 0.16
-  _startupHint: "跟随路线到站，伸出食指触碰“开启发现”。"
+  _startupHint: "跟随路线到站，用准星对准“开启发现”并停留确认。"

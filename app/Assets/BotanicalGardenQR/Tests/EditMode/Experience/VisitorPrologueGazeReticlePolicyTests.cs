@@ -17,21 +17,21 @@ namespace BotanicalGardenQR.Tests.EditMode.Experience
     {
         [TestCase(VisitorProloguePhase.Invitation, false)]
         [TestCase(VisitorProloguePhase.Arrival, false)]
-        [TestCase(VisitorProloguePhase.Encounter, true)]
-        [TestCase(VisitorProloguePhase.ExplorationIdle, true)]
-        [TestCase(VisitorProloguePhase.Failed, true)]
-        public void GazeBelongsToRealDialogueAndFallback(VisitorProloguePhase phase, bool visible)
+        [TestCase(VisitorProloguePhase.Encounter, false)]
+        [TestCase(VisitorProloguePhase.ExplorationIdle, false)]
+        [TestCase(VisitorProloguePhase.Failed, false)]
+        public void VrDialogueUsesHandsWithoutGazeReticle(VisitorProloguePhase phase, bool visible)
         {
             var state = new VisitorPrologueViewState(1, 1, phase, true, false);
             Assert.That(VisitorPrologueStartupBinding.ShouldShowGazeReticle(state), Is.EqualTo(visible));
             if (phase == VisitorProloguePhase.Encounter)
-                Assert.That(VisitorPrologueStartupBinding.ResolveDialogueInput(state), Is.EqualTo(VisitorDialogueInputMode.HeadGaze));
+                Assert.That(VisitorPrologueStartupBinding.ResolveDialogueInput(state), Is.EqualTo(VisitorDialogueInputMode.HandPoke));
         }
         [Test]
-        public void InvitationFallbackRequiresNoHandAndAnExplicitAvailabilityFact()
+        public void OldFallbackFactsCannotRestoreTheVrGazeReticle()
         {
             Assert.That(VisitorPrologueStartupBinding.ShouldShowGazeReticle(
-                new VisitorPrologueViewState(1, 1, VisitorProloguePhase.Invitation, false, true)), Is.True);
+                new VisitorPrologueViewState(1, 1, VisitorProloguePhase.Invitation, false, true)), Is.False);
             Assert.That(VisitorPrologueStartupBinding.ShouldShowGazeReticle(
                 new VisitorPrologueViewState(1, 1, VisitorProloguePhase.Invitation, true, true)), Is.False);
         }

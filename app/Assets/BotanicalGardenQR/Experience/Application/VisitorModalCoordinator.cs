@@ -82,7 +82,7 @@ namespace BotanicalGardenQR.Experience.Application
             var preparationPending = facts.ExplorationReady && !facts.ToolPreparationExited;
             var shellSuppressed = facts.PrologueVisible || facts.CompletionVisible || collectionVisible || dialogueVisible;
             var surfaceSuppressed = shellSuppressed || facts.CloseDecisionVisible;
-            var coachSuppressed = preparationPending || facts.PrologueVisible || facts.CompletionVisible || facts.CloseDecisionVisible ||
+            var coachSuppressed = !facts.ContentClosed || preparationPending || facts.PrologueVisible || facts.CompletionVisible || facts.CloseDecisionVisible ||
                 (dialogueVisible && facts.DialogueOwner != VisitorDialogueOwner.Coach) ||
                 (collectionVisible && facts.CollectionSurface != CollectionPresentationSurfaceKind.ArtifactOffer);
             var recognitionAllowed = !facts.GuidanceBlocksFirstScan && facts.ExplorationReady && facts.ToolPreparationExited && !facts.PrologueVisible && !facts.CompletionVisible &&

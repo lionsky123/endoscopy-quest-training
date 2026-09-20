@@ -101,13 +101,13 @@ namespace BotanicalGardenQR.Bootstrap
             {
                 RuntimeBindingValidator.Required(xrRigRoot, "_xrRigRoot");
                 RuntimeBindingValidator.Required(interactionRigRoot, "_interactionRigRoot");
-                RuntimeBindingValidator.Required(mrukRoot, "_mrukRoot");
+                if (!options.VirtualRoomEnabled) RuntimeBindingValidator.Required(mrukRoot, "_mrukRoot");
                 RuntimeBindingValidator.Required(eventSystemRoot, "_eventSystemRoot");
                 RuntimeBindingValidator.Required(viewer, "_viewer");
-                RuntimeBindingValidator.Required(fairyArrivalPassthroughLayer, "_fairyArrivalPassthroughLayer");
+                if (!options.VirtualRoomEnabled) RuntimeBindingValidator.Required(fairyArrivalPassthroughLayer, "_fairyArrivalPassthroughLayer");
                 RuntimeBindingValidator.Required(fairyArrivalEnvironmentLight, "_fairyArrivalEnvironmentLight");
-                RuntimeBindingValidator.Required(spatialDataPermissionGate, "_spatialDataPermissionGate");
-                if (!(spatialDataPermissionGate is ISpatialDataPermissionGate permissionGate))
+                var permissionGate = spatialDataPermissionGate as ISpatialDataPermissionGate;
+                if (!options.VirtualRoomEnabled && permissionGate == null)
                     throw new InvalidOperationException(
                         "VisitorInstaller '_spatialDataPermissionGate' must implement ISpatialDataPermissionGate.");
                 var eventSystem = eventSystemRoot.GetComponent<EventSystem>();
@@ -118,11 +118,11 @@ namespace BotanicalGardenQR.Bootstrap
                 MrukRoot = mrukRoot;
                 EventSystemRoot = eventSystemRoot;
                 Viewer = viewer;
-                FairyArrivalPassthroughLayer = fairyArrivalPassthroughLayer;
+                FairyArrivalPassthroughLayer = options.VirtualRoomEnabled ? null : fairyArrivalPassthroughLayer;
                 FairyArrivalEnvironmentLight = fairyArrivalEnvironmentLight;
-                SpatialDataPermissionGate = permissionGate;
+                SpatialDataPermissionGate = options.VirtualRoomEnabled ? null : permissionGate;
                 EventSystem = eventSystem;
-                RecognitionSources = RuntimeBindingValidator.RecognitionSources(
+                RecognitionSources = options.VirtualRoomEnabled ? Array.Empty<IRecognitionSource>() : RuntimeBindingValidator.RecognitionSources(
                     recognitionSourceAdapters,
                     options.RecognitionAdapters, options.FieldbookEnabled);
             }

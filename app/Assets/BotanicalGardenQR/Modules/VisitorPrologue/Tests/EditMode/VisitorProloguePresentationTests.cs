@@ -11,6 +11,35 @@ namespace BotanicalGardenQR.VisitorPrologue.Tests.EditMode
     public sealed class VisitorProloguePresentationTests
     {
         const string ThemePath = "Assets/BotanicalGardenQR/Content/Authoring/VisitorPrologueTheme.asset";
+        [Test] public void InvitationHandprintGlowsAtTheRealContactSurfaceAndInstructionsFit()
+        {
+            var theme = AssetDatabase.LoadAssetAtPath<VisitorPrologueThemeAsset>(ThemePath);
+            var instance = Object.Instantiate(theme.PresentationPrefab);
+            var ritual = instance.GetComponentInChildren<FieldbookInvitationRitual>(true);
+            var seal = instance.GetComponentsInChildren<MeshFilter>(true).Single(m => m.name == "PlantSeal");
+            var material = seal.GetComponent<Renderer>().sharedMaterial;
+            var originalScale = seal.transform.localScale;
+            try
+            {
+                ritual.Configure(theme); ritual.PresentAvailable(); ritual.Tick(1.5f);
+                Assert.That(seal.sharedMesh.name, Does.Contain("handprint"));
+                Assert.That(seal.transform.position, Is.EqualTo(ritual.InvitationWorldOrigin));
+                Assert.That(seal.gameObject.activeSelf, Is.True);
+                var glow = seal.GetComponent<Renderer>().sharedMaterial;
+                Assert.That(glow, Is.Not.SameAs(material)); Assert.That(glow.IsKeywordEnabled("_EMISSION"), Is.True);
+                Assert.That(glow.GetColor("_EmissionColor").maxColorComponent, Is.GreaterThan(.5f));
+                var text = instance.GetComponentsInChildren<TMPro.TMP_Text>(true).Single(t => t.name == "GuideSubHint");
+                VisitorProloguePresenter.ConfigureInstructionLayout(text); text.text = ritual.Instruction;
+                Assert.That(text.text, Does.Contain("手印").And.Contain("掌心").And.Contain("约1秒"));
+                Assert.That(text.GetPreferredValues(text.text, text.rectTransform.rect.width, 0).y,
+                    Is.LessThanOrEqualTo(text.rectTransform.rect.height));
+                ritual.PresentOpening(); Assert.That(seal.gameObject.activeSelf, Is.False);
+                ritual.Unconfigure();
+                Assert.That(seal.GetComponent<Renderer>().sharedMaterial, Is.SameAs(material));
+                Assert.That(seal.transform.localScale, Is.EqualTo(originalScale));
+            }
+            finally { ritual.Unconfigure(); Object.DestroyImmediate(instance); }
+        }
         [Test]
         public void InvitationOwnsOneReachableBookAndCompleteAuthoredEncounter()
         {
@@ -38,7 +67,7 @@ namespace BotanicalGardenQR.VisitorPrologue.Tests.EditMode
             {
                 ritual.Configure(theme);
                 Assert.That(instance.GetComponentsInChildren<Transform>(true).Any(t => t.name == "InvitationContract"),
-                    Is.False, "The book uses its leaf contact seal, not a duplicate circular magic array.");
+                    Is.False, "Use the actual palm contact plane without a duplicate circular magic array.");
                 var invitations = 0; var openings = 0;
                 ritual.InvitationRequested += _ => { invitations++; ritual.PresentOpening(); };
                 ritual.BookOpened += () => openings++;

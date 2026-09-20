@@ -150,7 +150,8 @@ namespace BotanicalGardenQR.Panorama.Backend
             }
             if (_instance != null)
             {
-                UnityEngine.Object.Destroy(_instance);
+                if (Application.isPlaying) UnityEngine.Object.Destroy(_instance);
+                else UnityEngine.Object.DestroyImmediate(_instance);
                 _instance = null;
             }
             _surface?.Dispose();

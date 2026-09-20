@@ -40,12 +40,16 @@ namespace BotanicalGardenQR.MapNavigation.Contracts
     public sealed class MapDefinition
     {
         public string mapId, sourceDigest, modelDigest;
+        public string roomResource;
         public float scale = 2f;
         public MapPosition start;
         public MapPoint[] points;
         public MapRoute[] routes;
         public float speed = 0.7f, waitDistance = 2.5f, resumeDistance = 2f;
         public float departureRadius = 1.5f;
+        // Horizontal distance a displaced dialogue companion can walk back to the route.
+        // Kept separate from the forward entry window and visitor arrival radius.
+        public float fairyJoinRadius = 1.5f;
         public MapDefinition Snapshot()
         {
             var copy = (MapDefinition)MemberwiseClone();

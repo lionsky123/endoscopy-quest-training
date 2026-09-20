@@ -23,7 +23,7 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         [SerializeField] Button _recallButton;
         [SerializeField] Button _nextStationButton;
         [SerializeField] Button _skipPointButton;
-        [SerializeField, Min(0.2f)] float _startupDistance = .55f;
+        [SerializeField, Min(0.2f)] float _startupDistance = .45f;
 
         [Header("Closed content actions")]
         [SerializeField, Min(0f)] float _closedActionSpacing = 12f;
@@ -49,6 +49,8 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         Vector2 _recallButtonBasePosition;
         bool _hasStartupActionLayout;
         bool _startupPlacementPending;
+        bool _hasStartupPose;
+        bool _closedDecisionConsumed;
         bool _applicationSurfaceSuppressed;
         bool _hasJourneyPrompt;
         SpatialDataPermissionState _spatialPermissionState = SpatialDataPermissionState.Unknown;
@@ -137,6 +139,9 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             _visitorProgressSummary = null;
             _spatialPermissionState = SpatialDataPermissionState.Unknown;
             _startupPlacementPending = false;
+            _hasStartupPose = false;
+            _closedDecisionConsumed = false;
+            _closedContentRequiresLearning = false;
             _applicationSurfaceSuppressed = false;
             _hasJourneyPrompt = false;
             ObservationCompletionRequested = null;
@@ -173,8 +178,11 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
         public void OnStateChanged(RecallState state)
         {
+            var wasClosed = _recallState != null && _recallState.IsClosed;
             _recallState = state ?? throw new ArgumentNullException(nameof(state));
             var showStartup = state.IsClosed;
+            if (!showStartup) _closedDecisionConsumed = false;
+            if (!showStartup || !wasClosed) _hasStartupPose = false;
             _startupPlacementPending = showStartup;
             if (!_hasJourneyPrompt && !HasSpatialPermissionRecovery)
                 _startupText.text = state.Fault?.Message ??
@@ -258,6 +266,22 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             InvalidateInteraction();
         }
 
+        bool _closedContentRequiresLearning;
+        public void SetClosedContentRequiresLearning(bool required)
+        {
+            _closedContentRequiresLearning = required;
+            UpdateStartupVisibility();
+            _gazeRegistration?.Invalidate();
+        }
+        public void CompleteClosedContent()
+        {
+            _closedDecisionConsumed = true;
+            _hasJourneyPrompt = false;
+            _journeyPromptMessage = null;
+            UpdateStartupVisibility();
+            InvalidateInteraction();
+        }
+
         public void SetVisitorProgressSummary(VisitorProgressSummary summary)
         {
             _visitorProgressSummary = summary ?? throw new ArgumentNullException(nameof(summary));
@@ -271,7 +295,7 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
         string ClosedContentMessage()
             => DecorateWithProgress(string.IsNullOrWhiteSpace(_closedContentContext)
-                ? "完成本站学习后，跟随小精灵前往下一站"
+                ? _closedContentRequiresLearning ? "本站图片核查尚未完成，请重新进入学习。" : "完成本站学习后，跟随小精灵前往下一站"
                 : _closedContentContext);
 
         string DecorateWithProgress(string message)
@@ -295,6 +319,7 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             var flowIsClosed = _recallState == null || _recallState.IsClosed;
             var permissionRecovery = HasSpatialPermissionRecovery && flowIsClosed;
             var showStartup = isActiveAndEnabled &&
+                              !_closedDecisionConsumed &&
                               flowIsClosed &&
                               !_applicationSurfaceSuppressed &&
                               (permissionRecovery ||
@@ -339,11 +364,11 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             if (!result.Succeeded && result.Fault != null) _startupText.text = result.Fault.Message;
         }
 
-        public void BeginClinicalQuiz() => HandleKnowledgeQuizSelected();
+        public void BeginClosedContentQuiz() => HandleKnowledgeQuizSelected();
 
         void HandleKnowledgeQuizSelected()
         {
-            if (_hasJourneyPrompt || _recallState == null || !_recallState.IsClosed ||
+            if (_closedContentRequiresLearning || _hasJourneyPrompt || _recallState == null || !_recallState.IsClosed ||
                 !_recallState.HasPreviousContent)
             {
                 Debug.Log("[GazeButtons] quiz selected but blocked by guard " +
@@ -357,7 +382,7 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
         void HandleSkipPointSelected()
         {
-            if (_hasJourneyPrompt || _recallState == null || !_recallState.IsClosed ||
+            if (_closedContentRequiresLearning || _hasJourneyPrompt || _recallState == null || !_recallState.IsClosed ||
                 !_recallState.HasPreviousContent)
                 return;
             if (SkipQuizAndCollectRequested == null)
@@ -455,6 +480,16 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             }
 
             var actionRect = (RectTransform)_recallButton.transform;
+            if (_closedContentRequiresLearning)
+            {
+                ApplyStartupPanelLayout(startupRect, _startupRootBaseSize.y + actionRect.sizeDelta.y + _closedActionSpacing);
+                actionRect.anchoredPosition = _recallButtonBasePosition;
+                SetButtonLabel(_recallButton, "重新进入学习");
+                _recallButton.gameObject.SetActive(true);
+                _nextStationButton.gameObject.SetActive(false); _skipPointButton.gameObject.SetActive(false);
+                SetCloseDecisionVisibility(true);
+                return;
+            }
             var actionStep = actionRect.sizeDelta.y + _closedActionSpacing;
             var topActionY = actionStep;
             var expandedHeight = _startupRootBaseSize.y +
@@ -543,8 +578,12 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
         void PlaceStartupPrompt()
         {
+            // Feedback and modal refreshes belong to the same reading session.
+            // Leaning into an action must not push the already placed surface away.
+            if (_hasStartupPose) { _startupPlacementPending = false; return; }
             if (_camera == null || _startupRoot == null) return;
             WorldSurfacePlacement.PlaceViewerFront(_startupRoot.transform, _camera.transform, _startupDistance);
+            _hasStartupPose = true;
             _startupPlacementPending = false;
         }
 

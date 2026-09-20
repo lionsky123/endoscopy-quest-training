@@ -22,7 +22,7 @@ MonoBehaviour:
   m_Scenes:
   - m_enabled: 1
     m_path: Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/BotanicalGardenQR/Scenes/Admin/SpatialAnchorAdmin.unity
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []

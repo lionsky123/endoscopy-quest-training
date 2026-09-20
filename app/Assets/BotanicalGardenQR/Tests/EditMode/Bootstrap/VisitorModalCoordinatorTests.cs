@@ -59,6 +59,18 @@ namespace BotanicalGardenQR.Tests.EditMode.Bootstrap
     public sealed class VisitorModalCoordinatorTests
     {
         [Test]
+        public void OpenLearningContentSuppressesIndependentCoachOverlay()
+        {
+            var environment = new EnvironmentStub(new VisitorModalFacts(1, true, true));
+            using var owner = new VisitorModalCoordinator(environment);
+            environment.Publish(new VisitorModalFacts(2, false, true));
+            Assert.That(owner.CoachCuesSuppressed, Is.True,
+                "A panorama with its own tutorial must not admit a second Coach dialogue over it.");
+            environment.Publish(new VisitorModalFacts(3, true, true));
+            Assert.That(owner.CoachCuesSuppressed, Is.False);
+        }
+
+        [Test]
         public void ToolPracticeLeavesRealHubAvailableWhileKeepingQrAndStartupPromptsClosed()
         {
             var practice = VisitorModalCoordinator.Resolve(new VisitorModalFacts(1, true, true,

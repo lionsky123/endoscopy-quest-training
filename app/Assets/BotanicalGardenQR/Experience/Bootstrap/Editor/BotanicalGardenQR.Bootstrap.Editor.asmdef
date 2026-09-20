@@ -23,6 +23,7 @@
     "BotanicalGardenQR.KnowledgeMiniGame.Backend",
     "BotanicalGardenQR.Video.Contracts",
     "BotanicalGardenQR.Panorama.Contracts",
+    "BotanicalGardenQR.Panorama.Backend",
     "BotanicalGardenQR.Model.Contracts",
     "BotanicalGardenQR.Narration.Contracts",
     "BotanicalGardenQR.Effect.Contracts",

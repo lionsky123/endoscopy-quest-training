@@ -518,7 +518,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 38f);
         }
 
-        static void CaptureInvitation(string outputDirectory, string fileName, float openingSeconds, float appearSeconds = 1.5f)
+        internal static void CaptureInvitation(string outputDirectory, string fileName, float openingSeconds, float appearSeconds = 1.5f)
         {
             Capture(PrefabRoot + "/VisitorProloguePresentation.prefab", Path.Combine(outputDirectory, fileName),
                 (root, camera) =>
@@ -535,7 +535,10 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                     typeof(VisitorPrologue.Frontend.FieldbookInvitationRitual).GetMethod("Tick",
                         BindingFlags.Instance | BindingFlags.NonPublic).Invoke(ritual, new object[] { appearSeconds });
                     RequiredNamedText(root, "GuideHint").text = openingSeconds > 0 ? theme.Copy.ArrivalTitle : theme.Copy.InvitationTitle;
-                    RequiredNamedText(root, "GuideSubHint").text = openingSeconds > 0 ? theme.Copy.ArrivalDetail : theme.Copy.InvitationDetail;
+                    var detail = RequiredNamedText(root, "GuideSubHint");
+                    VisitorPrologue.Frontend.VisitorProloguePresenter.ConfigureInstructionLayout(detail);
+                    detail.text = openingSeconds > 0 ? theme.Copy.ArrivalDetail : ritual.Instruction;
+                    if (openingSeconds <= 0) RequiredNamedText(root, "GuideHint").text = "操作教学 · 唤醒魔法书";
                     if (openingSeconds > 0)
                     {
                         ritual.PresentOpening();
@@ -579,7 +582,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                     if (readyToExplore) body = theme.ToolPreparationSuccessCopy + "\n" + theme.ToolPreparationReadyCopy;
 
                     presenter.Configure(camera.transform, theme, uiDefaults.SharedFont, new CaptureGazeSurfaceRegistry());
-                    presenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                    presenter.SetInputMode(VisitorDialogueInputMode.HeadGaze);
                     theme.TryResolveCopy(cueKey, VisitorCoach.Contracts.VisitorCoachHintLevel.Initial, out var practiceHint);
                     presenter.Present(new VisitorDialogueSurfaceState(
                         1,

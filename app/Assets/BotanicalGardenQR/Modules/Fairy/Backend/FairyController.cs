@@ -25,6 +25,7 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         StateChannel<FairyState> _states;
         Transform _viewer;
+        IFairyWalkSpace _walkSpace;
         Func<Vector3, Vector3?> _arrivalHandPosition;
         FairyArrivalResonance _arrivalResonance;
         FairyArrivalSoundEvents _arrivalSounds;
@@ -120,11 +121,13 @@ namespace BotanicalGardenQR.Fairy.Backend
             OVRPassthroughLayer arrivalPassthroughLayer,
             Light arrivalEnvironmentLight,
             Action<DiagnosticEvent> diagnostics = null,
-            Func<Vector3, Vector3?> arrivalHandPosition = null)
+            Func<Vector3, Vector3?> arrivalHandPosition = null,
+            IFairyWalkSpace walkSpace = null)
         {
             if (_viewer != null) throw new InvalidOperationException("Fairy controller is already initialized.");
             _viewer = viewer != null ? viewer : throw new ArgumentNullException(nameof(viewer));
             _arrivalHandPosition = arrivalHandPosition;
+            _walkSpace = walkSpace;
             _listener = viewer.GetComponent<AudioListener>();
             _groundReference = groundReference != null
                 ? groundReference
@@ -206,7 +209,7 @@ namespace BotanicalGardenQR.Fairy.Backend
                 _animation = _instance.AddComponent<FairyAnimationDriver>();
                 _animation.Initialize();
                 _orbit = _instance.AddComponent<FairyOrbitDriver>();
-                _orbit.Initialize(_viewer, _groundReference, definition.Behavior, HandleMovementChanged, speed => _animation?.SetTravelSpeed(speed));
+                _orbit.Initialize(_viewer, _groundReference, definition.Behavior, HandleMovementChanged, speed => _animation?.SetTravelSpeed(speed), _walkSpace);
                 _interaction = _instance.AddComponent<FairyInteractionController>();
                 _interaction.Initialize(HandleInteraction);
                 _gazeInteraction = _instance.AddComponent<FairyGazeInteractionDriver>();
@@ -505,7 +508,8 @@ namespace BotanicalGardenQR.Fairy.Backend
                 _arrivalStepDirection = _arrivalLandingPosition - _viewer.position;
                 _arrivalStepDirection.y = 0;
                 _arrivalStepDirection = _arrivalStepDirection.sqrMagnitude > .001f ? _arrivalStepDirection.normalized : Vector3.forward;
-                _instance.transform.position = _arrivalLandingPosition + _arrivalStepDirection * ArrivalWalkDistance;
+                _instance.transform.position = _walkSpace != null ? _walkSpace.ArrivalPoint(0) : _arrivalLandingPosition + _arrivalStepDirection * ArrivalWalkDistance;
+                if (_walkSpace != null) _arrivalStepDirection = (_instance.transform.position - _arrivalLandingPosition).normalized;
                 _orbit.enabled = false;
                 _gazeInteraction.enabled = false;
                 _instance.SetActive(true);
@@ -634,7 +638,7 @@ namespace BotanicalGardenQR.Fairy.Backend
                     _arrivalRevealed = true;
                 }
                 var crossing = EvaluateArrivalTravel(approachElapsed);
-                _instance.transform.position = _arrivalLandingPosition + _arrivalStepDirection * (ArrivalWalkDistance * (1 - crossing));
+                _instance.transform.position = _walkSpace != null ? _walkSpace.ArrivalPoint(crossing) : _arrivalLandingPosition + _arrivalStepDirection * (ArrivalWalkDistance * (1 - crossing));
                 _instance.transform.rotation = Quaternion.LookRotation(-_arrivalStepDirection);
                 _animation?.SetMoving(crossing < 1);
                 _animation?.SetTravelSpeed(ArrivalWalkDistance / ArrivalCrossingSeconds);

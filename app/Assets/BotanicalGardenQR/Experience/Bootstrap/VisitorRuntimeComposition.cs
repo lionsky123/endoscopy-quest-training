@@ -55,19 +55,21 @@ namespace BotanicalGardenQR.Bootstrap
         readonly SpatialDataPermissionStartupBinding _permissionStartupBinding;
         readonly VisitorPrologueStartupBinding _prologueStartupBinding;
         readonly Action<float> _tick;
+        readonly Func<bool> _canStart;
+        bool _startRequested, _startPending;
         bool _disposed;
 
         VisitorRuntimeComposition(
             BootstrapOwnershipScope ownership,
             SpatialDataPermissionStartupBinding permissionStartupBinding,
             VisitorPrologueStartupBinding prologueStartupBinding,
-            Action<float> tick)
+            Action<float> tick, Func<bool> canStart)
         {
             _ownership = ownership ?? throw new ArgumentNullException(nameof(ownership));
-            _permissionStartupBinding = permissionStartupBinding ??
-                                        throw new ArgumentNullException(nameof(permissionStartupBinding));
+            _permissionStartupBinding = permissionStartupBinding;
             _prologueStartupBinding = prologueStartupBinding;
             _tick = tick;
+            _canStart = canStart;
         }
 
         internal static VisitorRuntimeComposition Create(
@@ -115,7 +117,20 @@ namespace BotanicalGardenQR.Bootstrap
             var ownership = new BootstrapOwnershipScope();
             try
             {
-                ownership.Register(spatialDataPermissionGate.Dispose);
+                VirtualRoomEnvironment room = null;
+                if (options.VirtualRoomEnabled)
+                {
+                    room = VirtualRoomEnvironment.Create(platform.XrRigRoot, platform.MrukRoot,
+                        configuration.MapDefinition);
+                    ownership.Register(room.Dispose);
+                    if (room.TrackingOrigin != null)
+                    {
+                        var trackingGuard = new VirtualRoomTrackingGuard(room.TrackingOrigin,
+                            viewer, interactionRigRoot, uiDefaults.SharedFont);
+                        ownership.Register(trackingGuard.Dispose);
+                    }
+                }
+                if (spatialDataPermissionGate != null) ownership.Register(spatialDataPermissionGate.Dispose);
                 var journeySession = JourneySessionId.CreateNew();
                 var visitorCoachSession = new VisitorCoachSessionId(journeySession.Value.ToString("N"));
                 var visitorCoach = VisitorCoachModuleFactory.Create(visitorCoachTheme.Timing);
@@ -141,6 +156,7 @@ namespace BotanicalGardenQR.Bootstrap
                 ownership.Register(() => DisposeCreatedRuntime(video));
                 var panorama = PanoramaModuleFactory.Create(panoramaRuntimeRoot, viewer, diagnostics);
                 ownership.Register(() => DisposeCreatedRuntime(panorama));
+                if (room != null) ownership.Register(panorama.Observe(room).Dispose);
                 var model = ModelModuleFactory.Create(modelRuntimeRoot, diagnostics);
                 ownership.Register(() => DisposeCreatedRuntime(model));
                 var narration = NarrationModuleFactory.Create(narrationRuntimeRoot);
@@ -205,6 +221,7 @@ namespace BotanicalGardenQR.Bootstrap
                     activation,
                     DefaultPresentation(uiDefaults),
                     uiDefaults.StartupHint);
+                headGaze.SetHandOnly(true);
                 var journey = JourneyNavigationModuleFactory.Create();
                 ownership.Register(journey.Dispose);
                 var journeyCloseDecisionBinding = new JourneyCloseDecisionBinding(
@@ -252,7 +269,8 @@ namespace BotanicalGardenQR.Bootstrap
                 prologuePresenter.Configure(viewer, headGaze, prologueTheme);
                 prologuePresenter.Bind(prologue);
                 ownership.Register(handReadiness.Unconfigure);
-                handReadiness.Configure(interactionRigRoot, prologue, prologueTheme.GazeFallbackDelaySeconds);
+                handReadiness.Configure(interactionRigRoot, prologue, prologueTheme.GazeFallbackDelaySeconds,
+                    viewer, uiDefaults.SharedFont);
                 prologuePresenter.BindHands(handReadiness);
 
                 var fairyBinding = TryBindOptional("Fairy", ownership, optionalOwnership =>
@@ -266,7 +284,7 @@ namespace BotanicalGardenQR.Bootstrap
                         fairyArrivalPassthroughLayer,
                         fairyArrivalEnvironmentLight,
                         diagnostics,
-                        handReadiness.GetArrivalHandPosition);
+                        handReadiness.GetArrivalHandPosition, room?.GuidePath);
                     var binding = FairyModuleFactory.BindAsCompanion(
                         fairy,
                         fairyDefinition,
@@ -292,8 +310,8 @@ namespace BotanicalGardenQR.Bootstrap
                     observationCompletionFrontend,
                     journeyCloseDecisionBinding.AcceptObservationCompleted);
                 ownership.Register(knowledgeMiniGameBinding.Dispose);
-                shell.ClinicalCompletionRequested += startupRecall.BeginClinicalQuiz;
-                ownership.Register(() => shell.ClinicalCompletionRequested -= startupRecall.BeginClinicalQuiz);
+                shell.ClinicalCompletionRequested += journeyCloseDecisionBinding.AcceptClinicalLessonCompleted;
+                ownership.Register(() => shell.ClinicalCompletionRequested -= journeyCloseDecisionBinding.AcceptClinicalLessonCompleted);
                 var narrationDockBinding = new NarrationDockBinding(
                     flow,
                     shell,
@@ -353,13 +371,13 @@ namespace BotanicalGardenQR.Bootstrap
                 var mapLabelFont = RequiredComponent<VisitorAtlasHubPresentation>(
                     atlasHubPresentationPrefab, "Route font source").MapLabelFont;
                 var mapNavigation = MapNavigationModuleFactory.Create(configuration.MapDefinition,
-                    new FairyMapMotionSink(fairyBinding, configuration.MapDefinition));
+                    new FairyMapMotionSink(fairyBinding, configuration.MapDefinition), room?.Frame);
                 ownership.Register(mapNavigation.Dispose);
                 var mapRoute = configuration.GuidanceRouteMaterial != null
                     ? MapRoutePresentationFactory.Create(displayRoot.parent, configuration.GuidanceRouteMaterial, mapLabelFont, viewer)
                     : null;
                 if (mapRoute != null) ownership.Register(mapRoute.Dispose);
-                TryBindOptional("PhysicalAugmentation", ownership, optionalOwnership =>
+                if (!options.VirtualRoomEnabled) TryBindOptional("PhysicalAugmentation", ownership, optionalOwnership =>
                 {
                     var binding = new PhysicalAugmentationVisitorBinding(
                         flow,
@@ -398,7 +416,7 @@ namespace BotanicalGardenQR.Bootstrap
                     activation,
                     visitorCoachTheme);
                 ownership.Register(visitorCoachQr.Dispose);
-                var spatialDataPermissionBinding = new SpatialDataPermissionStartupBinding(
+                var spatialDataPermissionBinding = options.VirtualRoomEnabled ? null : new SpatialDataPermissionStartupBinding(
                     spatialDataPermissionGate,
                     startupRecall,
                     () =>
@@ -417,7 +435,7 @@ namespace BotanicalGardenQR.Bootstrap
                         }
                         activation.Start();
                     });
-                ownership.Register(spatialDataPermissionBinding.Dispose);
+                if (spatialDataPermissionBinding != null) ownership.Register(spatialDataPermissionBinding.Dispose);
                 if (fairyBinding != null)
                 {
                     var visitorDialogueFairy = new VisitorDialogueFairyBinding(
@@ -432,8 +450,8 @@ namespace BotanicalGardenQR.Bootstrap
                     ownership.Register(visitorCoachFairy.Dispose);
                 }
                 var guidance = new VisitorGuidanceCoordinator(mapNavigation,
-                    () => { if (!options.FieldbookEnabled) spatialDataPermissionBinding.RequestRecognitionStart(); },
-                    options.FieldbookEnabled ? pointId => routes.TryResolveMapPoint(pointId, out var entry) &&
+                    () => { if (!options.VirtualRoomEnabled && !options.FieldbookEnabled) spatialDataPermissionBinding.RequestRecognitionStart(); },
+                    options.VirtualRoomEnabled || options.FieldbookEnabled ? pointId => routes.TryResolveMapPoint(pointId, out var entry) &&
                         activation.TryOpenConfirmedEntry(entry.EntryValue) : (Func<string, bool>)null,
                     options.ArrivalRadius, options.ArrivalExitRadius, options.ArrivalStableSeconds);
                 ownership.Register(guidance.Dispose);
@@ -463,9 +481,13 @@ namespace BotanicalGardenQR.Bootstrap
                     prologueStartupBinding,
                     deltaSeconds =>
                     {
-                        guidanceBinding.Tick(deltaSeconds);
+                        var alignmentValid = room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract;
+                        // Still tick with tracked=false so navigation sends Hold to
+                        // the Fairy instead of leaving its last movement running.
+                        guidanceBinding.Tick(deltaSeconds, alignmentValid);
+                        if (!alignmentValid) return;
                         visitorCoachRuntime.Tick(deltaSeconds);
-                    });
+                    }, () => room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract);
                 return composition;
             }
             catch
@@ -478,14 +500,24 @@ namespace BotanicalGardenQR.Bootstrap
         public void StartExperience()
         {
             if (_disposed) throw new ObjectDisposedException(nameof(VisitorRuntimeComposition));
-            _permissionStartupBinding.BeginPermissionRequest();
+            if (_startRequested) return;
+            _startRequested = _startPending = true;
+            _permissionStartupBinding?.BeginPermissionRequest();
+            TryStartExperience();
+        }
+
+        void TryStartExperience()
+        {
+            if (!_startPending || !_canStart()) return;
+            _startPending = false;
             _prologueStartupBinding.Begin();
         }
 
         public void Tick(float unscaledDeltaSeconds)
         {
             if (_disposed) return;
-            _permissionStartupBinding.Tick(unscaledDeltaSeconds);
+            TryStartExperience();
+            _permissionStartupBinding?.Tick(unscaledDeltaSeconds);
             _tick?.Invoke(unscaledDeltaSeconds);
         }
 

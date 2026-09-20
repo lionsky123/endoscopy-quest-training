@@ -59,6 +59,7 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             _failureGaze = gazeSurfaces.RegisterGazeSurface(_failureCanvas.transform, 460, "InvitationFailure");
             _invitationGaze = gazeSurfaces.RegisterGazeSurface(_invitationCanvas.transform, 460, "FieldbookInvitation");
             _invitationRitual.Configure(theme);
+            ConfigureInstructionLayout(_invitationDetail);
             _audioSource.spatialBlend = .35f;
             _audioSource.minDistance = 1f;
             _audioSource.maxDistance = 5f;
@@ -72,6 +73,11 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             Hide();
         }
         public void BindHands(VisitorHandReadinessAdapter hands) => _invitationRitual.BindHands(hands);
+        public static void ConfigureInstructionLayout(TMP_Text detail)
+        {
+            detail.rectTransform.sizeDelta = new Vector2(440, 132);
+            detail.fontSize = 22;
+        }
         public void Bind(IVisitorPrologue prologue)
         {
             if (!_configured || _subscription != null) throw new InvalidOperationException("Invitation presenter binding is invalid.");
@@ -93,8 +99,8 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             _invitationRoot.SetActive(!failure);
             SetGroup(_failureGroup, failure);
             SetGroup(_invitationGroup, !failure && (!arrival || !_invitationRitual.HasOpened));
-            _gazeInvitationButton.gameObject.SetActive(state.CanInviteWithGaze);
-            _gazeInvitationButton.interactable = state.CanInviteWithGaze;
+            _gazeInvitationButton.gameObject.SetActive(false);
+            _gazeInvitationButton.interactable = false;
             if (failure)
             {
                 _invitationRitual.PresentHidden();
@@ -105,8 +111,8 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
             }
             else
             {
-                _invitationTitle.text = invitation ? _theme.Copy.InvitationTitle : _theme.Copy.ArrivalTitle;
-                _invitationDetail.text = invitation ? _theme.Copy.InvitationDetail : _theme.Copy.ArrivalDetail;
+                _invitationTitle.text = invitation ? "操作教学 · 唤醒魔法书" : _theme.Copy.ArrivalTitle;
+                _invitationDetail.text = invitation ? _invitationRitual.Instruction : _theme.Copy.ArrivalDetail;
                 _gazeInvitationLabel.text = _theme.Copy.GazeInvitationAction;
                 if (invitation) _invitationRitual.PresentAvailable(); else _invitationRitual.PresentOpening();
             }
@@ -120,6 +126,11 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
                 _audioSource.PlayOneShot(_theme.InvitationAudio);
             else if (_prologue.CurrentState.Phase == VisitorProloguePhase.Invitation)
                 _invitationRitual.PresentAvailable();
+        }
+        void LateUpdate()
+        {
+            if (_visible && _prologue?.CurrentState.Phase == VisitorProloguePhase.Invitation)
+                _invitationDetail.text = _invitationRitual.Instruction;
         }
         void OnGazeInvitation()
         {

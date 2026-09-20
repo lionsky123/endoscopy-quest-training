@@ -31,16 +31,37 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             if (_feedbackGraphic == null)
                 throw new InvalidOperationException("Visitor dialogue target requires an authored feedback graphic.");
             EnsureFeedbackInitialized();
-            SetArmed(false);
+            // A presenter can configure an inactive prefab before its first Awake.
+            // Preserve that requested state when the parent is finally activated.
+            SetArmed(_armed);
         }
 
-        void OnEnable() => Subscribe();
+        void OnEnable()
+        {
+            ResetPress();
+            Subscribe();
+        }
         void OnDisable()
         {
+            // The hand's Cancel can arrive after this target has unsubscribed.
+            // A press must never survive a panel/application lifecycle boundary.
+            ResetPress();
             RestoreFeedback();
             Unsubscribe();
         }
         void OnDestroy() => Unsubscribe();
+
+        void OnApplicationFocus(bool focused)
+        {
+            ResetPress();
+            RestoreFeedback();
+        }
+
+        void OnApplicationPause(bool paused)
+        {
+            ResetPress();
+            RestoreFeedback();
+        }
 
         public void SetArmed(bool armed)
         {

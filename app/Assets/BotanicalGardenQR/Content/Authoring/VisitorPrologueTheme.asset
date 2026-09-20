@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VisitorPrologueTheme
   m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.VisitorPrologueThemeAsset
   _presentationPrefab: {fileID: 2370670670832817760, guid: d6752cae1afe6c34c8565735cd81001c, type: 3}
-  _viewerDistance: 0.55
+  _viewerDistance: 0.45
   _verticalOffset: -0.08
   _minimumStandingPanelCenterHeight: 1.35
   _initialPlacementDelaySeconds: 0.18
@@ -33,13 +33,13 @@ MonoBehaviour:
     _arrivalDetail: 可以放下手了。看前面，小精灵来与你会合了。
     _fairySpeakerName: 小精灵
     _encounterPages:
-    - 你好！刚才是你在回应我，对吗？我会陪你走过这里的六个学习点。
+    - 你好！我会陪你走过六个学习点。伸手轻触下方按钮，就能回应我。不需要用力拍打。
     - 这里有正确示范，也有需要修复的案例。你愿意和我一起，了解清洗消毒室吗？
     - 先等我一下，好，我准备好了。
-    - 我们出发吧！跟着我和地面的路线走，到站后触碰“开启发现”。
+    - 我们出发吧！跟着我和地面的路线走，到站后轻触“开启发现”。第一关再触碰光圈进入观察。
     _curiousReplyLabel: 我们会学些什么？
     _companionReplyLabel: 好，一起探索！
     _curiousResponse: 布局和流程、工具和水路、产品与使用记录。我们先看正确示范，再一起修复案例中的问题。
     _companionResponse: 好！遇到不熟悉的内容也没关系，我们一起看图、观察、回答问题。
     _retryAction: 重新建立联系
-    _firstContinueAction: 触碰回应  ›
+    _firstContinueAction: 轻触回应  ›

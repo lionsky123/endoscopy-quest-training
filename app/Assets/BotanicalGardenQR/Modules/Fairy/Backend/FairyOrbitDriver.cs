@@ -18,6 +18,9 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         Transform _viewer;
         Transform _groundReference;
+        IFairyWalkSpace _walkSpace;
+        bool _roomRecall;
+        Vector3 _roomIdlePosition;
         FairyBehavior _behavior;
         Action<bool> _movementChanged;
         Action<float> _speedChanged;
@@ -40,7 +43,13 @@ namespace BotanicalGardenQR.Fairy.Backend
         Vector3 _recallPosition;
         internal bool TryRecall(Vector3 position)
         {
-            if (!isActiveAndEnabled || !Finite(position) || _cue.Kind != FairyCompanionCueKind.Idle || _recallRemaining > 0) return false;
+            if (!isActiveAndEnabled || !Finite(position) || _cue.Kind != FairyCompanionCueKind.Idle || _recallRemaining > 0 || _roomRecall) return false;
+            if (_walkSpace != null)
+            {
+                _recallPosition = _walkSpace.Project(position); _roomRecall = true;
+                _motionMoving = false; _motionAcquiring = false; _motionTurning = false; _motionSuspended = false;
+                SetWalking(false); return true;
+            }
             _recallPosition = position; _recallRemaining = .36f;
             _motionMoving = false; _motionAcquiring = false; _motionTurning = false;
             SetWalking(false);
@@ -51,6 +60,8 @@ namespace BotanicalGardenQR.Fairy.Backend
             if (requestId <= 0 || requestId < _lastMotionRequest || requestId <= _releasedMotionRequest ||
                 !isActiveAndEnabled || _recallRemaining > 0 || _cue.Kind != FairyCompanionCueKind.Idle ||
                 !Finite(position) || !Finite(forward) || !(speed > 0) || !(entryRadius > 0)) return false;
+            if (_roomRecall) { _motionSuspended = false; return false; }
+            if (_walkSpace != null && !_walkSpace.CanStep(position, position)) return false;
             _lastMotionRequest = requestId;
             _motionSuspended = false;
             if (_motionRequest != requestId)
@@ -78,6 +89,7 @@ namespace BotanicalGardenQR.Fairy.Backend
                 return false;
             }
             if (distance > Mathf.Max(0.05f, speed * 0.15f)) return false;
+            if (_walkSpace != null && !_walkSpace.CanStep(transform.position, position)) return false;
             _motionForward = Vector3.ProjectOnPlane(position - transform.position, Vector3.up);
             if (_motionForward.sqrMagnitude < 0.000001f) _motionForward = Vector3.ProjectOnPlane(forward, Vector3.up);
             if (moving && !FacingMovement(_motionForward))
@@ -125,6 +137,8 @@ namespace BotanicalGardenQR.Fairy.Backend
             if (requestId < _lastMotionRequest) return;
             _lastMotionRequest = requestId;
             _releasedMotionRequest = Math.Max(_releasedMotionRequest, requestId);
+            if (_walkSpace != null) _roomIdlePosition = transform.position;
+            _roomRecall = false;
             _motionRequest = 0;
             _motionAcquiring = false;
             _motionTurning = false;
@@ -136,11 +150,14 @@ namespace BotanicalGardenQR.Fairy.Backend
             Transform viewer,
             Transform groundReference,
             FairyBehavior behavior,
-            Action<bool> movementChanged = null, Action<float> speedChanged = null)
+            Action<bool> movementChanged = null, Action<float> speedChanged = null,
+            IFairyWalkSpace walkSpace = null)
         {
             _viewer = viewer != null ? viewer : throw new ArgumentNullException(nameof(viewer));
             _groundReference = groundReference != null ? groundReference : viewer;
             _behavior = behavior;
+            _walkSpace = walkSpace;
+            if (_walkSpace != null) _roomIdlePosition = _walkSpace.StartPosition;
             _movementChanged = movementChanged;
             _speedChanged = speedChanged;
             _baseScale = transform.localScale;
@@ -177,6 +194,16 @@ namespace BotanicalGardenQR.Fairy.Backend
         {
             if (_viewer == null) return;
             deltaSeconds = Mathf.Clamp(deltaSeconds, 0f, 0.1f);
+            if (_roomRecall)
+            {
+                if (!_motionSuspended) MoveAlongRoomPath(_recallPosition, deltaSeconds);
+                if (Vector3.Distance(transform.position, _recallPosition) <= .001f)
+                {
+                    _roomRecall = false; _motionPosition = _roomIdlePosition = _recallPosition; _motionRequest = 0;
+                    SetWalking(false);
+                }
+                return;
+            }
             if (_recallRemaining > 0)
             {
                 var previous = _recallRemaining;
@@ -196,6 +223,13 @@ namespace BotanicalGardenQR.Fairy.Backend
             {
                 if (_motionAcquiring && !_motionSuspended)
                 {
+                    if (_walkSpace != null)
+                    {
+                        MoveAlongRoomPath(_motionPosition, deltaSeconds);
+                        _motionAcquiring = Vector3.Distance(transform.position, _motionPosition) > .001f;
+                        if (!_motionAcquiring) SetWalking(false);
+                        return;
+                    }
                     var direction = Vector3.ProjectOnPlane(_motionPosition - transform.position, Vector3.up);
                     FaceMovement(direction, deltaSeconds);
                     var next = FacingMovement(direction)
@@ -223,10 +257,11 @@ namespace BotanicalGardenQR.Fairy.Backend
             var target = TargetPosition();
             var targetDelta = Vector3.ProjectOnPlane(target - transform.position, Vector3.up);
             var needsWalk = targetDelta.sqrMagnitude > WalkingDistanceThreshold * WalkingDistanceThreshold;
-            if (_behavior == FairyBehavior.Guide && needsWalk) FaceMovement(targetDelta, deltaSeconds);
+            if (_walkSpace == null && _behavior == FairyBehavior.Guide && needsWalk) FaceMovement(targetDelta, deltaSeconds);
             SetWalking(_behavior == FairyBehavior.Guide &&
                        needsWalk && FacingMovement(targetDelta));
-            transform.position = _behavior == FairyBehavior.Guide
+            if (_walkSpace != null) MoveAlongRoomPath(target, deltaSeconds);
+            else transform.position = _behavior == FairyBehavior.Guide
                 ? Vector3.MoveTowards(transform.position, target, ((_walking || !needsWalk) ? (_motionSpeed > 0 ? _motionSpeed : 0.7f) : 0f) * deltaSeconds)
                 : Vector3.Lerp(transform.position, target, 1f - Mathf.Exp(-PositionResponsiveness * deltaSeconds));
             transform.localScale = Vector3.Lerp(
@@ -292,6 +327,9 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         Vector3 GroundTargetPosition()
         {
+            // In a room, dialogue and attention change the facing/animation only.
+            // Head-relative offsets are not valid destinations in the architecture.
+            if (_walkSpace != null) return _motionRequest > 0 ? _motionPosition : _roomIdlePosition;
             var viewerRight = Vector3.ProjectOnPlane(_viewer.right, Vector3.up).normalized;
             if (viewerRight.sqrMagnitude < 0.001f) viewerRight = Vector3.right;
 
@@ -326,6 +364,20 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         Vector3 TargetScale()
             => _baseScale * (_enlarged ? 1.5f : 1f);
+
+        void MoveAlongRoomPath(Vector3 destination, float seconds)
+        {
+            if ((destination - transform.position).sqrMagnitude <= .000001f) { SetWalking(false); return; }
+            var waypoint = _walkSpace.NextWaypoint(transform.position, destination);
+            var direction = Vector3.ProjectOnPlane(waypoint - transform.position, Vector3.up);
+            FaceMovement(direction, seconds);
+            var next = FacingMovement(direction)
+                ? Vector3.MoveTowards(transform.position, waypoint, (_motionSpeed > 0 ? _motionSpeed : .7f) * seconds)
+                : transform.position;
+            if (!_walkSpace.CanStep(transform.position, next)) { SetWalking(false); return; }
+            SetWalking(Vector3.Distance(next, transform.position) > .00001f);
+            transform.position = next;
+        }
 
         void SetWalking(bool walking)
         {

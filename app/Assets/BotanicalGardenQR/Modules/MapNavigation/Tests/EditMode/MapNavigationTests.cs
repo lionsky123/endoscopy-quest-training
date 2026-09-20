@@ -62,6 +62,20 @@ namespace BotanicalGardenQR.MapNavigation.Tests
         }
 
         [Test]
+        public void VirtualRoomFrameIsReadyImmediatelyAndDoesNotFollowHeadTurns()
+        {
+            var frame = new MapFrame(new MapPosition(6, 0, -4), 90, 1);
+            using var n = new MapNavigationController(Definition(), new Motion(), frame);
+            Assert.That(n.HasFrame, Is.True);
+            Assert.That(n.TryInitialize(new MapPosition(8, 1.7f, 3), -125, .4f, .02f), Is.True);
+            Assert.That(n.Frame.Origin.x, Is.EqualTo(6));
+            Assert.That(n.Frame.YawDegrees, Is.EqualTo(90));
+            Assert.That(n.Begin("first"), Is.True);
+            var expected = frame.Transform(Definition().points[0].position);
+            Assert.That(MapPosition.Distance(n.CurrentWorldPath[n.CurrentWorldPath.Count-1], expected), Is.LessThan(.001f));
+        }
+
+        [Test]
         public void NearbyVisitorMayWalkBesideTheFairyInsteadOfOnItsRoute()
         {
             using var n = Ready();

@@ -412,7 +412,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.16, g: 0.2, b: 0.24, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -872,8 +872,8 @@ Camera:
   m_GameObject: {fileID: 185979450}
   m_Enabled: 0
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.16, g: 0.2, b: 0.24, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1629,8 +1629,8 @@ Camera:
   m_GameObject: {fileID: 447306757}
   m_Enabled: 0
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.16, g: 0.2, b: 0.24, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2705,7 +2705,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &665402317 stripped
@@ -2716,7 +2716,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!1 &675648488
@@ -2891,7 +2891,7 @@ MonoBehaviour:
   virtualGreenScreenDepthTolerance: 0.2
   mrcActivationMode: 0
   launchSimultaneousHandsControllersOnStartup: 1
-  isInsightPassthroughEnabled: 1
+  isInsightPassthroughEnabled: 0
   shouldBoundaryVisibilityBeSuppressed: 0
   requestBodyTrackingPermissionOnStartup: 0
   requestFaceTrackingPermissionOnStartup: 0
@@ -3220,7 +3220,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735543 stripped
@@ -3231,7 +3231,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735544 stripped
@@ -3242,7 +3242,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735545 stripped
@@ -3253,7 +3253,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735546 stripped
@@ -3264,7 +3264,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735547 stripped
@@ -3275,7 +3275,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735548 stripped
@@ -3286,7 +3286,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735549 stripped
@@ -3297,7 +3297,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735550 stripped
@@ -3308,7 +3308,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735551 stripped
@@ -3319,7 +3319,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735552 stripped
@@ -3330,7 +3330,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735553 stripped
@@ -3341,7 +3341,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735554 stripped
@@ -3352,7 +3352,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735555 stripped
@@ -3363,7 +3363,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735556 stripped
@@ -3374,7 +3374,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735557 stripped
@@ -3385,7 +3385,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &735735558 stripped
@@ -3396,7 +3396,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!225 &735735559 stripped
@@ -4917,7 +4917,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1298856290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5600,7 +5600,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115964 stripped
@@ -5611,7 +5611,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115965 stripped
@@ -5622,7 +5622,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115966 stripped
@@ -5633,7 +5633,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115967 stripped
@@ -5644,7 +5644,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115968 stripped
@@ -5655,7 +5655,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115969 stripped
@@ -5666,7 +5666,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115970 stripped
@@ -5677,7 +5677,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115971 stripped
@@ -5688,7 +5688,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115972 stripped
@@ -5699,7 +5699,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115988 stripped
@@ -5710,7 +5710,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!1 &1479117441
@@ -6988,7 +6988,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2076330482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7034,7 +7034,7 @@ MonoBehaviour:
   SceneSettings:
     <TrackerConfiguration>k__BackingField:
       <KeyboardTrackingEnabled>k__BackingField: 0
-      <QRCodeTrackingEnabled>k__BackingField: 1
+      <QRCodeTrackingEnabled>k__BackingField: 0
     <TrackableAdded>k__BackingField:
       m_PersistentCalls:
         m_Calls: []
@@ -7265,6 +7265,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 91628483334439857, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 91628483334439857, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: m_Name
       value: ApplicationModeGateway
@@ -7537,6 +7541,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 611634516}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2125000100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2125000101}
+  - component: {fileID: 2125000102}
+  m_Layer: 0
+  m_Name: DisabledAudioRoomForSilentExperience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2125000101
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125000100}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2125000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125000100}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc3115f71c5841078600752259d33fd1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -7551,3 +7599,4 @@ SceneRoots:
   - {fileID: 735735541}
   - {fileID: 2112923431}
   - {fileID: 602169561}
+  - {fileID: 2125000101}

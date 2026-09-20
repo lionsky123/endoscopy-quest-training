@@ -14,12 +14,13 @@ namespace BotanicalGardenQR.Fairy.Backend
             OVRPassthroughLayer arrivalPassthroughLayer,
             Light arrivalEnvironmentLight,
             Action<DiagnosticEvent> diagnostics = null,
-            Func<Vector3, Vector3?> arrivalHandPosition = null)
+            Func<Vector3, Vector3?> arrivalHandPosition = null,
+            IFairyWalkSpace walkSpace = null)
         {
             if (runtimeRoot == null) throw new ArgumentNullException(nameof(runtimeRoot));
             if (viewer == null) throw new ArgumentNullException(nameof(viewer));
             if (groundReference == null) throw new ArgumentNullException(nameof(groundReference));
-            if (arrivalPassthroughLayer == null) throw new ArgumentNullException(nameof(arrivalPassthroughLayer));
+            // A virtual room has no passthrough layer; arrival still animates its light.
             if (arrivalEnvironmentLight == null) throw new ArgumentNullException(nameof(arrivalEnvironmentLight));
 
             var moduleRoot = new GameObject("FairyModuleRuntime");
@@ -31,7 +32,7 @@ namespace BotanicalGardenQR.Fairy.Backend
                 arrivalPassthroughLayer,
                 arrivalEnvironmentLight,
                 diagnostics,
-                arrivalHandPosition);
+                arrivalHandPosition, walkSpace);
             return controller;
         }
 

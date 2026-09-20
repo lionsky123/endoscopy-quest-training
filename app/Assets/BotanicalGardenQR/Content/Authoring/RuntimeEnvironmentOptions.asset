@@ -22,6 +22,7 @@ MonoBehaviour:
   _scanGazeLostGraceSeconds: 0.15
   _videoPrepareTimeoutSeconds: 15
   _fieldbookEnabled: 1
-  _arrivalRadius: 1.2
-  _arrivalExitRadius: 1.5
+  _virtualRoomEnabled: 1
+  _arrivalRadius: 0.35
+  _arrivalExitRadius: 0.55
   _arrivalStableSeconds: 0.35

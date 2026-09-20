@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: 372, y: 92}
+  m_SizeDelta: {x: 372, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6250604285633406031
 CanvasRenderer:
@@ -92,8 +92,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 22
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 26, y: 12, z: 20, w: 12}
+  m_margin: {x: 8, y: 0, z: 8, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -172,7 +172,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: 372, y: 92}
+  m_SizeDelta: {x: 372, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2445612277465774154
 CanvasRenderer:
@@ -229,8 +229,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 22
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -268,7 +268,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 26, y: 12, z: 20, w: 12}
+  m_margin: {x: 8, y: 0, z: 8, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -309,7 +309,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: 372, y: 92}
+  m_SizeDelta: {x: 372, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4945462132696104017
 CanvasRenderer:
@@ -366,8 +366,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 22
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -405,7 +405,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 26, y: 12, z: 20, w: 12}
+  m_margin: {x: 8, y: 0, z: 8, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -736,7 +736,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427217851258201363}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -875,7 +875,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1736942820871717287}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -1271,7 +1271,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3758396637383948882}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -1827,7 +1827,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: 372, y: 92}
+  m_SizeDelta: {x: 372, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &141015825602523947
 CanvasRenderer:
@@ -1884,8 +1884,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 22
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1923,7 +1923,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 26, y: 12, z: 20, w: 12}
+  m_margin: {x: 8, y: 0, z: 8, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2107,7 +2107,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5152316562818369999}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -2245,7 +2245,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6298305646297113831}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -2598,7 +2598,7 @@ MonoBehaviour:
   _completedFeedbackPosition: {x: 0, y: -10}
   _completedFeedbackSize: {x: 800, y: 230}
   _completedFeedbackFontSize: 30
-  _viewerDistance: 0.55
+  _viewerDistance: 0.45
   _verticalOffset: -0.04
   _sortingOrder: 430
   _gazePriority: 430
@@ -2709,7 +2709,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7590594241378665064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:
@@ -3272,7 +3272,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8905169240930715015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea795f4182e84279acd2ce97c738c080, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
   m_Navigation:

@@ -65,8 +65,8 @@ namespace BotanicalGardenQR.Editor.Validation
                 if (scope == ValidationScope.All)
                 {
                     var adminCount = enabled.Count(x => x.path.IndexOf("SpatialAnchorAdmin", StringComparison.OrdinalIgnoreCase) >= 0);
-                    if (enabled.Length != 2 || adminCount != 1)
-                        CommercialArchitectureValidator.Add(issues, "COM-SCENE-000", "ProjectSettings/EditorBuildSettings.asset", "Bootstrap", $"Commercial build requires one Visitor Scene and one spatial-anchor Admin Scene; found {enabled.Length} enabled scenes ({adminCount} admin)." );
+                    if (IsVirtualRoom ? enabled.Length != 1 || adminCount != 0 : enabled.Length != 2 || adminCount != 1)
+                        CommercialArchitectureValidator.Add(issues, "COM-SCENE-000", "ProjectSettings/EditorBuildSettings.asset", "Bootstrap", IsVirtualRoom ? "VR build requires only the Visitor room scene." : $"Commercial build requires one Visitor Scene and one spatial-anchor Admin Scene; found {enabled.Length} enabled scenes ({adminCount} admin)." );
                 }
                 foreach (var buildScene in enabled)
                 {
@@ -100,9 +100,10 @@ namespace BotanicalGardenQR.Editor.Validation
                 var isAdmin = path.IndexOf("SpatialAnchorAdmin", StringComparison.OrdinalIgnoreCase) >= 0;
                 var allInstallers = components.OfType<VisitorInstaller>().ToArray();
                 var installers = allInstallers.Where(x => x.enabled && x.gameObject.activeInHierarchy).ToArray();
-                ValidateApplicationMode(components, path, isAdmin, issues);
+                if (IsVirtualRoom && !isAdmin) ValidateVirtualRoom(components, path, issues);
+                else ValidateApplicationMode(components, path, isAdmin, issues);
                 ValidateBoundaryManagers(components, path, issues);
-                if (CommercialArchitectureValidator.Includes(
+                if (!IsVirtualRoom && CommercialArchitectureValidator.Includes(
                         scope,
                         ValidationScope.PhysicalAugmentation))
                     ValidatePhysicalAugmentationTopology(
@@ -118,7 +119,7 @@ namespace BotanicalGardenQR.Editor.Validation
                 }
                 if (allInstallers.Length != 1) CommercialArchitectureValidator.Add(issues, "COM-SCENE-007", path, "Bootstrap", $"Visitor Build Scene contains {allInstallers.Length} VisitorInstaller components, including disabled instances; parallel runtimes are forbidden.");
                 if (installers.Length != 1) CommercialArchitectureValidator.Add(issues, "COM-SCENE-003", path, "Bootstrap", $"Visitor Build Scene requires exactly one enabled VisitorInstaller; found {installers.Length}.");
-                ValidateSpatialDataPermissionTopology(components, installers, path, issues);
+                if (!IsVirtualRoom) ValidateSpatialDataPermissionTopology(components, installers, path, issues);
                 ValidateUnsupportedVisitorLocomotion(components, path, issues);
                 ValidateVisitorRendering(components, path, issues);
                 foreach (var installer in installers)
@@ -411,6 +412,25 @@ namespace BotanicalGardenQR.Editor.Validation
                 root,
                 "SpatialAnchorAdmin",
                 "Admin assembly boundary violation(s): " + string.Join("; ", mismatches));
+        }
+
+        static bool IsVirtualRoom => AssetDatabase.LoadAssetAtPath<BotanicalGardenQR.Configuration.Runtime.RuntimeEnvironmentOptions>(
+            "Assets/BotanicalGardenQR/Content/Authoring/RuntimeEnvironmentOptions.asset")?.VirtualRoomEnabled == true;
+
+        static void ValidateVirtualRoom(Component[] components, string path, ICollection<CommercialValidationIssue> issues)
+        {
+            foreach (var component in components)
+            {
+                if (!component.gameObject.activeInHierarchy || component is Behaviour disabled && !disabled.enabled) continue;
+                var name = component.GetType().Name;
+                if (name == "MRUK" || name == "OVRPassthroughLayer" || name == "MetaSpatialDataPermissionGate" ||
+                    name == "MetaPhysicalAnchorLocator" || name == "QrRecognitionSourceAdapter" || name == "ApplicationModeControllerHost")
+                    CommercialArchitectureValidator.Add(issues, "COM-VR-001", path, "Bootstrap", "VR must not activate MR service: " + name);
+                if (component is Camera camera && (camera.clearFlags != CameraClearFlags.SolidColor || camera.backgroundColor.a < .999f))
+                    CommercialArchitectureValidator.Add(issues, "COM-VR-002", path, "Bootstrap", "VR cameras must clear to an opaque background.");
+                if (name == "OVRManager" && new SerializedObject(component).FindProperty("isInsightPassthroughEnabled")?.boolValue == true)
+                    CommercialArchitectureValidator.Add(issues, "COM-VR-003", path, "Bootstrap", "VR OVRManager must disable passthrough.");
+            }
         }
 
         static void ValidateSpatialDataPermissionTopology(

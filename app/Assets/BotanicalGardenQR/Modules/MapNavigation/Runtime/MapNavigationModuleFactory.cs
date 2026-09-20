@@ -6,11 +6,11 @@ namespace BotanicalGardenQR.MapNavigation.Runtime
 {
     public static class MapNavigationModuleFactory
     {
-        public static IMapNavigation Create(MapDefinition definition, IMapMotionSink motion)
+        public static IMapNavigation Create(MapDefinition definition, IMapMotionSink motion, MapFrame? fixedFrame = null)
         {
             try
             {
-                return new MapNavigationController(definition, motion);
+                return new MapNavigationController(definition, motion, fixedFrame);
             }
             catch (ArgumentException)
             {

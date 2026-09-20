@@ -22,6 +22,11 @@ namespace BotanicalGardenQR.Configuration.Editor
             {
                 var definition = JsonUtility.FromJson<MapDefinition>(File.ReadAllText(DefinitionPath));
                 MapDefinitionValidation.Validate(definition);
+                if (!string.IsNullOrEmpty(definition.roomResource))
+                {
+                    ValidateRoom(definition);
+                    return;
+                }
                 if (Digest(File.ReadAllBytes(SourcePath)) != definition.sourceDigest || Digest(File.ReadAllBytes(ModelPath)) != definition.modelDigest)
                     throw new InvalidOperationException("Published map source/model digest mismatch; regenerate the authored model and route unit.");
                 var data = File.ReadAllBytes(ModelPath);
@@ -52,6 +57,26 @@ namespace BotanicalGardenQR.Configuration.Editor
         {
             using var sha = SHA256.Create();
             return BitConverter.ToString(sha.ComputeHash(data)).Replace("-", string.Empty).ToLowerInvariant();
+        }
+
+        static void ValidateRoom(MapDefinition definition)
+        {
+            const string roomPath = "Assets/EndoscopyTheme/Resources/EndoscopyRoom/";
+            if (definition.roomResource != "EndoscopyRoom" || definition.scale != 1f || definition.points.Length != 6)
+                throw new InvalidOperationException("The VR room requires six metre-scale stations.");
+            if (Digest(File.ReadAllBytes(SourcePath)) != definition.sourceDigest ||
+                Digest(File.ReadAllBytes(roomPath + "geometry.bytes")) != definition.modelDigest)
+                throw new InvalidOperationException("Room geometry/source changed; republish the room map.");
+            var source = JsonUtility.FromJson<MapDefinition>(File.ReadAllText(SourcePath));
+            if (source == null || source.points == null || source.points.Length != definition.points.Length ||
+                MapPosition.Distance(source.start, definition.start) > .001f)
+                throw new InvalidOperationException("Published room start/stations disagree with source.");
+            for (var i = 0; i < definition.points.Length; i++)
+                if (source.points[i].id != definition.points[i].id ||
+                    MapPosition.Distance(source.points[i].position, definition.points[i].position) > .001f)
+                    throw new InvalidOperationException("Room station differs from source: " + definition.points[i].id);
+            if (!File.Exists(roomPath + "manifest.json") || !File.Exists(roomPath + "RoomSurface.mat"))
+                throw new InvalidOperationException("Room material publication is incomplete.");
         }
 
         [Serializable]

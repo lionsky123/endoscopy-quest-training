@@ -1,0 +1,11 @@
+{
+  "meshes": 129,
+  "stations": 6,
+  "legs": 6,
+  "samples": 692,
+  "minimumHorizontalClearanceMetres": 0.52,
+  "totalRouteMetres": 32.32,
+  "modelDigest": "981c985aeaf03bab5e974df3b2f12a205b9c714a9f53440d99bd401e62212a15",
+  "sourceDigest": "a6e618e28a4788c39df573bfd64ec42f6c0cda0d7deee18d3e0ee441ab6909da",
+  "method": "Conservative mesh AABB clearance, 0.4m radius, <=0.05m route sampling; not headset acceptance."
+}

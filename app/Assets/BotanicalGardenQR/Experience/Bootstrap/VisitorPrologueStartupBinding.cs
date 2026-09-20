@@ -140,7 +140,7 @@ namespace BotanicalGardenQR.Bootstrap
             _context = default;
         }
         internal static bool ShouldShowGazeReticle(VisitorPrologueViewState state)
-            => false; // This theme uses direct hand touch.
+            => false;
         internal static VisitorDialogueInputMode ResolveDialogueInput(VisitorPrologueViewState state)
             => state.Phase == VisitorProloguePhase.Encounter || state.IsExplorationReady
                 ? VisitorDialogueInputMode.HandPoke : VisitorDialogueInputMode.Unavailable;

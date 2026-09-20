@@ -97,12 +97,18 @@ namespace BotanicalGardenQR.Tests.EditMode
                 shell.SetApplicationSurfaceSuppressed(false);
                 Assert.That(panel.gameObject.activeInHierarchy, Is.True);
                 int completions = 0;
-                shell.ClinicalCompletionRequested += () => completions++;
+                shell.ClinicalCompletionRequested += _ => completions++;
                 Assert.That(shell.CompleteClinicalLesson(SessionToken.CreateNew()).Succeeded, Is.False);
                 Assert.That(completions, Is.Zero);
+                flow.RejectClose = true;
+                Assert.That(shell.CompleteClinicalLesson(state.Session).Succeeded, Is.False);
+                Assert.That(completions, Is.Zero, "A failed close must not publish completion.");
+                flow.RejectClose = false;
                 Assert.That(shell.CompleteClinicalLesson(state.Session).Succeeded, Is.True);
-                Assert.That(flow.CloseCalls, Is.EqualTo(1), "The completion seam closes content before requesting the existing quiz.");
+                Assert.That(flow.CloseCalls, Is.EqualTo(2), "A successful close precedes completion; the failed attempt can be retried.");
                 Assert.That(completions, Is.EqualTo(1));
+                Assert.That(shell.CompleteClinicalLesson(state.Session).Succeeded, Is.False);
+                Assert.That(completions, Is.EqualTo(1), "The same session may complete only once.");
                 var second = new SceneId("baobab");
                 resolver.TryGet(second, out var other);
                 flow.Publish(new ExperienceFlowState(SessionToken.CreateNew(), 1, second, other.Title,
@@ -117,10 +123,17 @@ namespace BotanicalGardenQR.Tests.EditMode
         {
             IFlowStateSink _sink;
             public int CloseCalls;
+            public bool RejectClose;
             public FlowPrepareResult Prepare(SessionToken session, SceneId scene) => throw new NotSupportedException();
             public FlowResult EnterFeature(SessionToken session, FeaturePageId feature) => FlowResult.Success;
             public FlowResult BackToMain(SessionToken session) => FlowResult.Success;
-            public FlowResult Close(SessionToken session) { CloseCalls++; return FlowResult.Success; }
+            public FlowResult Close(SessionToken session)
+            {
+                CloseCalls++;
+                if (RejectClose) return FlowResult.Reject(FlowFailure.StaleSession);
+                Publish(new ExperienceFlowState(default, 2, default, "", "", "", FlowPage.Closed, Array.Empty<FeaturePageId>()));
+                return FlowResult.Success;
+            }
             public IDisposable Observe(IFlowStateSink sink) { _sink = sink; return new EmptyLease(); }
             public void Publish(ExperienceFlowState state) => _sink.OnStateChanged(state);
             sealed class EmptyLease : IDisposable { public void Dispose() { } }
@@ -147,82 +160,71 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(importer.GetPlatformTextureSettings("Android").maxTextureSize, Is.EqualTo(8192));
         }
 
-        [Test] public void FirstLessonEntryHasOneActionAndRejectsPointerSubmission()
+        // Current no-quiz interaction coverage lives in ClinicalObservationInteractionTests.
+
+        [Test]
+        public void EvidenceSessionDoesNotAcceptPartialEvidenceOrHintsAsCompletion()
         {
-            var root = new GameObject("Panel test");
-            var events = new GameObject("Events", typeof(EventSystem));
-            int starts = 0;
-            var resolver = Resolver();
-            resolver.TryGetLearningImages(First, out var images);
-            resolver.TryGet(First, out var descriptor);
-            try
+            var definition = JsonUtility.FromJson<ClinicalEvidenceLesson>(Resources.Load<TextAsset>("ClinicalEvidence/lesson").text);
+            var session = new ClinicalEvidenceSession(definition);
+            Assert.That(session.Continue(), Is.False);
+            for (int topic = 0; topic < 3; topic++)
             {
-                using var panel = new ClinicalLessonPanel(root.transform, Font(), new Registry(), () => starts++);
-                panel.Present(new ExperienceFlowState(SessionToken.CreateNew(), 1, First, descriptor.Title,
-                    descriptor.Subtitle, descriptor.Summary, FlowPage.Main, descriptor.AvailablePages), images, true);
-                panel.SetVisible(true);
-                var buttons = root.GetComponentsInChildren<Button>(true);
-                Assert.That(buttons.Length, Is.EqualTo(1));
-                var start = (NearOnlyButton)buttons.Single();
-                Assert.That(start.name, Is.EqualTo("EnterPanorama"));
-                start.OnPointerClick(new PointerEventData(events.GetComponent<EventSystem>()));
-                start.OnSubmit(new BaseEventData(events.GetComponent<EventSystem>()));
-                Assert.That(starts, Is.Zero);
-                start.onClick.Invoke();
-                Assert.That(starts, Is.EqualTo(1));
-                Assert.That(root.GetComponentsInChildren<RawImage>(true), Is.Empty, "Entry is not a media-selection menu.");
+                session.Locate(); session.Ask();
+                for (int n = 0; n < 10; n++) { session.Hint(); session.Submit(); }
+                Assert.That(session.CompletedCount, Is.EqualTo(topic));
+                if (topic > 0)
+                {
+                    int firstRequired = Enumerable.Range(0, session.Topic.regions.Length).First(i => (session.Topic.requiredMask & (1 << i)) != 0);
+                    session.SelectRegion(firstRequired); session.SelectVerdict(session.Topic.conforms);
+                    Assert.That(session.Submit(), Is.False, "Correct verdict with only part of the evidence is insufficient.");
+                    Assert.That(session.CompletedCount, Is.EqualTo(topic));
+                }
+                for (int i = 0; i < session.Topic.regions.Length; i++)
+                    if ((session.Topic.requiredMask & (1 << i)) != 0 && (session.SelectedMask & (1 << i)) == 0) session.SelectRegion(i);
+                session.SelectVerdict(session.Topic.conforms);
+                Assert.That(session.Submit(), Is.True);
+                Assert.That(session.Submit(), Is.False);
+                Assert.That(session.Continue(), Is.EqualTo(topic == 2));
             }
-            finally { UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(events); }
+            Assert.That(session.CompletedCount, Is.EqualTo(3));
+            Assert.That(session.Continue(), Is.False);
+            session.Reset(); Assert.That(session.CompletedCount, Is.Zero);
+        }
+        [TestCase(0)] [TestCase(1)] [TestCase(2)] [TestCase(3)]
+        [TestCase(4)] [TestCase(5)] [TestCase(6)] [TestCase(7)]
+        public void MixedSkippedAndCorrectTopicsFinishWithoutAwardingSkippedAnswers(int skipMask)
+        {
+            var session = new ClinicalEvidenceSession(JsonUtility.FromJson<ClinicalEvidenceLesson>(Resources.Load<TextAsset>("ClinicalEvidence/lesson").text));
+            int correct = 0, skipped = 0;
+            Assert.That(session.Skip(), Is.False, "Observation and method stages are not questions.");
+            for (int topic = 0; topic < 3; topic++)
+            {
+                session.Locate(); session.Ask();
+                if ((skipMask & (1 << topic)) != 0)
+                {
+                    session.SelectRegion(0); session.SelectVerdict(!session.Topic.conforms); session.Submit();
+                    Assert.That(session.Skip(), Is.True, "Skipping remains available after a wrong attempt.");
+                    Assert.That(session.Skip(), Is.False, "Each topic can only be skipped once.");
+                    skipped++;
+                }
+                else
+                {
+                    for (int i = 0; i < session.Topic.regions.Length; i++)
+                        if ((session.Topic.requiredMask & (1 << i)) != 0) session.SelectRegion(i);
+                    session.SelectVerdict(session.Topic.conforms); Assert.That(session.Submit(), Is.True); correct++;
+                    Assert.That(session.Skip(), Is.False, "A correct topic cannot subsequently become skipped.");
+                }
+                Assert.That(session.Continue(), Is.EqualTo(topic == 2));
+                Assert.That(session.CompletedCount, Is.EqualTo(correct));
+                Assert.That(session.SkippedCount, Is.EqualTo(skipped));
+            }
+            Assert.That(session.Phase, Is.EqualTo(ClinicalEvidencePhase.Finished));
+            Assert.That(session.SkippedTopicMask, Is.EqualTo(skipMask));
+            session.Reset();
+            Assert.That(session.ResolvedCount, Is.Zero); Assert.That(session.SkippedTopicMask, Is.Zero);
         }
 
-        [Test] public void FirstPanoramaLoadsOneCardInOrderAndCompletesWithoutAMenu()
-        {
-            var root = new GameObject("Panorama test");
-            var viewer = new GameObject("Viewer");
-            var events = new GameObject("Events", typeof(EventSystem));
-            var frontend = root.AddComponent<PanoramaFrontend>();
-            ((IPanoramaDefinitionSource)Resolver()).TryGet(First, out var panorama);
-            int completed = 0, exits = 0;
-            try
-            {
-                frontend.Bind(SessionToken.CreateNew(), new Registry(), viewer.transform, root.transform, Font(),
-                    () => exits++, panorama.EnvironmentMoments, false, null, true, panorama.Source.Texture,
-                    panorama.TeachingComparisons, () => completed++);
-                frontend.SetVisible(true);
-                var next = (NearOnlyButton)root.GetComponentsInChildren<Button>(true).Single();
-                Assert.That(next.name, Is.EqualTo("ContinueSequence"));
-                var image = root.GetComponentInChildren<RawImage>(true);
-                Assert.That(image.gameObject.activeInHierarchy, Is.False, "Observe the room before showing teaching media.");
-                next.OnPointerClick(new PointerEventData(events.GetComponent<EventSystem>()));
-                next.OnSubmit(new BaseEventData(events.GetComponent<EventSystem>()));
-                Assert.That(image.gameObject.activeInHierarchy, Is.False);
-                for (int step = 1; step <= 6; step++)
-                {
-                    next.onClick.Invoke();
-                    Assert.That(image.gameObject.activeInHierarchy, Is.True);
-                    Assert.That(root.GetComponentsInChildren<RawImage>(), Has.Length.EqualTo(1));
-                    Assert.That(root.GetComponentsInChildren<Button>(), Has.Length.EqualTo(1));
-                    bool comparison = step % 2 == 0;
-                    Assert.That(image.texture, Is.SameAs(comparison ? panorama.TeachingComparisons[(step - 1) / 2] : panorama.Source.Texture));
-                    Assert.That(image.uvRect == new Rect(0, 0, 1, 1), Is.EqualTo(comparison));
-                    Assert.That(completed, Is.Zero, "Reading an image does not auto-complete the lesson.");
-                }
-                Assert.That(next.GetComponentInChildren<TMP_Text>().text, Does.Contain("开始答题"));
-                next.onClick.Invoke();
-                next.onClick.Invoke();
-                Assert.That(completed, Is.EqualTo(1));
-                Assert.That(exits, Is.Zero, "Last card completes directly, rather than returning to a selection menu.");
-                Assert.That(viewer.transform.position, Is.EqualTo(Vector3.zero));
-                Assert.That(viewer.transform.rotation, Is.EqualTo(Quaternion.identity));
-                frontend.SetVisible(false);
-                frontend.SetVisible(true);
-                Assert.That(image.gameObject.activeInHierarchy, Is.False);
-                next.onClick.Invoke();
-                Assert.That(image.texture, Is.SameAs(panorama.Source.Texture), "Re-entering starts at the door detail.");
-                frontend.Unbind();
-            }
-            finally { UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(viewer); UnityEngine.Object.DestroyImmediate(events); }
-        }
         sealed class Registry : IFrontendGazeSurfaceRegistry
         {
             public IDisposable SuspendPanelInput() => new Lease();

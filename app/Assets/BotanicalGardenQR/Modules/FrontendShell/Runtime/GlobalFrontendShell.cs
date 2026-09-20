@@ -35,23 +35,37 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         string _statusOverride = string.Empty;
         FeaturePageActionState _featurePageActionState = FeaturePageActionState.Hidden;
         ClinicalLessonPanel _clinicalPanel;
+        ClinicalCoursePanel _coursePanel;
         bool _clinicalActive;
-        public event Action ClinicalCompletionRequested;
+        SessionToken _completedClinicalSession;
+        public event Action<SessionToken> ClinicalCompletionRequested;
 
         public Transform FrontendRoot => _slots.ShellRoot;
 
         public FlowResult CompleteClinicalLesson(SessionToken session)
         {
-            if (_state == null || _state.Session != session || _state.SceneId.Value != "giant_saguaro")
+            if (_state == null || _state.Session != session || session == _completedClinicalSession || !ClinicalCourseScenes.Contains(_state.SceneId.Value))
                 return FlowResult.Reject(FlowFailure.StaleSession);
             var result = Dispatch(FlowIntent.Close(session));
-            if (result.Succeeded) ClinicalCompletionRequested?.Invoke();
+            if (result.Succeeded)
+            {
+                _completedClinicalSession = session;
+                ClinicalCompletionRequested?.Invoke(session);
+            }
             return result;
         }
 
         public void PresentClinicalLesson(ExperienceFlowState state, PublishedSceneResolver definitions,
             IFrontendGazeSurfaceRegistry surfaces)
         {
+            if (ClinicalCourseScenes.IsLaterLesson(state.SceneId.Value))
+            {
+                if (_coursePanel == null)
+                    _coursePanel = new ClinicalCoursePanel(_slots.ShellRoot.parent, _slots.Title.font, surfaces,
+                        session => CompleteClinicalLesson(session).Succeeded);
+                _coursePanel.Present(state.Session, state.SceneId.Value);
+                return;
+            }
             if (state.SceneId.Value != "giant_saguaro") return;
             if (_clinicalPanel == null)
                 _clinicalPanel = new ClinicalLessonPanel(_slots.ShellRoot.parent, _slots.Title.font, surfaces,
@@ -256,6 +270,8 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
 
         public void Dispose()
         {
+            _coursePanel?.Dispose();
+            _coursePanel = null;
             _clinicalPanel?.Dispose();
             _clinicalPanel = null;
             ClinicalCompletionRequested = null;
@@ -334,9 +350,11 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             bool feature,
             bool featureFocus)
         {
+            bool laterCourse = _coursePanel != null && ClinicalCourseScenes.IsLaterLesson(_state.SceneId.Value);
             _slots.ShellRoot.gameObject.SetActive(
-                !immersive && !featureFocus && !_applicationSurfaceSuppressed && !(main && _clinicalActive && _clinicalPanel != null));
+                !immersive && !featureFocus && !_applicationSurfaceSuppressed && !(main && ((_clinicalActive && _clinicalPanel != null) || laterCourse)));
             _clinicalPanel?.SetVisible(main && _clinicalActive && !_applicationSurfaceSuppressed);
+            _coursePanel?.SetVisible(main && laterCourse && !_applicationSurfaceSuppressed);
             ApplyFeatureModeTitles(closed);
             _slots.HeaderSlot.gameObject.SetActive(main);
             _slots.ActionSlot.gameObject.SetActive(main);

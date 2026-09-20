@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ViewerFront
   m_EditorClassIdentifier: BotanicalGardenQR.SpatialHost.Contracts::BotanicalGardenQR.SpatialHost.Contracts.DisplayProfile
   _hostMode: 1
-  _distance: 1.65
+  _distance: 0.45
   _height: 0
   _scale: 1
   _orientation: 1

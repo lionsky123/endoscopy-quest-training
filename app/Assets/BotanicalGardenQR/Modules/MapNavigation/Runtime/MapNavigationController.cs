@@ -15,11 +15,21 @@ namespace BotanicalGardenQR.MapNavigation.Runtime
         int _index = -1;
         long _request;
         bool _disposed, _hasViewer, _waiting, _entryChosen, _motionAccepted;
-        public MapNavigationController(MapDefinition definition, IMapMotionSink motion)
+        public MapNavigationController(MapDefinition definition, IMapMotionSink motion, MapFrame? fixedFrame = null)
         {
             MapDefinitionValidation.Validate(definition);
             _definition = definition.Snapshot();
             _motion = motion ?? throw new ArgumentNullException(nameof(motion));
+            if (fixedFrame.HasValue)
+            {
+                var frame = fixedFrame.Value;
+                if (!frame.Origin.IsFinite || float.IsNaN(frame.YawDegrees) || float.IsInfinity(frame.YawDegrees) ||
+                    frame.Scale != _definition.scale)
+                    throw new ArgumentException("Invalid fixed room frame.");
+                Frame = frame;
+                HasFrame = true;
+                Publish(MapNavigationPhase.Ready, 0);
+            }
         }
 
         public MapNavigationState State => _state;
@@ -155,7 +165,7 @@ namespace BotanicalGardenQR.MapNavigation.Runtime
                         entry.y = Frame.Origin.y;
                         var limit = _route.ForwardEntryLimit(s, s + _definition.departureRadius);
                         var projected = _route.Project(entry, s, limit, out var offset);
-                        if (offset <= _definition.departureRadius) _entryProgress = projected;
+                        if (offset <= _definition.fairyJoinRadius) _entryProgress = projected;
                     }
                     _entryChosen = true;
                 }

@@ -142,7 +142,7 @@ namespace BotanicalGardenQR.Configuration.Runtime
         [SerializeField, Min(0.3f)] float _recoverySeconds = 12f;
 
         [Header("Dialogue presentation")]
-        [SerializeField, Min(0.2f)] float _viewerDistance = 0.9f;
+        [SerializeField, Min(0.2f)] float _viewerDistance = 0.45f;
         [SerializeField] Vector2 _panelPixels = new Vector2(760f, 132f);
         [SerializeField, Min(0.0001f)] float _canvasScale = 0.001f;
         [SerializeField, Min(8f)] float _detailFontSize = 19f;

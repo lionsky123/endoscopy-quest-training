@@ -159,7 +159,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 definition.ClinicalLearning,
                 definition.Source.Texture,
                 definition.TeachingComparisons,
-                RequestClinicalCompletion);
+                RequestClinicalCompletion,
+                definition.InitialYawDegrees);
             _subscription = _controller.Observe(this);
 
             var opened = _controller.Open(session, definition, _featureLease);
@@ -242,7 +243,11 @@ namespace BotanicalGardenQR.Panorama.Frontend
             if (_shell is IClinicalLessonCompletion completion)
             {
                 var result = completion.CompleteClinicalLesson(_session);
-                if (!result.Succeeded) _shell.ShowStatus(_session, new UserFault("练习暂时无法打开，请重新进入本关。"));
+                if (!result.Succeeded)
+                {
+                    _shell.Dispatch(FlowIntent.BackToMain(_session));
+                    _shell.ShowStatus(_session, new UserFault("本站完成未能确认，请重新进入学习。"));
+                }
             }
             else RequestExit();
         }

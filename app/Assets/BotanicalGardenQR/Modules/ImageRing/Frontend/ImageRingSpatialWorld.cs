@@ -308,7 +308,7 @@ namespace BotanicalGardenQR.ImageRing.Frontend
             var hitSurface = buttonRect.gameObject.AddComponent<Image>();
             hitSurface.color = new Color(1f, 1f, 1f, 0.001f);
             hitSurface.raycastTarget = true;
-            _button = buttonRect.gameObject.AddComponent<BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton>();
+            _button = buttonRect.gameObject.AddComponent<Button>();
             _button.targetGraphic = hitSurface;
             _button.transition = Selectable.Transition.None;
             _button.navigation = new Navigation { mode = Navigation.Mode.None };
@@ -505,7 +505,7 @@ namespace BotanicalGardenQR.ImageRing.Frontend
                 new Vector2(0f, 10f));
             _surface = buttonRect.gameObject.AddComponent<Image>();
             _surface.color = Idle;
-            _button = buttonRect.gameObject.AddComponent<BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton>();
+            _button = buttonRect.gameObject.AddComponent<Button>();
             _button.targetGraphic = _surface;
             _button.transition = Selectable.Transition.None;
             _button.navigation = new Navigation { mode = Navigation.Mode.None };

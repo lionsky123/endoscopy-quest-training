@@ -50,7 +50,7 @@ namespace BotanicalGardenQR.Bootstrap
             _modal.SetGuidanceBlocksFirstScan(_guidance.BlocksFirstScan);
         }
 
-        public void Tick(float dt)
+        public void Tick(float dt, bool alignmentValid = true)
         {
             if (_disposed)
                 return;
@@ -62,6 +62,7 @@ namespace BotanicalGardenQR.Bootstrap
                 tracked = device.isValid && device.TryGetFeatureValue(CommonUsages.isTracked, out var valid) && valid;
             }
 
+            tracked &= alignmentValid;
             _lastTracked = tracked;
             var position = _viewer != null ? ToMap(_viewer.position) : default;
             if (tracked)
@@ -139,7 +140,7 @@ namespace BotanicalGardenQR.Bootstrap
         public FairyMapMotionSink(IFairyMotion motion, MapDefinition definition)
         {
             _motion = motion;
-            _entryRadius = definition?.departureRadius ?? 0;
+            _entryRadius = definition?.fairyJoinRadius ?? 0;
             _speed = definition?.speed ?? 0;
         }
 

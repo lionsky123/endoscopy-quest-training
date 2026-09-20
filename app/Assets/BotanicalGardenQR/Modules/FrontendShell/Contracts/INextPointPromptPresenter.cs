@@ -10,5 +10,7 @@ namespace BotanicalGardenQR.FrontendShell.Contracts
         void ShowJourneyStatus(string message);
         void SetClosedContentContext(string message);
         void ClearJourneyPrompt();
+        void CompleteClosedContent();
+        void SetClosedContentRequiresLearning(bool required);
     }
 }
