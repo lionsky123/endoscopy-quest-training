@@ -50,6 +50,7 @@ namespace BotanicalGardenQR.Tests.EditMode
             typeof(ClinicalNearTouch).GetField("readyAt", Flags).SetValue(target, float.NegativeInfinity);
             typeof(ClinicalNearTouch).GetField("lastCommit", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, float.NegativeInfinity);
             int commits = 0; UnityEngine.Events.UnityAction count = () => commits++;
+            var buttonName=button.name;
             var trace = new List<string>();
             void Track(PointerEvent e) => trace.Add(e.Type.ToString());
             target.GetComponent<PokeInteractable>().WhenPointerEventRaised += Track;
@@ -64,10 +65,14 @@ namespace BotanicalGardenQR.Tests.EditMode
                 Assert.That(_poke.Interactable, Is.SameAs(target.GetComponent<PokeInteractable>()), button.name);
                 for (int step = -10; step <= 2 && commits == 0; step++)
                     Drive(button.transform.position + button.transform.forward * (step * .005f));
-                _gaze.TickInput(2); Assert.That(commits, Is.EqualTo(1), button.name + " must commit exactly once through actual poke. Events=" + string.Join(",", trace) + " state=" + _poke.State + " target=" + _poke.Interactable?.name + " allowed=" + typeof(ClinicalNearTouch).GetProperty("CanPress", Flags).GetValue(target));
+                _gaze.TickInput(2); Assert.That(commits, Is.EqualTo(1), buttonName + " must commit exactly once through actual poke. Events=" + string.Join(",", trace) + " state=" + _poke.State);
                 Drive(_viewer.position - _viewer.forward);
             }
-            finally { button.onClick.RemoveListener(count); target.GetComponent<PokeInteractable>().WhenPointerEventRaised -= Track; }
+            finally
+            {
+                if(button) button.onClick.RemoveListener(count);
+                if(target) target.GetComponent<PokeInteractable>().WhenPointerEventRaised -= Track;
+            }
         }
         public void Dispose()
         {

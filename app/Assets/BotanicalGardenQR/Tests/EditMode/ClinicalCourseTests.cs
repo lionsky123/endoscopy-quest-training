@@ -17,6 +17,38 @@ namespace BotanicalGardenQR.Tests.EditMode
 {
     public sealed class ClinicalCourseTests
     {
+        [Test] public void RecreatedPanelResumesDataAndSubmittedReviewCannotMutateIt()
+        {
+            var root=new GameObject("CourseResumeTest");
+            var viewer=new GameObject("Viewer",typeof(Camera));
+            var events=new GameObject("Events",typeof(EventSystem));
+            var gaze=events.AddComponent<HeadGazeDwellController>();
+            gaze.Configure(viewer.GetComponent<Camera>(),events.GetComponent<EventSystem>());
+            var font=AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>("Assets/BotanicalGardenQR/Content/Authoring/GlobalUiDefaults.asset").SharedFont;
+            var state=new ClinicalCourseSession(ClinicalCourseCatalog.Load().Find("baobab"));
+            state.Continue();state.ToggleSequence(2);
+            ClinicalCoursePanel panel=null;
+            try
+            {
+                panel=new ClinicalCoursePanel(root.transform,font,gaze,_=>true,_=>state);
+                panel.Present(SessionToken.CreateNew(),"baobab");
+                Assert.That(panel.Session,Is.SameAs(state));panel.Dispose();
+                int closed=0,completed=0;
+                panel=new ClinicalCoursePanel(root.transform,font,gaze,_=>{completed++;return true;},_=>state,()=>true,_=>{closed++;return true;});
+                panel.Present(SessionToken.CreateNew(),"baobab");panel.SetVisible(true);
+                foreach(var button in root.GetComponentsInChildren<Button>(true).Where(b=>b.name.StartsWith("ProcessCard") || b.name=="SkipCourse" || b.name=="SubmitCourse"))
+                {
+                    Assert.That(button.interactable,Is.False);
+                    button.onClick.Invoke();
+                }
+                Assert.That(state.Sequence,Is.EqualTo(new[]{2}));
+                Assert.That(state.SkippedCount,Is.Zero);Assert.That(state.CorrectCount,Is.Zero);
+                root.GetComponentsInChildren<Button>(true).Single(b=>b.name=="ContinueCourse").onClick.Invoke();
+                Assert.That(closed,Is.EqualTo(1));Assert.That(completed,Is.Zero);
+                Assert.That(state.Phase,Is.EqualTo(ClinicalCoursePhase.Task));
+            }
+            finally{panel?.Dispose();gaze.Unconfigure();Object.DestroyImmediate(root);Object.DestroyImmediate(viewer);Object.DestroyImmediate(events);}
+        }
         [TestCase("hidden")]
         [TestCase("feedback")]
         [TestCase("failed")]

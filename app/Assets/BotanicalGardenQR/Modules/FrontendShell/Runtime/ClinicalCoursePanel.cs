@@ -23,6 +23,9 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         readonly Button _advance, _submit, _skip, _mediaAction;
         readonly IFrontendGazeSurfaceRegistration _registration;
         readonly Func<SessionToken, bool> _complete;
+        readonly Func<ClinicalCourseLesson,ClinicalCourseSession> _resume;
+        readonly Func<bool> _readOnly;
+        readonly Func<SessionToken,bool> _closeReview;
         readonly ClinicalCourseCatalog _catalog;
         readonly ClinicalWorldSurface _worldSurface;
         ClinicalCourseSession _session;
@@ -38,9 +41,12 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         public ClinicalCourseSession Session => _session;
         bool ModelIsHeld => _modelGrab && _modelGrab.SelectingPoints != null && _modelGrab.SelectingPointsCount > 0;
 
-        public ClinicalCoursePanel(Transform parent, TMP_FontAsset font, IFrontendGazeSurfaceRegistry surfaces, Func<SessionToken, bool> complete)
+        public ClinicalCoursePanel(Transform parent, TMP_FontAsset font, IFrontendGazeSurfaceRegistry surfaces, Func<SessionToken, bool> complete,
+            Func<ClinicalCourseLesson,ClinicalCourseSession> resume = null, Func<bool> readOnly = null,
+            Func<SessionToken,bool> closeReview = null)
         {
             _font = font; _complete = complete; _catalog = ClinicalCourseCatalog.Load();
+            _resume=resume;_readOnly=readOnly;_closeReview=closeReview;
             _root = new GameObject("ClinicalCoursePanel", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
             _worldSurface = _root.AddComponent<ClinicalWorldSurface>();
             var rect = (RectTransform)_root.transform; rect.SetParent(parent, false); rect.sizeDelta = new Vector2(1140, 1050);
@@ -81,13 +87,17 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         }
         Button Make(Transform parent, string name, string copy, float x, float y, float w, float h, Action action, bool primary = false)
         {
-            var button = ClinicalPanelStyle.Button(parent, _font, name, copy, x, y, w, h, action, primary);
+            var button = ClinicalPanelStyle.Button(parent, _font, name, copy, x, y, w, h,
+                () => { if(_readOnly?.Invoke()!=true || name=="MediaAction" || name.StartsWith("EvidenceTab") ||
+                    name=="ContinueCourse") action(); }, primary);
             EmphasizeButton(button, primary: primary); return button;
         }
         public void Present(SessionToken token, string id)
         {
             if (_session != null && token == _token && _session.Lesson.sceneId == id) return;
-            ReleaseMedia(); _token = token; _session = new ClinicalCourseSession(_catalog.Find(id));
+            ReleaseMedia(); _token = token;
+            var lesson=_catalog.Find(id);
+            _session = _resume?.Invoke(lesson) ?? new ClinicalCourseSession(lesson);
             _completionSent = false; _positioned = false; _mediaIndex = -1; _tutorialTime = 0; Render();
         }
         public void SetVisible(bool visible)
@@ -113,7 +123,8 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         void Select(int index) { _session.Select(index); _tutorialTime = 8; Render(); }
         void Read(int index)
         {
-            _session.ReadEvidence(index); _body.text = _session.Step.cards[index].body;
+            if(_readOnly?.Invoke()!=true) _session.ReadEvidence(index);
+            _body.text = _session.Step.cards[index].body;
             foreach (var tab in _tabs) EmphasizeButton(tab, tab == _tabs[index]);
             UpdateStatus(); _registration.Invalidate();
         }
@@ -121,6 +132,7 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         void Skip() { _tutorialTime = 8; _session.Skip(); Render(); }
         void Advance()
         {
+            if(_readOnly?.Invoke()==true){_closeReview?.Invoke(_token);return;}
             if (_session.Phase == ClinicalCoursePhase.Finished)
             {
                 if (!_completionSent) { _completionSent = _complete(_token); if (!_completionSent) _status.text = "暂未完成返回，请再点一次返回房间。"; }
@@ -183,6 +195,17 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             _tutorial.text = sequence ? "依次轻触工序卡；再碰已选卡可撤回，排列完成后确认。" : "小精灵：伸手轻触一个答案，再触碰确认；不需要拍打面板。";
             _mediaAction.interactable = task;
             if (!task && _video) { _videoPlaybackRequested = false; _video.Pause(); }
+            if(_readOnly?.Invoke()==true)
+            {
+                foreach(var choice in _choices) choice.interactable=false;
+                foreach(var card in _processCards) card.interactable=false;
+                _submit.interactable=false;_skip.interactable=false;
+                _advance.gameObject.SetActive(true);_advance.interactable=_closeReview!=null;
+                _advance.GetComponentInChildren<TMP_Text>().text="关闭只读回看 · 返回房间";
+                _submit.gameObject.SetActive(false);_skip.gameObject.SetActive(false);
+                _tutorial.gameObject.SetActive(false);
+                _status.text="本次检查已结束 · 只读回看，不改变学习或作答记录。";
+            }
         }
         void UpdateStatus()
         {
@@ -284,21 +307,61 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             _model = new GameObject("InspectableBottle"); _model.transform.SetParent(_media.transform, false);
             _model.SetActive(false); _model.transform.localPosition = new Vector3(-280, 15, -160);
             var visual = UnityEngine.Object.Instantiate(asset, _model.transform); visual.name = "OnlineSourcedBottle";
-            var renderers = visual.GetComponentsInChildren<Renderer>();
-            // OBJ is normalized in metres during import preparation; keep collision independent of the visual mesh.
-            visual.transform.localScale = Vector3.one * 300;
-            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            _modelMaterial = new Material(shader); _modelMaterial.color = new Color(.72f, .86f, .91f);
-            foreach (var renderer in renderers) renderer.sharedMaterial = _modelMaterial;
-            var box = _model.AddComponent<BoxCollider>(); box.size = new Vector3(175, 300, 175);
+            var renderers = visual.GetComponentsInChildren<Renderer>(true);
+            // The old OBJ was normalized to one metre and needs the legacy 300x
+            // presentation scale. Imported FBX assets can provide their own
+            // scale in course.json instead of being silently enlarged.
+            visual.transform.localScale = Vector3.one * (step.modelScale > 0 ? step.modelScale : 300f);
+            if (!step.preserveImportedMaterials || !HasAssignedMaterial(renderers))
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                _modelMaterial = new Material(shader); _modelMaterial.color = new Color(.72f, .86f, .91f);
+                foreach (var renderer in renderers) renderer.sharedMaterial = _modelMaterial;
+            }
+            var box = _model.AddComponent<BoxCollider>(); FitColliderToVisual(box, _model.transform, renderers);
             var body = _model.AddComponent<Rigidbody>(); body.useGravity = false; body.isKinematic = true;
             var grab = _model.AddComponent<Grabbable>(); grab.InjectOptionalRigidbody(body); grab.InjectOptionalThrowWhenUnselected(false);
             _modelGrab = grab;
             var hand = _model.AddComponent<HandGrabInteractable>(); hand.InjectRigidbody(body); hand.InjectOptionalPointableElement(grab); hand.HandAlignment = HandAlignType.None;
             _model.SetActive(true);
             _body.rectTransform.anchoredPosition = new Vector2(245, 20); _body.rectTransform.sizeDelta = new Vector2(475, 390);
+            // Preserve the longer sourced-label note without covering the bottle or recall control.
+            _body.fontSize = 25;
             _body.text = step.body;
             _mediaAction.gameObject.SetActive(true); MediaLabel("翻看 / 取回瓶体");
+        }
+        static bool HasAssignedMaterial(Renderer[] renderers)
+        {
+            foreach (var renderer in renderers)
+            {
+                if (!renderer) continue;
+                foreach (var material in renderer.sharedMaterials) if (material) return true;
+            }
+            return false;
+        }
+        static void FitColliderToVisual(BoxCollider collider, Transform root, Renderer[] renderers)
+        {
+            Bounds worldBounds = default; bool found = false;
+            foreach (var renderer in renderers)
+            {
+                if (!renderer || !renderer.enabled) continue;
+                if (!found) { worldBounds = renderer.bounds; found = true; }
+                else worldBounds.Encapsulate(renderer.bounds);
+            }
+            if (!found) { collider.center = Vector3.zero; collider.size = Vector3.one * 300f; return; }
+            var min = worldBounds.min; var max = worldBounds.max;
+            var corners = new[]
+            {
+                new Vector3(min.x, min.y, min.z), new Vector3(min.x, min.y, max.z),
+                new Vector3(min.x, max.y, min.z), new Vector3(min.x, max.y, max.z),
+                new Vector3(max.x, min.y, min.z), new Vector3(max.x, min.y, max.z),
+                new Vector3(max.x, max.y, min.z), new Vector3(max.x, max.y, max.z)
+            };
+            var localBounds = new Bounds(root.InverseTransformPoint(corners[0]), Vector3.zero);
+            for (int i = 1; i < corners.Length; i++) localBounds.Encapsulate(root.InverseTransformPoint(corners[i]));
+            var margin = Mathf.Max(.01f, Mathf.Min(localBounds.size.x, localBounds.size.y, localBounds.size.z) * .03f);
+            localBounds.Expand(margin * 2f);
+            collider.center = localBounds.center; collider.size = localBounds.size;
         }
         public void Tick(float seconds)
         {

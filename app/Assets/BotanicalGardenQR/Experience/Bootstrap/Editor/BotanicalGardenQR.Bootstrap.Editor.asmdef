@@ -36,6 +36,7 @@
     "BotanicalGardenQR.VisitorCoach.Contracts",
     "BotanicalGardenQR.VisitorCoach.Frontend",
     "BotanicalGardenQR.VisitorPrologue.Contracts",
+    "BotanicalGardenQR.VisitorPrologue.Runtime",
     "BotanicalGardenQR.VisitorPrologue.Frontend",
     "Oculus.Interaction",
     "Oculus.VR",

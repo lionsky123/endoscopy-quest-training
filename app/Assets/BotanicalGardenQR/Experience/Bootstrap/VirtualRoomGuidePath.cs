@@ -27,16 +27,27 @@ namespace BotanicalGardenQR.Bootstrap
         int _next;
         public Vector3 StartPosition => ArrivalPoint(1);
 
-        public VirtualRoomGuidePath(MapDefinition definition, MapFrame frame, MeshFilter[] geometry)
+        public VirtualRoomGuidePath(MapDefinition definition, MapFrame frame, MeshFilter[] geometry, Bounds[] publishedObstacles = null)
         {
             _origin = V(frame.Origin); _rotation = Quaternion.Euler(0, frame.YawDegrees, 0);
             _inverse = Quaternion.Inverse(_rotation); _scale = frame.Scale;
             // Stay inside the resume radius so the first departure does not
             // immediately wait for a visitor who is still at the fixed spawn.
             _landingDistance = Mathf.Min(.8f, definition.resumeDistance * .9f);
-            foreach (var mesh in geometry)
+            var boundsList = new List<Bounds>();
+            if(publishedObstacles!=null)boundsList.AddRange(publishedObstacles);
+            else foreach(var mesh in geometry)
             {
-                var bounds = mesh.sharedMesh.bounds;
+                if(!mesh || !mesh.sharedMesh)continue;
+                var local=mesh.sharedMesh.bounds;
+                var bounds=new Bounds(Local(mesh.transform.TransformPoint(local.min)),Vector3.zero);
+                for(int corner=0;corner<8;corner++)bounds.Encapsulate(Local(mesh.transform.TransformPoint(new Vector3(
+                    (corner&1)==0?local.min.x:local.max.x,(corner&2)==0?local.min.y:local.max.y,(corner&4)==0?local.min.z:local.max.z))));
+                boundsList.Add(bounds);
+            }
+            foreach(var sourceBounds in boundsList)
+            {
+                var bounds=sourceBounds;
                 if (bounds.max.y <= .15f || bounds.min.y >= 1.8f) continue;
                 bounds.Expand(new Vector3(BodyRadius * 2, 0, BodyRadius * 2));
                 _obstacles.Add(bounds);

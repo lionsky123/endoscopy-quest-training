@@ -99,6 +99,15 @@ namespace BotanicalGardenQR.Bootstrap
                 closed.JourneySession, closed.SceneId, ObservationCompletionKind.Confirmation,
                 "clinical-picture:" + closed.SceneId.Value));
         }
+        public void AcceptClinicalReviewClosed(SessionToken contentSession)
+        {
+            var closed=_lastClosed;
+            if(_disposed || closed==null || closed.ContentSession!=contentSession ||
+                !ClinicalCourseScenes.Contains(closed.SceneId.Value) || !IsSameContent(_lastOpened,closed))return;
+            _lastClosed=null;
+            // Release the close-decision surface without awarding another learning completion.
+            _prompts.CompleteClosedContent();_prompts.ClearJourneyPrompt();
+        }
 
         public void Dispose()
         {

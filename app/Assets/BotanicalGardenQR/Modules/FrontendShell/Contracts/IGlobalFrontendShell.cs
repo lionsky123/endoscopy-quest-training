@@ -4,6 +4,10 @@ using BotanicalGardenQR.Experience.Contracts.Flow;
 
 namespace BotanicalGardenQR.FrontendShell.Contracts
 {
+    public interface IClinicalLessonReview
+    {
+        FlowResult CloseClinicalReview(SessionToken session);
+    }
     public interface IClinicalLessonCompletion
     {
         FlowResult CompleteClinicalLesson(SessionToken session);

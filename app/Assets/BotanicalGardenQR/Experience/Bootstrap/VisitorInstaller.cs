@@ -80,6 +80,7 @@ namespace BotanicalGardenQR.Bootstrap
             @"(?im)(\bsource\s*=\s*qr\s*:\s*)([^\r\n\t;]+)",
             RegexOptions.CultureInvariant);
         VisitorRuntimeComposition _composition;
+        FullScriptJourneyRuntime _fullScript;
         readonly VisitorDiagnosticThrottle _unityDiagnosticThrottle = new VisitorDiagnosticThrottle(
             UnityDiagnosticRepeatInterval,
             MaximumTrackedUnityDiagnosticSignatures);
@@ -98,7 +99,9 @@ namespace BotanicalGardenQR.Bootstrap
                 RecordStartup(
                     "installer.recognition.created",
                     $"count={bindings.Platform.RecognitionSources.Count}");
-                _composition = VisitorRuntimeComposition.Create(bindings, RecordDiagnostic);
+                if (_runtimeOptions.VirtualRoomEnabled)
+                    _fullScript = new FullScriptJourneyRuntime(bindings, RecordDiagnostic);
+                else _composition = VisitorRuntimeComposition.Create(bindings, RecordDiagnostic);
                 RecordStartup("installer.composition.ready");
             }
             catch (Exception exception)
@@ -115,10 +118,11 @@ namespace BotanicalGardenQR.Bootstrap
 
         void Start()
         {
-            if (_composition == null) return;
+            if (_composition == null && _fullScript == null) return;
             try
             {
-                _composition.StartExperience();
+                _fullScript?.StartExperience();
+                _composition?.StartExperience();
                 RecordStartup("installer.prologue.started");
             }
             catch (Exception exception)
@@ -134,11 +138,14 @@ namespace BotanicalGardenQR.Bootstrap
         void Update()
         {
             _composition?.Tick(Time.unscaledDeltaTime);
+            _fullScript?.Tick(Time.unscaledDeltaTime);
         }
 
         void OnDestroy()
         {
             _composition?.Dispose();
+            _fullScript?.Dispose();
+            _fullScript = null;
             _composition = null;
             RecordStartup("installer.destroyed");
             if (_diagnosticsAttached)

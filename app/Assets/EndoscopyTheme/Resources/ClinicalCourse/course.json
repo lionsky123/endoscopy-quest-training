@@ -78,12 +78,12 @@
       "introduction": "小精灵：用手拿起瓶体转一转；不方便拿时可用“翻看”。瓶形只帮助观察，最终结论要看资料。",
       "steps": [
         {
-          "mode": "model", "title": "01 / 瓶形能证明用途吗？", "media": "ClinicalCourse/inspection-bottle",
-          "credit": "Pill bottle · Poly by Google · CC BY 3.0 · 通用瓶体，非实际消毒产品",
-          "body": "捏住瓶体，可拿起旋转。\n\n教学样品 X-01\n身份：尚未核实\n用途：资料未提供\n\n外观仅作模型交互示意，不代表消毒剂包装。",
-          "prompt": "只拿到这只通用瓶体，能确认它适用于内镜吗？",
+          "mode": "model", "title": "01 / 标签信息能证明用途吗？", "media": "ClinicalCourse/Disinfectant/disinfectant-labeled", "modelScale": 34550.0, "preserveImportedMaterials": true,
+          "credit": "用户提供的带标签 3D 资产 · 标签为教学示意，未核验真实产品或批次",
+          "body": "捏住瓶体，可拿起旋转；观察正面标签和瓶身细节。\n\n教学样本 D-01\n标签显示：5 L、2.0% 成分信息、批号与日期字段。\n\n这些文字只用于练习定位产品证据，不等于已核实产品身份、适用范围或现场批次。",
+          "prompt": "仅凭这只带标签的瓶体，能确认它适用于内镜吗？",
           "options": ["外形相似即可确认", "核实身份和对应说明书", "参考旁边另一瓶说明"], "correct": 1,
-          "hint": "瓶子形状不提供适用范围，必须核对同一产品的资料。",
+          "hint": "标签能帮助定位产品，但仍需核对同一产品的说明书、批次和适配证据。",
           "explanation": "先核实产品身份，再找对应标签、说明书和支持资料。不能按瓶形、颜色或相邻产品替代判断。"
         },
         {

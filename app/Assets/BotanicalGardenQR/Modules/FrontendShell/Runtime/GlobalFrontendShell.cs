@@ -9,7 +9,7 @@ using UnityEngine;
 namespace BotanicalGardenQR.FrontendShell.Runtime
 {
     public sealed class GlobalFrontendShell : MonoBehaviour, IGlobalFrontendShell, IFlowStateSink,
-        IFeaturePageActionStateSink, IClinicalLessonCompletion
+        IFeaturePageActionStateSink, IClinicalLessonCompletion, IClinicalLessonReview
     {
         [SerializeField] ShellSlotReferences _slots = new ShellSlotReferences();
         [SerializeField, Min(0.01f)] float _pointerMaximumDistance = 20f;
@@ -39,8 +39,19 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         bool _clinicalActive;
         SessionToken _completedClinicalSession;
         public event Action<SessionToken> ClinicalCompletionRequested;
+        public event Action<SessionToken> ClinicalReviewClosed;
+        public Func<ClinicalCourseLesson,ClinicalCourseSession> ResumeClinicalCourse { private get; set; }
+        public Func<bool> ClinicalCourseReadOnly { private get; set; }
 
         public Transform FrontendRoot => _slots.ShellRoot;
+        public FlowResult CloseClinicalReview(SessionToken session)
+        {
+            if(_state==null || _state.Session!=session || !ClinicalCourseScenes.Contains(_state.SceneId.Value))
+                return FlowResult.Reject(FlowFailure.StaleSession);
+            var result=Dispatch(FlowIntent.Close(session));
+            if(result.Succeeded)ClinicalReviewClosed?.Invoke(session);
+            return result;
+        }
 
         public FlowResult CompleteClinicalLesson(SessionToken session)
         {
@@ -62,7 +73,8 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             {
                 if (_coursePanel == null)
                     _coursePanel = new ClinicalCoursePanel(_slots.ShellRoot.parent, _slots.Title.font, surfaces,
-                        session => CompleteClinicalLesson(session).Succeeded);
+                        session => CompleteClinicalLesson(session).Succeeded, ResumeClinicalCourse, ClinicalCourseReadOnly,
+                        session => CloseClinicalReview(session).Succeeded);
                 _coursePanel.Present(state.Session, state.SceneId.Value);
                 return;
             }
@@ -275,6 +287,9 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             _clinicalPanel?.Dispose();
             _clinicalPanel = null;
             ClinicalCompletionRequested = null;
+            ClinicalReviewClosed = null;
+            ResumeClinicalCourse = null;
+            ClinicalCourseReadOnly = null;
             _flowSubscription?.Dispose();
             _flowSubscription = null;
             ReleaseFeaturePageAction(_featurePageActionSource);

@@ -37,6 +37,7 @@
 *.apk.receipt.json
 
 # IDE / script caches.
+/tools/third-party/
 .vs/
 .idea/
 **/bin/
@@ -63,6 +64,10 @@ Thumbs.db
 /app/Assets/XR/Temp*
 /app/Assets/XR/Resources/
 /app/Assets/XR/UserSimulationSettings/Resources/
+
+# User-provided source archive is too large for normal GitHub storage; keep the
+# extracted source models and runtime derivatives under version control instead.
+/app/_IncomingModels/Models.zip
 /app/Assets/_Recovery/
 /app/Assets/StreamingAssets/VisitorAtlasHub/xia.glb
 /app/Assets/StreamingAssets/VisitorAtlasHub/xia.glb.meta

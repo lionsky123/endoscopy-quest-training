@@ -26,6 +26,10 @@ namespace BotanicalGardenQR.Panorama.Frontend
         readonly RectTransform _progress;
         readonly ClinicalEvidenceLesson _lesson;
         readonly Action _complete;
+        readonly ClinicalObservationProgress _saved;
+        readonly Func<bool> _readOnly;
+        readonly Action _closeReview;
+        bool _reviewing;
         readonly TMP_Text _cue, _targetLabel, _progressStatus;
         readonly RawImage _liveView;
         readonly Material _liveProjection;
@@ -54,9 +58,11 @@ namespace BotanicalGardenQR.Panorama.Frontend
         internal float ObservationProgress => _stableSeconds / ObserveSeconds;
 
         public ClinicalGuidedObservationControls(Transform parent, TMP_FontAsset font, IFrontendGazeSurfaceRegistry surfaces,
-            Action complete, Texture panorama, Transform viewer, float yaw)
+            Action complete, Texture panorama, Transform viewer, float yaw,
+            ClinicalObservationProgress saved = null, Func<bool> readOnly = null, Action closeReview = null)
         {
             _viewer = viewer; _yaw = yaw; _complete = complete;
+            _saved=saved;_readOnly=readOnly;_closeReview=closeReview;
             _lesson = JsonUtility.FromJson<ClinicalEvidenceLesson>(Resources.Load<TextAsset>("ClinicalEvidence/lesson").text);
             _root = new GameObject("ClinicalGuidedObservation"); _root.transform.SetParent(parent, false);
             _dialogue = new ClinicalReferenceDialogue(_root.transform, viewer, font, surfaces);
@@ -148,6 +154,23 @@ namespace BotanicalGardenQR.Panorama.Frontend
             _targetSurface.gameObject.SetActive(false);
             PlaceCue();
             PresentHelp(); UpdateDirections();
+            if(_saved!=null)
+            {
+                CompletedCount=_saved.CompletedCount;SkippedCount=_saved.SkippedCount;
+                _reviewing=_saved.NextTopic==3 || _readOnly?.Invoke()==true;
+                if(_reviewing)
+                {
+                    _index=0;_token.Dismiss();ShowExplanation();
+                }
+                else if(_saved.Started)
+                {
+                    _index=_saved.NextTopic;_phase=Phase.Ready;
+                    _dialogue.ShowObservation(_index,"继续本次观察",
+                        $"已学习 {CompletedCount} 处，主动跳过 {SkippedCount} 处。\n工具重新放置；继续第 {_index+1} 处，不恢复旧抓取或画面。",
+                        Continue,float.PositiveInfinity,"继续未完成观察",true,"本次进度保留");
+                    RefreshActions();
+                }
+            }
         }
         void PlaceTarget(Vector3 look)
         {
@@ -241,7 +264,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             }
         }
         string StageLabel => Formal ? $"正式观察 {_index + 1}/3 · {_lesson.topics[_index].title}" : "操作练习 · 不计入进度";
-        string ContinueLabel => _index == 2 ? "完成观察 · 自动收起" : "下一处：" + _lesson.topics[_index + 1].title;
+        string ContinueLabel => _index == 2 ? (_reviewing?"结束回看 · 返回房间":"完成观察 · 自动收起") : "下一处：" + _lesson.topics[_index + 1].title;
         void Recall()
         {
             if (!Usable || _token.IsHeld) return;
@@ -309,16 +332,23 @@ namespace BotanicalGardenQR.Panorama.Frontend
             if (!Usable) return;
             if (_phase == Phase.Tutorial) { BeginPractice(); return; }
             if (_phase == Phase.Practice) { _registration.Invalidate(); ReadyForObservation(); return; }
-            if (_phase == Phase.Ready) { _registration.Invalidate(); ShowSeek(); return; }
+            if (_phase == Phase.Ready) { _saved?.Begin();_registration.Invalidate(); ShowSeek(); return; }
             if (_phase == Phase.Observed) { _registration.Invalidate(); ShowExplanation(); return; }
             if (!ExplainingNow) return;
-            CompletedCount++; Next();
+            if(_reviewing)
+            {
+                if(_index==2){Finish();return;}
+                _index++;ShowExplanation();return;
+            }
+            if(_readOnly?.Invoke()==true)return;
+            _saved?.Record(_index,false);CompletedCount++; Next();
         }
         void Skip()
         {
             if (!Usable || !Seeking) return;
+            if(_readOnly?.Invoke()==true || _reviewing)return;
             if (_phase == Phase.Practice) { ReadyForObservation(); return; }
-            SkippedCount++; Next();
+            _saved?.Record(_index,true);SkippedCount++; Next();
         }
         void Next()
         {
@@ -334,7 +364,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             // hiding it; never interpret this cleanup as a user release/observation.
             _token.Dismiss();
             _cueSurface.gameObject.SetActive(false); _targetSurface.gameObject.SetActive(false); UpdateDirections();
-            _complete?.Invoke();
+            if(_reviewing)_closeReview?.Invoke();else _complete?.Invoke();
         }
         bool LensInsideHalo(Vector3 ray)
         {

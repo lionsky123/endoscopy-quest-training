@@ -55,6 +55,10 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
     [Serializable] public sealed class ClinicalCourseStep
     {
         public string mode, title, media, credit, prompt, explanation, hint, body;
+        // Model steps may opt into source-authored scale and materials. A missing
+        // value keeps the legacy OBJ presentation compatible.
+        public float modelScale;
+        public bool preserveImportedMaterials;
         public string[] options;
         public string[] sequenceItems;
         public int[] sequenceOrder;

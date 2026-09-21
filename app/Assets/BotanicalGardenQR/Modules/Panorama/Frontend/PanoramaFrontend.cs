@@ -18,6 +18,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
         TMP_FontAsset _sharedFont;
         Action _requestExit;
         Action _requestClinicalCompletion;
+        Action _closeClinicalReview;
         Action _requestImageRing;
         IReadOnlyList<PanoramaEnvironmentMomentDefinition> _environmentMoments =
             Array.Empty<PanoramaEnvironmentMomentDefinition>();
@@ -35,6 +36,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
 
         public event Action<bool> SurfaceVisibilityChanged;
         public event Action ExitSelected;
+        public ClinicalObservationProgress ClinicalProgress { get; set; }
+        public Func<bool> ClinicalReadOnly { get; set; }
 
         public void Bind(
             SessionToken session,
@@ -50,7 +53,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             Texture clinicalTexture = null,
             IReadOnlyList<Texture> teachingComparisons = null,
             Action requestClinicalCompletion = null,
-            float panoramaYaw = 0)
+            float panoramaYaw = 0, Action closeClinicalReview = null)
         {
             if (!session.IsValid) throw new ArgumentException("A valid session is required.", nameof(session));
             _gazeSurfaces = gazeSurfaces ?? throw new ArgumentNullException(nameof(gazeSurfaces));
@@ -71,6 +74,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             _clinicalTexture = clinicalTexture;
             _teachingComparisons = teachingComparisons;
             _requestClinicalCompletion = requestClinicalCompletion;
+            _closeClinicalReview=closeClinicalReview;
             _bound = true;
             SetVisible(false);
         }
@@ -88,6 +92,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
             _sharedFont = null;
             _requestExit = null;
             _requestClinicalCompletion = null;
+            _closeClinicalReview=null;
             _requestImageRing = null;
             _clinicalTexture = null;
             _teachingComparisons = null;
@@ -151,7 +156,9 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 clinicalTexture: _clinicalTexture,
                 teachingComparisons: _teachingComparisons,
                 requestClinicalCompletion: _requestClinicalCompletion,
-                panoramaYaw: _panoramaYaw);
+                panoramaYaw: _panoramaYaw,
+                clinicalProgress: ClinicalProgress, clinicalReadOnly: ClinicalReadOnly,
+                closeClinicalReview: _closeClinicalReview);
         }
 
         void HandleExitSelected()

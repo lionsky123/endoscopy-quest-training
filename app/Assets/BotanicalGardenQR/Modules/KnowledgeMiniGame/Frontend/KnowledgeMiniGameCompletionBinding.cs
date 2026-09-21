@@ -19,6 +19,7 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
         readonly Action<ObservationCompletedFact> _completed;
         readonly IObservationCompletionRequestSource _requests;
         readonly IDisposable _contentSubscription;
+        readonly bool _ownsFrontend;
 
         SessionToken _session;
         ContentOpenedFact _openedFact;
@@ -34,12 +35,13 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
             IKnowledgeMiniGameDefinitionSource definitions,
             IKnowledgeMiniGameController controller,
             KnowledgeMiniGameFrontend frontend,
-            Action<ObservationCompletedFact> completed)
+            Action<ObservationCompletedFact> completed, bool ownsFrontend = true)
         {
             _definitions = definitions ?? throw new ArgumentNullException(nameof(definitions));
             _controller = controller ?? throw new ArgumentNullException(nameof(controller));
             _frontend = frontend ?? throw new ArgumentNullException(nameof(frontend));
             _completed = completed ?? throw new ArgumentNullException(nameof(completed));
+            _ownsFrontend = ownsFrontend;
             _requests = requests ?? throw new ArgumentNullException(nameof(requests));
             _requests.ObservationCompletionRequested += HandleCompletionRequested;
             _frontend.ExitRequested += HandleExitRequested;
@@ -74,7 +76,7 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
             CloseSurface();
             _openedFact = null;
             _closedFact = null;
-            _frontend.Dispose();
+            if (_ownsFrontend) _frontend.Dispose();
         }
 
         void HandleCompletionRequested()

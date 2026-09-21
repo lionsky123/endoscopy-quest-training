@@ -46,7 +46,9 @@ namespace BotanicalGardenQR.Panorama.Frontend
             Texture clinicalTexture = null,
             IReadOnlyList<Texture> teachingComparisons = null,
             Action requestClinicalCompletion = null,
-            float panoramaYaw = 0)
+            float panoramaYaw = 0,
+            ClinicalObservationProgress clinicalProgress = null, Func<bool> clinicalReadOnly = null,
+            Action closeClinicalReview = null)
         {
             if (runtimeRoot == null) throw new ArgumentNullException(nameof(runtimeRoot));
             _viewer = viewer != null ? viewer : throw new ArgumentNullException(nameof(viewer));
@@ -61,7 +63,8 @@ namespace BotanicalGardenQR.Panorama.Frontend
             if (clinicalLearning)
             {
                 _clinicalControls = new ClinicalGuidedObservationControls(_root.transform, sharedFont, gazeSurfaces,
-                    requestClinicalCompletion ?? HandleExitSelected, clinicalTexture, viewer, panoramaYaw);
+                    requestClinicalCompletion ?? HandleExitSelected, clinicalTexture, viewer, panoramaYaw,
+                    clinicalProgress, clinicalReadOnly, closeClinicalReview ?? HandleExitSelected);
                 (_tutorialHintRoot, _tutorialHint) = CreateTutorialHint(_root.transform, sharedFont);
                 _ticker = _root.AddComponent<PanoramaSpatialWorldTicker>();
                 _ticker.Bind(this);

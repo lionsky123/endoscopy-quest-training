@@ -14,6 +14,7 @@ $framework = @(Get-ChildItem $ref.FullName -Filter '*.dll')
 $cached = @(Get-ChildItem (Join-Path $app 'Library/ScriptAssemblies') -Filter '*.dll')
 $changed = @{}
 $units = @(
+    @('BotanicalGardenQR.Experience.Contracts','Assets/BotanicalGardenQR/Experience/Contracts'),
     @('BotanicalGardenQR.Fairy.Contracts','Assets/BotanicalGardenQR/Modules/Fairy/Contracts'),
     @('BotanicalGardenQR.FrontendShell.Contracts','Assets/BotanicalGardenQR/Modules/FrontendShell/Contracts'),
     @('BotanicalGardenQR.Panorama.Contracts','Assets/BotanicalGardenQR/Modules/Panorama/Contracts'),

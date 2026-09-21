@@ -30,11 +30,15 @@ namespace BotanicalGardenQR.Bootstrap
         readonly VisitorModalPresentationBinding _modal;
         readonly IMapRoutePresentation _route;
         readonly IDisposable _contentLease;
+        readonly Func<long> _extraCompletion;
+        readonly Func<bool> _extraContent;
         readonly VisitorDialogueContextId _context = new VisitorDialogueContextId("map-guidance");
         bool _disposed, _lastTracked;
-        public VisitorMapGuidanceBinding(IMapNavigation navigation, VisitorGuidanceCoordinator guidance, Transform viewer, Transform floor, IJourneyNavigation journey, ICollectionProgress collection, CollectionWorldFrontend collectionSurface, VisitorCoachPresenter dialogue, VisitorModalPresentationBinding modal, IMapRoutePresentation route, IContentLifecycleSource content)
+        public VisitorMapGuidanceBinding(IMapNavigation navigation, VisitorGuidanceCoordinator guidance, Transform viewer, Transform floor, IJourneyNavigation journey, ICollectionProgress collection, CollectionWorldFrontend collectionSurface, VisitorCoachPresenter dialogue, VisitorModalPresentationBinding modal, IMapRoutePresentation route, IContentLifecycleSource content, Func<long> extraCompletion = null, Func<bool> extraContent = null)
         {
             _navigation = navigation;
+            _extraCompletion = extraCompletion;
+            _extraContent = extraContent;
             _guidance = guidance;
             _viewer = viewer;
             _floor = floor;
@@ -70,10 +74,10 @@ namespace BotanicalGardenQR.Bootstrap
             var journey = _journey.CurrentState;
             var facts = _modal.Current;
             var externalDialogue = facts.DialogueOwner.HasValue && facts.DialogueOwner != VisitorDialogueOwner.Guidance;
-            var environment = new VisitorGuidanceEnvironment(!facts.ContentClosed, _collectionSurface.SurfaceKind != CollectionPresentationSurfaceKind.Hidden, _collection.CurrentState?.PendingPresentation != null, externalDialogue, facts.CompletionVisible, facts.CloseDecisionVisible);
+            var environment = new VisitorGuidanceEnvironment(!facts.ContentClosed || _extraContent?.Invoke() == true, _collectionSurface.SurfaceKind != CollectionPresentationSurfaceKind.Hidden, _collection.CurrentState?.PendingPresentation != null, externalDialogue, facts.CompletionVisible, facts.CloseDecisionVisible);
             // Route geometry is ready as soon as the real floor/viewer frame is known.
             // It does not depend on opening a book, summoning a map, or loading a map GLB.
-            _guidance.Refresh(journey?.CompletionRevision ?? 0, environment, _navigation.HasFrame,
+            _guidance.Refresh((journey?.CompletionRevision ?? 0) + (_extraCompletion?.Invoke() ?? 0), environment, _navigation.HasFrame,
                 _navigation.State.Phase == MapNavigationPhase.Unavailable);
             _navigation.Tick(position, tracked, _guidance.IsPaused, dt);
             _guidance.TrackVisitorArrival(position, tracked, dt);

@@ -159,10 +159,9 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
             HideImmediate();
         }
 
-        public void Dispose()
+        public void Unconfigure()
         {
             if (_disposed) return;
-            _disposed = true;
             Unbind();
             UnbindButtons();
             _gazeRegistration?.Dispose();
@@ -171,6 +170,13 @@ namespace BotanicalGardenQR.KnowledgeMiniGame.Frontend
             _configured = false;
             ExitRequested = null;
             SurfaceVisibilityChanged = null;
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            Unconfigure();
+            _disposed = true;
         }
 
         void OnDestroy() => Dispose();

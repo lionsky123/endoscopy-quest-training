@@ -4,7 +4,8 @@
   "references": [
     "BotanicalGardenQR.Collection.Contracts",
     "BotanicalGardenQR.FrontendShell.Contracts",
-    "BotanicalGardenQR.MapNavigation.Contracts"
+    "BotanicalGardenQR.MapNavigation.Contracts",
+    "BotanicalGardenQR.Experience.Contracts"
   ],
   "autoReferenced": true,
   "noEngineReferences": true

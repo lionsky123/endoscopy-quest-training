@@ -26,20 +26,20 @@ MonoBehaviour:
   _bookAppearAudio: {fileID: 8300000, guid: 1115ba8313664610a1194c038af6fb8e, type: 3}
   _sealContactAudio: {fileID: 8300000, guid: 83398088310a43a9b391ab58beac8a86, type: 3}
   _copy:
-    _invitationTitle: 一封来自清洗消毒室的邀请
+    _invitationTitle: 卫蓝行动 · 内镜中心监督检查
     _invitationDetail: 学习册正在等待回应。把一只手掌靠近封面的印记，稍停片刻。
     _gazeInvitationAction: 回应邀请
     _arrivalTitle: 联系已建立
     _arrivalDetail: 可以放下手了。看前面，小精灵来与你会合了。
-    _fairySpeakerName: 小精灵
+    _fairySpeakerName: 安小卫
     _encounterPages:
-    - 你好！我会陪你走过六个学习点。伸手轻触下方按钮，就能回应我。不需要用力拍打。
-    - 这里有正确示范，也有需要修复的案例。你愿意和我一起，了解清洗消毒室吗？
+    - 你好，我是带教导师安小卫。欢迎加入“卫蓝行动”！今天的目标是内镜诊疗中心。
+    - 四位一体：到哪个点位、用什么方法查、依据什么条款、发现问题对应什么法律责任。准备好出发了吗？
     - 先等我一下，好，我准备好了。
-    - 我们出发吧！跟着我和地面的路线走，到站后轻触“开启发现”。第一关再触碰光圈进入观察。
+    - 跟着精灵和地面路线实际走动。按钮用手近触；换房先走到门口。现在到大厅说明处选择学习模式。
     _curiousReplyLabel: 我们会学些什么？
     _companionReplyLabel: 好，一起探索！
-    _curiousResponse: 布局和流程、工具和水路、产品与使用记录。我们先看正确示范，再一起修复案例中的问题。
-    _companionResponse: 好！遇到不熟悉的内容也没关系，我们一起看图、观察、回答问题。
+    _curiousResponse: 先到办公室查记录，再去储存库、候诊区、诊疗区和清洗消毒室，最后回办公室汇总。
+    _companionResponse: 先到办公室查记录，再去储存库、候诊区、诊疗区和清洗消毒室，最后回办公室汇总。
     _retryAction: 重新建立联系
     _firstContinueAction: 轻触回应  ›

@@ -19,6 +19,11 @@ namespace BotanicalGardenQR.Bootstrap
         readonly Color _ambientLight;
         readonly bool _fog;
         VirtualRoomTrackingOrigin _trackingOrigin;
+        bool _ownsTracking = true;
+        bool _disposed;
+        Bounds[] _publishedObstacles;
+        internal Vector3? TerminalPosition { get; private set; }
+        internal GameObject Root => _root;
         internal VirtualRoomTrackingOrigin TrackingOrigin => _trackingOrigin;
         internal VirtualRoomGuidePath GuidePath { get; private set; }
         public MapFrame Frame { get; }
@@ -29,17 +34,19 @@ namespace BotanicalGardenQR.Bootstrap
             _ambientLight = RenderSettings.ambientLight;
             _fog = RenderSettings.fog;
             // Model -X is down the long aisle, and is the initial forward view.
-            var yaw = rig.eulerAngles.y + 90f;
+            var firstStep=definition.routes[0].samples[1];
+            var yaw = rig.eulerAngles.y-Mathf.Atan2(firstStep.x-definition.start.x,firstStep.z-definition.start.z)*Mathf.Rad2Deg;
             var rotation = Quaternion.Euler(0, yaw, 0);
             var start = definition.start;
             var origin = rig.position - rotation * new Vector3(start.x, start.y, start.z) * definition.scale;
             Frame = new MapFrame(new MapPosition(origin.x, origin.y, origin.z), yaw, definition.scale);
-            _root = new GameObject("VirtualWashingRoom");
+            _root = new GameObject(definition.roomResource == "EndoscopyRoom" ? "VirtualWashingRoom" : definition.mapId);
             _root.transform.SetPositionAndRotation(origin, rotation);
             _root.transform.localScale = Vector3.one * definition.scale;
         }
 
-        public static VirtualRoomEnvironment Create(GameObject xrRig, GameObject mruk, MapDefinition definition, ITrackingOriginTiming timing = null)
+        public static VirtualRoomEnvironment Create(GameObject xrRig, GameObject mruk, MapDefinition definition, ITrackingOriginTiming timing = null,
+            VirtualRoomTrackingOrigin sharedTracking = null)
         {
             MapDefinitionValidation.Validate(definition);
             if (string.IsNullOrWhiteSpace(definition.roomResource))
@@ -61,10 +68,17 @@ namespace BotanicalGardenQR.Bootstrap
             var room = new VirtualRoomEnvironment(xrRig.transform, definition);
             try
             {
-                room.Load(definition.roomResource, definition.modelDigest);
-                room.GuidePath = new VirtualRoomGuidePath(definition, room.Frame, room._root.GetComponentsInChildren<MeshFilter>());
+                if (definition.roomResource == FullScriptRoomCatalog.DevelopmentResource)
+                    FullScriptRoomCatalog.BuildDevelopmentGeometry(room._root, definition.mapId, room._owned);
+                else room.Load(definition.roomResource, definition.modelDigest);
+                room.GuidePath = new VirtualRoomGuidePath(definition, room.Frame, room._root.GetComponentsInChildren<MeshFilter>(),room._publishedObstacles);
                 var cameraRig = xrRig.GetComponentInChildren<OVRCameraRig>(true);
-                if (cameraRig)
+                if (sharedTracking != null)
+                {
+                    room._trackingOrigin = sharedTracking;
+                    room._ownsTracking = false;
+                }
+                else if (cameraRig)
                 {
                     var start = room.Frame.Transform(definition.start);
                     var next = room.Frame.Transform(definition.routes[0].samples[1]);
@@ -100,6 +114,11 @@ namespace BotanicalGardenQR.Bootstrap
                     throw new InvalidOperationException("The published fairy routes do not match the room model. Republish the room map.");
             }
             var manifest = JsonUtility.FromJson<RoomManifest>(manifestAsset.text);
+            if(manifest.obstacles!=null)
+            {
+                _publishedObstacles=Array.ConvertAll(manifest.obstacles,o=>new Bounds(o.center,o.size));
+                TerminalPosition=manifest.terminal;
+            }
             var materials = new Material[manifest.materials.Length];
             for (var i = 0; i < materials.Length; i++)
             {
@@ -107,9 +126,9 @@ namespace BotanicalGardenQR.Bootstrap
                 var material = new Material(template) { name = source.name };
                 _owned.Add(material);
                 material.color = new Color(source.color[0], source.color[1], source.color[2], 1);
-                if (!string.IsNullOrEmpty(source.texture))
+                if (!string.IsNullOrEmpty(source.texture) || !string.IsNullOrEmpty(source.textureResource))
                 {
-                    var texture = Resources.Load<Texture2D>(resource + "/" + source.texture);
+                    var texture = Resources.Load<Texture2D>(!string.IsNullOrEmpty(source.textureResource)?source.textureResource:resource + "/" + source.texture);
                     if (texture == null) throw new InvalidOperationException("Missing room texture: " + source.texture);
                     material.mainTexture = texture;
                     // The imported diffuse tint multiplies the texture. Replacing it with
@@ -157,7 +176,7 @@ namespace BotanicalGardenQR.Bootstrap
                 renderer.sharedMaterials = assigned;
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
                 // Virtual collider checks are used for guide recovery, never to push the player.
-                item.AddComponent<MeshCollider>().sharedMesh = mesh;
+                if(_publishedObstacles==null)item.AddComponent<MeshCollider>().sharedMesh = mesh;
             }
             if (reader.BaseStream.Position != reader.BaseStream.Length)
                 throw new InvalidDataException("Unexpected trailing room geometry data.");
@@ -165,7 +184,10 @@ namespace BotanicalGardenQR.Bootstrap
 
         public void Dispose()
         {
-            _trackingOrigin?.Dispose();
+            if (_disposed) return;
+            _disposed = true;
+            if (_ownsTracking) _trackingOrigin?.Dispose();
+            if (_root) _root.SetActive(false);
             Destroy(_root);
             foreach (var item in _owned) Destroy(item);
             _owned.Clear();
@@ -188,7 +210,8 @@ namespace BotanicalGardenQR.Bootstrap
             else UnityEngine.Object.DestroyImmediate(value);
         }
 
-        [Serializable] sealed class RoomManifest { public RoomMaterial[] materials; }
-        [Serializable] sealed class RoomMaterial { public string name, texture; public float[] color; }
+        [Serializable] sealed class RoomManifest { public RoomMaterial[] materials; public RoomObstacle[] obstacles; public Vector3 terminal; }
+        [Serializable] sealed class RoomObstacle { public Vector3 center,size; }
+        [Serializable] sealed class RoomMaterial { public string name, texture,textureResource; public float[] color; }
     }
 }

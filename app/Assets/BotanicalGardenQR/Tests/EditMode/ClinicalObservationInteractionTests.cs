@@ -25,7 +25,7 @@ namespace BotanicalGardenQR.Tests.EditMode
         PanoramaFrontend _frontend;
         ClinicalEvidenceLesson _lesson;
         float _yaw;
-        int _completed;
+        int _completed,_closed;
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         static TMP_FontAsset Font => AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>("Assets/BotanicalGardenQR/Content/Authoring/GlobalUiDefaults.asset").SharedFont;
         [SetUp] public void SetUp()
@@ -34,17 +34,18 @@ namespace BotanicalGardenQR.Tests.EditMode
             _viewer.transform.position = new Vector3(0, 1.6f, 0);
             _events = new GameObject("Events", typeof(EventSystem)); _gaze = _events.AddComponent<HeadGazeDwellController>();
             _gaze.Configure(_viewer.GetComponent<Camera>(), _events.GetComponent<EventSystem>()); _gaze.SetHandOnly(true);
-            _completed = 0;
+            _completed = _closed = 0;
         }
-        void Open(bool formal = true)
+        void Open(bool formal = true, BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress saved = null, bool readOnly = false)
         {
             var resolver = new PublishedSceneResolver(AssetDatabase.LoadAssetAtPath<ContentSceneLibrary>("Assets/BotanicalGardenQR/Content/Published/ContentSceneLibrary.asset"));
             ((IPanoramaDefinitionSource)resolver).TryGet(new SceneId("giant_saguaro"), out var definition);
             _yaw = definition.InitialYawDegrees;
             _lesson = JsonUtility.FromJson<ClinicalEvidenceLesson>(Resources.Load<TextAsset>("ClinicalEvidence/lesson").text);
             _frontend = _root.AddComponent<PanoramaFrontend>();
+            _frontend.ClinicalProgress=saved;_frontend.ClinicalReadOnly=()=>readOnly;
             _frontend.Bind(SessionToken.CreateNew(), _gaze, _viewer.transform, _root.transform, Font,
-                () => Assert.Fail("Use the existing completion path, not exit."),
+                () => {if(saved==null)Assert.Fail("Use the existing completion path, not exit.");else _closed++;},
                 definition.EnvironmentMoments, false, null, true, definition.Source.Texture,
                 definition.TeachingComparisons, () => _completed++, definition.InitialYawDegrees);
             _frontend.SetVisible(true);
@@ -75,6 +76,39 @@ namespace BotanicalGardenQR.Tests.EditMode
         Button ActionButton(string label) => _root.GetComponentsInChildren<Button>()
             .Single(b => b.GetComponentInChildren<TMP_Text>()?.text == label);
         Vector3 Target => ClinicalEvidenceSession.PanoramaDirection(_lesson.topics[Count("TopicIndex")].panoramaUv, _yaw);
+        [Test] public void RecreatedObservationResumesFactsWithoutOldToolOrPose()
+        {
+            var saved=new BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress();
+            Open(saved:saved);
+            using(var hand=new ClinicalHandFixture(_root,_viewer.transform,_gaze))hand.Touch(Button("SkipObservation"));
+            Assert.That(saved.NextTopic,Is.EqualTo(1));Assert.That(saved.SkippedCount,Is.EqualTo(1));
+            var oldTool=Token;
+            _frontend.Unbind();Object.DestroyImmediate(_frontend);
+            _viewer.transform.position+=Vector3.right*2;
+            Open(false,saved);
+            Assert.That(oldTool==null,Is.True);Assert.That(Token.IsHeld,Is.False);
+            Assert.That(Count("TopicIndex"),Is.EqualTo(1));Assert.That(Phase,Is.EqualTo("Ready"));
+            Assert.That(Progress,Is.Zero);Assert.That(_completed,Is.Zero);
+            using(var hand=new ClinicalHandFixture(_root,_viewer.transform,_gaze))hand.Touch(ActionButton("继续未完成观察"));
+            Assert.That(Phase,Is.EqualTo("Seeking"));Assert.That(Count("SkippedCount"),Is.EqualTo(1));
+        }
+        [TestCase(false)] [TestCase(true)]
+        public void FinishedOrSubmittedObservationOnlyReviewsWithoutAwardingAgain(bool submitted)
+        {
+            var saved=new BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress();
+            saved.Begin();Assert.That(saved.Record(0,false),Is.True);
+            if(!submitted){saved.Record(1,true);saved.Record(2,false);}
+            var completed=saved.CompletedCount;var skipped=saved.SkippedCount;
+            Open(false,saved,submitted);
+            Assert.That(Phase,Is.EqualTo("Explanation"));Assert.That(Token.gameObject.activeSelf,Is.False);
+            using(var hand=new ClinicalHandFixture(_root,_viewer.transform,_gaze))
+            {
+                for(int index=0;index<3;index++)
+                    hand.Touch(ActionButton(index==2?"结束回看 · 返回房间":"下一处："+_lesson.topics[index+1].title));
+            }
+            Assert.That(_completed,Is.Zero);Assert.That(_closed,Is.EqualTo(1));
+            Assert.That(saved.CompletedCount,Is.EqualTo(completed));Assert.That(saved.SkippedCount,Is.EqualTo(skipped));
+        }
         [TearDown] public void TearDown()
         {
             if (_frontend) _frontend.Unbind(); _gaze.Unconfigure();

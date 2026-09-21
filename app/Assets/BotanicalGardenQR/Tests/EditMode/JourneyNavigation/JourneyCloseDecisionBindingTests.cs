@@ -30,9 +30,10 @@ namespace BotanicalGardenQR.Tests.EditMode.JourneyNavigation
         static readonly SceneId GiantSaguaro = new SceneId("giant_saguaro");
         static readonly SceneId Baobab = new SceneId("baobab");
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void ClinicalSixStopCourseAdvancesWithoutAtlasOrCollection(bool skip)
+        [TestCase(false,false)]
+        [TestCase(true,false)]
+        [TestCase(false,true)]
+        public void ClinicalSixStopCourseAdvancesWithoutAtlasOrCollection(bool skip,bool review)
         {
             var entries = AssetDatabase.LoadAssetAtPath<ContentEntryCatalog>("Assets/BotanicalGardenQR/Content/Authoring/ContentEntryCatalog.asset");
             var catalog = AssetDatabase.LoadAssetAtPath<CollectionCatalogAsset>("Assets/BotanicalGardenQR/Content/Authoring/CollectionCatalog.asset");
@@ -73,12 +74,17 @@ namespace BotanicalGardenQR.Tests.EditMode.JourneyNavigation
                 ui.SetClosed(false);
                 source.Open(new ContentOpenedFact(content, session, entry.TargetSceneId, RecognitionSourceKinds.Fieldbook, "entry"));
                 binding.AcceptClinicalLessonCompleted(content);
-                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(station), "An open or unrelated lesson cannot complete through the clinical seam.");
+                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(review?0:station), "An open or unrelated lesson cannot complete through the clinical seam.");
                 guidance.TargetContentOpened();
                 source.Close(new ContentClosedFact(content, session, entry.TargetSceneId, true));
                 ui.SetClosed(true);
-                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(station), "Closing the page alone must not finish learning.");
-                if (station == 0)
+                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(review?0:station), "Closing the page alone must not finish learning.");
+                if(review)
+                {
+                    binding.AcceptClinicalReviewClosed(content);
+                    binding.AcceptClinicalReviewClosed(content);
+                }
+                else if (station == 0)
                 {
                     binding.AcceptClinicalLessonCompleted(SessionToken.CreateNew());
                     intents.RequestSkipQuizAndCollect();
@@ -107,11 +113,11 @@ namespace BotanicalGardenQR.Tests.EditMode.JourneyNavigation
                     binding.AcceptClinicalLessonCompleted(content);
                     Assert.That(ui.Quiz.IsVisible, Is.False, "Later multimedia lessons must not append the legacy text quiz.");
                 }
-                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(station + 1));
+                Assert.That(journey.CurrentState.CompletedCount, Is.EqualTo(review?0:station + 1));
                 Assert.That(collection.CurrentState.CollectedCount, Is.Zero);
                 Assert.That(collection.CurrentState.PendingPresentation, Is.Null, "No foldout or collection step may block the course.");
                 var request = navigation.State.RequestId;
-                guidance.Refresh(journey.CurrentState.CompletionRevision,
+                guidance.Refresh(review?station+1:journey.CurrentState.CompletionRevision,
                     new VisitorGuidanceEnvironment(false, false, false, false, ui.Quiz.IsVisible, ui.Startup.IsCloseDecisionVisible),
                     navigation.HasFrame, false);
                 Assert.That(ui.Startup.IsCloseDecisionVisible, Is.False, "A completed lesson must consume its old close decision.");

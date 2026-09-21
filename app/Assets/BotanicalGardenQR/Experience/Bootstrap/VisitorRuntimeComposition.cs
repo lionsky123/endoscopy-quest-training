@@ -56,6 +56,7 @@ namespace BotanicalGardenQR.Bootstrap
         readonly VisitorPrologueStartupBinding _prologueStartupBinding;
         readonly Action<float> _tick;
         readonly Func<bool> _canStart;
+        Action _begin;
         bool _startRequested, _startPending;
         bool _disposed;
 
@@ -74,7 +75,7 @@ namespace BotanicalGardenQR.Bootstrap
 
         internal static VisitorRuntimeComposition Create(
             VisitorRuntimeBindings bindings,
-            Action<DiagnosticEvent> diagnostics)
+            Action<DiagnosticEvent> diagnostics, FullScriptRoomVisit visit = null)
         {
             if (bindings == null) throw new ArgumentNullException(nameof(bindings));
             var configuration = bindings.Configuration;
@@ -84,6 +85,7 @@ namespace BotanicalGardenQR.Bootstrap
             var library = configuration.Library;
             var routes = configuration.Routes;
             var options = configuration.Options;
+            var mapDefinition = visit?.Map ?? configuration.MapDefinition;
             var fairyDefinitions = configuration.FairyDefinitions;
             var uiDefaults = configuration.UiDefaults;
             var prologueTheme = configuration.PrologueTheme;
@@ -117,8 +119,18 @@ namespace BotanicalGardenQR.Bootstrap
             var ownership = new BootstrapOwnershipScope();
             try
             {
-                VirtualRoomEnvironment room = null;
-                if (options.VirtualRoomEnabled)
+                if(visit!=null)
+                {
+                    featurePages.PanoramaFrontend.ClinicalProgress=visit.ObservationProgress;
+                    featurePages.PanoramaFrontend.ClinicalReadOnly=()=>visit.TeachingReadOnly;
+                    ownership.Register(()=>
+                    {
+                        featurePages.PanoramaFrontend.ClinicalProgress=null;
+                        featurePages.PanoramaFrontend.ClinicalReadOnly=null;
+                    });
+                }
+                VirtualRoomEnvironment room = visit?.Room;
+                if (options.VirtualRoomEnabled && room == null)
                 {
                     room = VirtualRoomEnvironment.Create(platform.XrRigRoot, platform.MrukRoot,
                         configuration.MapDefinition);
@@ -206,6 +218,11 @@ namespace BotanicalGardenQR.Bootstrap
                 ownership.Register(activation.Dispose);
 
                 ownership.Register(shell.Dispose);
+                if(visit != null)
+                {
+                    shell.ResumeClinicalCourse = visit.ResumeWashingLesson;
+                    shell.ClinicalCourseReadOnly = () => visit.TeachingReadOnly;
+                }
                 ownership.Register(gazeReticle.Unconfigure);
                 ownership.Register(headGaze.Unconfigure);
                 ownership.Register(startupRecall.Unconfigure);
@@ -263,8 +280,8 @@ namespace BotanicalGardenQR.Bootstrap
                 var handReadiness = RequiredComponent<VisitorHandReadinessAdapter>(
                     prologuePresentationObject,
                     "Visitor Prologue prefab");
-                var prologue = VisitorPrologueModuleFactory.Create();
-                ownership.Register(prologue.Dispose);
+                var prologue = visit?.Prologue ?? VisitorPrologueModuleFactory.Create();
+                if (visit == null) ownership.Register(prologue.Dispose);
                 ownership.Register(prologuePresenter.Dispose);
                 prologuePresenter.Configure(viewer, headGaze, prologueTheme);
                 prologuePresenter.Bind(prologue);
@@ -300,7 +317,8 @@ namespace BotanicalGardenQR.Bootstrap
 
                 var knowledgeMiniGame = KnowledgeMiniGameModuleFactory.Create();
                 ownership.Register(knowledgeMiniGame.Dispose);
-                ownership.Register(observationCompletionFrontend.Dispose);
+                // The authored frontend survives room visits; only its bindings are visit-owned.
+                ownership.Register(visit == null ? observationCompletionFrontend.Dispose : observationCompletionFrontend.Unconfigure);
                 observationCompletionFrontend.Configure(viewer, headGaze);
                 var knowledgeMiniGameBinding = new KnowledgeMiniGameCompletionBinding(
                     activation,
@@ -308,10 +326,17 @@ namespace BotanicalGardenQR.Bootstrap
                     definitions,
                     knowledgeMiniGame,
                     observationCompletionFrontend,
-                    journeyCloseDecisionBinding.AcceptObservationCompleted);
+                    journeyCloseDecisionBinding.AcceptObservationCompleted, ownsFrontend: visit == null);
                 ownership.Register(knowledgeMiniGameBinding.Dispose);
                 shell.ClinicalCompletionRequested += journeyCloseDecisionBinding.AcceptClinicalLessonCompleted;
                 ownership.Register(() => shell.ClinicalCompletionRequested -= journeyCloseDecisionBinding.AcceptClinicalLessonCompleted);
+                shell.ClinicalReviewClosed += journeyCloseDecisionBinding.AcceptClinicalReviewClosed;
+                ownership.Register(()=>shell.ClinicalReviewClosed -= journeyCloseDecisionBinding.AcceptClinicalReviewClosed);
+                if(visit!=null)
+                {
+                    shell.ClinicalReviewClosed += visit.AcceptTeachingReviewClosed;
+                    ownership.Register(()=>shell.ClinicalReviewClosed -= visit.AcceptTeachingReviewClosed);
+                }
                 var narrationDockBinding = new NarrationDockBinding(
                     flow,
                     shell,
@@ -370,8 +395,8 @@ namespace BotanicalGardenQR.Bootstrap
                 // Read the existing route label font without creating palm tools or a map display.
                 var mapLabelFont = RequiredComponent<VisitorAtlasHubPresentation>(
                     atlasHubPresentationPrefab, "Route font source").MapLabelFont;
-                var mapNavigation = MapNavigationModuleFactory.Create(configuration.MapDefinition,
-                    new FairyMapMotionSink(fairyBinding, configuration.MapDefinition), room?.Frame);
+                var mapNavigation = MapNavigationModuleFactory.Create(mapDefinition,
+                    new FairyMapMotionSink(fairyBinding, mapDefinition), room?.Frame);
                 ownership.Register(mapNavigation.Dispose);
                 var mapRoute = configuration.GuidanceRouteMaterial != null
                     ? MapRoutePresentationFactory.Create(displayRoot.parent, configuration.GuidanceRouteMaterial, mapLabelFont, viewer)
@@ -449,14 +474,24 @@ namespace BotanicalGardenQR.Bootstrap
                         visitorCoachTheme.FairyAttentionSeconds);
                     ownership.Register(visitorCoachFairy.Dispose);
                 }
-                var guidance = new VisitorGuidanceCoordinator(mapNavigation,
+                VisitorGuidanceCoordinator guidance = null;
+                bool OpenPoint(string pointId)
+                {
+                    if (visit != null && visit.TryOpen(pointId))
+                    {
+                        guidance.TargetContentOpened();
+                        return true;
+                    }
+                    return routes.TryResolveMapPoint(pointId, out var entry) && activation.TryOpenConfirmedEntry(entry.EntryValue);
+                }
+                guidance = new VisitorGuidanceCoordinator(mapNavigation,
                     () => { if (!options.VirtualRoomEnabled && !options.FieldbookEnabled) spatialDataPermissionBinding.RequestRecognitionStart(); },
-                    options.VirtualRoomEnabled || options.FieldbookEnabled ? pointId => routes.TryResolveMapPoint(pointId, out var entry) &&
-                        activation.TryOpenConfirmedEntry(entry.EntryValue) : (Func<string, bool>)null,
+                    options.VirtualRoomEnabled || options.FieldbookEnabled ? OpenPoint : (Func<string, bool>)null,
                     options.ArrivalRadius, options.ArrivalExitRadius, options.ArrivalStableSeconds);
                 ownership.Register(guidance.Dispose);
                 var guidanceBinding = new VisitorMapGuidanceBinding(mapNavigation,guidance,viewer,fairyGroundReference,journey,
-                    collectionProgress,collectionWorld,visitorCoachPresenter,modalEnvironment,mapRoute,activation);
+                    collectionProgress,collectionWorld,visitorCoachPresenter,modalEnvironment,mapRoute,activation,
+                    () => visit?.CompletionRevision ?? 0, () => visit?.ContentOpen == true);
                 ownership.Register(guidanceBinding.Dispose);
                 void BeginGuidedLearning()
                 {
@@ -481,13 +516,22 @@ namespace BotanicalGardenQR.Bootstrap
                     prologueStartupBinding,
                     deltaSeconds =>
                     {
-                        var alignmentValid = room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract;
+                        var alignmentValid = (room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract) && (visit == null || visit.InputAllowed);
                         // Still tick with tracked=false so navigation sends Hold to
                         // the Fairy instead of leaving its last movement running.
                         guidanceBinding.Tick(deltaSeconds, alignmentValid);
-                        if (!alignmentValid) return;
+                        if (!alignmentValid || visit?.ContentOpen == true) return;
                         visitorCoachRuntime.Tick(deltaSeconds);
-                    }, () => room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract);
+                    }, () => (room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract) && (visit == null || visit.InputAllowed));
+                composition._begin = () =>
+                {
+                    if (visit != null && prologue.CurrentState.IsExplorationReady)
+                    {
+                        fairyBinding?.Show(room.GuidePath.StartPosition);
+                        BeginGuidedLearning();
+                    }
+                    else prologueStartupBinding.Begin();
+                };
                 return composition;
             }
             catch
@@ -510,7 +554,7 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if (!_startPending || !_canStart()) return;
             _startPending = false;
-            _prologueStartupBinding.Begin();
+            _begin();
         }
 
         public void Tick(float unscaledDeltaSeconds)

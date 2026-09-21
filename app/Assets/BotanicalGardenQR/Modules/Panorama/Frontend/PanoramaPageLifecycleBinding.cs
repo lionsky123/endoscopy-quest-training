@@ -160,7 +160,7 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 definition.Source.Texture,
                 definition.TeachingComparisons,
                 RequestClinicalCompletion,
-                definition.InitialYawDegrees);
+                definition.InitialYawDegrees, RequestClinicalReviewClose);
             _subscription = _controller.Observe(this);
 
             var opened = _controller.Open(session, definition, _featureLease);
@@ -250,6 +250,12 @@ namespace BotanicalGardenQR.Panorama.Frontend
                 }
             }
             else RequestExit();
+        }
+        void RequestClinicalReviewClose()
+        {
+            if(!_active || !_session.IsValid)return;
+            if(_shell is IClinicalLessonReview review)review.CloseClinicalReview(_session);
+            else _shell.Dispatch(FlowIntent.Close(_session));
         }
 
         void RequestImageRing()
