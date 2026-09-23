@@ -91,9 +91,9 @@
             ]
         },
         {
-            "name": "Material #2956",
+            "name": "ClinicalRoom-0",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Clinical/SourceTextures/ScreenShot_2026-09-17_163548_276",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -111,9 +111,9 @@
             ]
         },
         {
-            "name": "Material #2957",
+            "name": "ClinicalRoom-1",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Clinical/SourceTextures/白色",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -561,9 +561,9 @@
             ]
         },
         {
-            "name": "Material #2959",
+            "name": "ClinicalRoom-2",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Clinical/SourceTextures/ScreenShot_2026-09-11_155536_034",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -571,9 +571,9 @@
             ]
         },
         {
-            "name": "Material #2960",
+            "name": "ClinicalRoom-3",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Clinical/SourceTextures/微信图片_20260910164711_787_58",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -581,13 +581,13 @@
             ]
         },
         {
-            "name": "ReferenceHospitalTerrazzo",
+            "name": "ClinicalRoom-4",
             "texture": "",
-            "textureResource": "ClinicalCourse/FullScriptVisuals/hospital-terrazzo-v1",
+            "textureResource": "FullScriptRooms/Clinical/SourceTextures/ScreenShot_2026-09-17_165931_432",
             "color": [
-                1.0,
-                1.0,
-                1.0
+                0.7905896306037903,
+                0.7905896306037903,
+                0.7905896306037903
             ]
         },
         {

@@ -1,0 +1,28 @@
+[
+  {
+    "file": "equipment-hotspot-teaching-v1.png",
+    "size": [
+      1086,
+      1448
+    ],
+    "mode": "RGB",
+    "sha256": "fbd5c733644ebd15ca058e92559f42c4d25201bc952a95f53afa2e7b1ad76e10",
+    "bytes": 1890076,
+    "runtime_path": "app/Assets/EndoscopyTheme/Resources/ClinicalCourse/FullScriptVisuals/equipment-hotspot-teaching-v1.png",
+    "runtime_consumer": "FullScriptStationaryContent.ImageFor: RE-02",
+    "validation": "Android import/compile and targeted EditMode passed: sink-audio-final-2; actual Play and Quest pending"
+  },
+  {
+    "file": "ppe-teaching-plate-v2.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGB",
+    "sha256": "ddb14c0e675db14b13a26849603d35ffeba8f7070e48de4437ca21caa81cdb7d",
+    "bytes": 1414224,
+    "runtime_path": "app/Assets/EndoscopyTheme/Resources/ClinicalCourse/FullScriptVisuals/ppe-teaching-plate-v2.png",
+    "runtime_consumer": "FullScriptStationaryContent.ImageFor: RE-06, six highlight regions",
+    "validation": "Android import/compile and targeted EditMode passed: sink-audio-final-2; actual Play and Quest pending"
+  }
+]

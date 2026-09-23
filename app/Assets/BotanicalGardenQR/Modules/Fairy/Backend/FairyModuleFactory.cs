@@ -15,7 +15,8 @@ namespace BotanicalGardenQR.Fairy.Backend
             Light arrivalEnvironmentLight,
             Action<DiagnosticEvent> diagnostics = null,
             Func<Vector3, Vector3?> arrivalHandPosition = null,
-            IFairyWalkSpace walkSpace = null)
+            IFairyWalkSpace walkSpace = null,
+            bool bypassArrival = false)
         {
             if (runtimeRoot == null) throw new ArgumentNullException(nameof(runtimeRoot));
             if (viewer == null) throw new ArgumentNullException(nameof(viewer));
@@ -32,7 +33,9 @@ namespace BotanicalGardenQR.Fairy.Backend
                 arrivalPassthroughLayer,
                 arrivalEnvironmentLight,
                 diagnostics,
-                arrivalHandPosition, walkSpace);
+                arrivalHandPosition,
+                walkSpace,
+                bypassArrival);
             return controller;
         }
 

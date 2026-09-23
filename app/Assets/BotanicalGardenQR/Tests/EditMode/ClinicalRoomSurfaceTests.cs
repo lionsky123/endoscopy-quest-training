@@ -56,6 +56,36 @@ namespace BotanicalGardenQR.Tests.EditMode
             _room = VirtualRoomEnvironment.Create(_rig, null, definition);
             Assert.That(camera.nearClipPlane, Is.EqualTo(Mathf.Min(originalNear, .03f)).Within(.0001f), "Cap inherited MR distances without increasing an already smaller near plane.");
         }
+        [TestCase("R02_STORAGE")]
+        [TestCase("R03_WAITING")]
+        public void DerivedRoomLightingIsBoundedRoomOwnedAndRestoresEnvironment(string id)
+        {
+            _room.Dispose();
+            var mode=UnityEngine.RenderSettings.ambientMode;
+            var sky=RenderSettings.ambientSkyColor;var equator=RenderSettings.ambientEquatorColor;var ground=RenderSettings.ambientGroundColor;
+            var map=FullScriptRoomCatalog.Map(id,null,false,true);
+            _room=VirtualRoomEnvironment.Create(_rig,null,map);
+            Assert.That(RenderSettings.ambientMode,Is.EqualTo(UnityEngine.Rendering.AmbientMode.Trilight));
+            var lights=_room.Root.GetComponentsInChildren<Light>();Assert.That(lights.Length,Is.EqualTo(4));
+            var source=Resources.Load<GameObject>(map.roomResource);
+            CollectionAssert.AreEquivalent(source.GetComponentsInChildren<Renderer>().SelectMany(r=>r.sharedMaterials),
+                _room.Root.GetComponentsInChildren<Renderer>().SelectMany(r=>r.sharedMaterials));
+            foreach(var light in lights)
+            {
+                Assert.That(light.type,Is.EqualTo(LightType.Spot));Assert.That(light.shadows,Is.EqualTo(LightShadows.None));
+                Assert.That(light.transform.localPosition.y,Is.EqualTo(2.70f));
+                Assert.That(light.range,Is.LessThanOrEqualTo(4.5f));
+                Assert.That(Vector3.Dot(light.transform.forward,-_room.Root.transform.up),Is.GreaterThan(.99f));
+                var position=light.transform.position;_rig.transform.position+=Vector3.right*.1f;
+                Assert.That(light.transform.position,Is.EqualTo(position),"Room illumination must not follow the viewer.");
+            }
+            _room.Dispose();
+            Assert.That(lights.All(light=>!light),Is.True,"Unloading the room must remove every local emitter.");
+            Assert.That(RenderSettings.ambientMode,Is.EqualTo(mode));
+            Assert.That(RenderSettings.ambientSkyColor,Is.EqualTo(sky));
+            Assert.That(RenderSettings.ambientEquatorColor,Is.EqualTo(equator));
+            Assert.That(RenderSettings.ambientGroundColor,Is.EqualTo(ground));
+        }
         [Serializable] sealed class Manifest { public Entry[] materials; }
         [Serializable] sealed class Entry { public string name, texture; public float[] color; }
     }

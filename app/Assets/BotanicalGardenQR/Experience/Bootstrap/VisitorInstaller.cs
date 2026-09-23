@@ -16,6 +16,7 @@ using UnityEngine.EventSystems;
 namespace BotanicalGardenQR.Bootstrap
 {
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(-10000)]
     public sealed class VisitorInstaller : MonoBehaviour
     {
         [Header("Published configuration")]
@@ -80,6 +81,7 @@ namespace BotanicalGardenQR.Bootstrap
             @"(?im)(\bsource\s*=\s*qr\s*:\s*)([^\r\n\t;]+)",
             RegexOptions.CultureInvariant);
         VisitorRuntimeComposition _composition;
+        internal FullScriptJourneyRuntime Journey => _fullScript;
         FullScriptJourneyRuntime _fullScript;
         readonly VisitorDiagnosticThrottle _unityDiagnosticThrottle = new VisitorDiagnosticThrottle(
             UnityDiagnosticRepeatInterval,
@@ -100,7 +102,14 @@ namespace BotanicalGardenQR.Bootstrap
                     "installer.recognition.created",
                     $"count={bindings.Platform.RecognitionSources.Count}");
                 if (_runtimeOptions.VirtualRoomEnabled)
-                    _fullScript = new FullScriptJourneyRuntime(bindings, RecordDiagnostic);
+                {
+                    var preview=false;
+#if UNITY_EDITOR
+                    preview=InspectionEditorPreview.Enabled;
+                    if(preview)InspectionEditorPreview.Configure(bindings);
+#endif
+                    _fullScript = new FullScriptJourneyRuntime(bindings, RecordDiagnostic, editorPreview:preview);
+                }
                 else _composition = VisitorRuntimeComposition.Create(bindings, RecordDiagnostic);
                 RecordStartup("installer.composition.ready");
             }
@@ -154,6 +163,24 @@ namespace BotanicalGardenQR.Bootstrap
                 _diagnosticsAttached = false;
             }
         }
+
+#if UNITY_EDITOR
+        // Explicit historical test/preview opt-in only. Not compiled into the player
+        // and never called by Awake or the current scene authoring command.
+        internal void ConfigureArchivedBindingsForEditor()
+        {
+            T Load<T>(string guid) where T : UnityEngine.Object
+            {
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
+                if (!asset) throw new InvalidOperationException("Archived configuration missing: " + guid);
+                return asset;
+            }
+            _sceneLibrary = Load<ContentSceneLibrary>("6882fa79dfb755e4a8ec85c493af5106");
+            _contentEntries = Load<ContentEntryCatalog>("65c027806e6ed8a49b7d3c80e994262c");
+            _collectionCatalog = Load<CollectionCatalogAsset>("48a9027c1b724684b651cd26c95146f6");
+            _physicalAugmentationCatalog = Load<PhysicalAugmentationCatalogAsset>("c72db1d79b984f2fb572b2329aff3fa2");
+        }
+#endif
 
         internal VisitorRuntimeBindings CreateValidatedBindings()
         {
@@ -265,7 +292,8 @@ namespace BotanicalGardenQR.Bootstrap
         void CaptureUnityLog(string condition, string stackTrace, LogType type)
         {
             var trackerMessage = condition != null &&
-                                 (condition.IndexOf("QRCode", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                 (condition.StartsWith("[LobbyGaussian]", StringComparison.Ordinal) ||
+                                  condition.IndexOf("QRCode", StringComparison.OrdinalIgnoreCase) >= 0 ||
                                   condition.IndexOf("MRUK", StringComparison.OrdinalIgnoreCase) >= 0 ||
                                   condition.IndexOf("PhysicalAugmentation", StringComparison.OrdinalIgnoreCase) >= 0 ||
                                   condition.IndexOf("physical_locator", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -284,16 +312,26 @@ namespace BotanicalGardenQR.Bootstrap
             RecordStartup($"unity.{type}", detail);
         }
 
+        long _cachedDiagnosticBytes = -1;
+
         void RecordStartup(string stage, string detail = null)
         {
             if (string.IsNullOrWhiteSpace(_diagnosticPath)) return;
             try
             {
                 var line = $"{DateTimeOffset.UtcNow:O}\t{stage}\t{Sanitize(detail)}{Environment.NewLine}";
+                var byteCount = DiagnosticEncoding.GetByteCount(line);
                 lock (DiagnosticWriteLock)
                 {
-                    EnsureDiagnosticCapacity(DiagnosticEncoding.GetByteCount(line));
+                    if (_cachedDiagnosticBytes < 0)
+                        _cachedDiagnosticBytes = File.Exists(_diagnosticPath) ? new FileInfo(_diagnosticPath).Length : 0;
+                    if (_cachedDiagnosticBytes + byteCount > DiagnosticMaximumBytes)
+                    {
+                        EnsureDiagnosticCapacity(byteCount);
+                        _cachedDiagnosticBytes = File.Exists(_diagnosticPath) ? new FileInfo(_diagnosticPath).Length : 0;
+                    }
                     File.AppendAllText(_diagnosticPath, line, DiagnosticEncoding);
+                    _cachedDiagnosticBytes += byteCount;
                 }
             }
             catch

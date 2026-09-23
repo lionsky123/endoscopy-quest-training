@@ -20,7 +20,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
         [Serializable] sealed class Manifest { public Surface[] materials; public Obstacle[] obstacles; public Vector3 terminal; }
         public static void Publish()
         {
-            int code=1;var temporary=new List<Mesh>();var temporaryMaterials=new List<Material>();GameObject root=null;
+            int code=1;var temporary=new List<Mesh>();GameObject root=null;
             try
             {
                 if(EditorUserBuildSettings.activeBuildTarget!=BuildTarget.Android)throw new InvalidOperationException("Android target required.");
@@ -32,22 +32,11 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 root=Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/EndoscopyTheme/ImportedModels/Prepared/"+(clinical?"ClinicalRoom":"OfficeRoom")+".prefab"));
                 if(!root)throw new InvalidOperationException("Prepared room missing.");
                 var groups=new Dictionary<Material,List<CombineInstance>>();
-                Material ReferenceSurface(string name,string resource)
-                {
-                    var texture=Resources.Load<Texture2D>(resource);
-                    if(!texture)throw new InvalidOperationException("Existing reference texture missing: "+resource);
-                    var material=new Material(Resources.Load<Material>("EndoscopyRoom/RoomSurface")){name=name,color=Color.white,mainTexture=texture};
-                    temporaryMaterials.Add(material);return material;
-                }
-                var floorSurface=ReferenceSurface("ReferenceHospitalTerrazzo","ClinicalCourse/FullScriptVisuals/hospital-terrazzo-v1");
-                var woodSurface=ReferenceSurface("ReferenceOfficeOak","ClinicalCourse/FullScriptVisuals/office-oak-v1");
                 var obstacles=new List<Obstacle>();int omittedChair=0,movedScreen=0;
                 foreach(var filter in root.GetComponentsInChildren<MeshFilter>())
                 {
                     var renderer=filter.GetComponent<MeshRenderer>();if(!filter.sharedMesh || !renderer)continue;
                     var bounds=renderer.bounds;var c=bounds.center;
-                    bool floor=c.y<.2f && bounds.size.y<.21f && bounds.size.x>4 && bounds.size.z>3;
-                    bool desktop=!clinical && c.y>.75f && c.y<.9f && bounds.size.y<.08f && bounds.size.x>.4f && bounds.size.z>.4f;
                     // The selected main workstation is a standing inspection bay. Other chairs remain intact.
                     // Only this chair's geometry is omitted in this derived room, not in the supplied source.
                     if(!clinical && c.x>1.5f && c.x<2.35f && c.z>-.2f && c.z<.75f && c.y<1.45f){omittedChair++;continue;}
@@ -56,18 +45,12 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                     // the terminal is attached to the aisle-facing front, not the rear monitor.
                     bounds.center+=offset;
                     if(bounds.max.y>.15f && bounds.min.y<1.8f)obstacles.Add(new Obstacle{center=bounds.center,size=bounds.size});
-                    var geometry=filter.sharedMesh;
-                    if(floor || desktop)
-                    {
-                        geometry=Object.Instantiate(geometry);temporary.Add(geometry);
-                        geometry.uv=geometry.vertices.Select(v=>{var p=filter.transform.TransformPoint(v);return new Vector2(p.x,p.z)/(floor?2f:1f);}).ToArray();
-                    }
                     for(int sub=0;sub<filter.sharedMesh.subMeshCount;sub++)
                     {
-                        var material=floor?floorSurface:desktop?woodSurface:renderer.sharedMaterials[Mathf.Min(sub,renderer.sharedMaterials.Length-1)];
+                        var material=renderer.sharedMaterials[Mathf.Min(sub,renderer.sharedMaterials.Length-1)];
                         if(!material)throw new InvalidOperationException("Missing office material.");
                         if(!groups.TryGetValue(material,out var list))groups.Add(material,list=new List<CombineInstance>());
-                        list.Add(new CombineInstance{mesh=geometry,subMeshIndex=sub,transform=Matrix4x4.Translate(offset)*filter.transform.localToWorldMatrix});
+                        list.Add(new CombineInstance{mesh=filter.sharedMesh,subMeshIndex=sub,transform=Matrix4x4.Translate(offset)*filter.transform.localToWorldMatrix});
                     }
                 }
                 var batches=new List<(Mesh mesh,int material)>();var surfaces=new List<Surface>();
@@ -133,7 +116,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 code=0;
             }
             catch(Exception error){Debug.LogException(error);}
-            finally{if(root)Object.DestroyImmediate(root);foreach(var mesh in temporary)Object.DestroyImmediate(mesh);foreach(var material in temporaryMaterials)Object.DestroyImmediate(material);}
+            finally{if(root)Object.DestroyImmediate(root);foreach(var mesh in temporary)Object.DestroyImmediate(mesh);}
             EditorApplication.Exit(code);
         }
     }

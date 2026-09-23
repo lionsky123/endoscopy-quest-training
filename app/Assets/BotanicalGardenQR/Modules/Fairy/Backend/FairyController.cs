@@ -105,6 +105,7 @@ namespace BotanicalGardenQR.Fairy.Backend
         bool _ambientAudioSuppressed;
         bool _walking;
         bool _arrivalCompleted;
+        bool _bypassArrival;
         long _version;
 
         internal GameObject CompanionCueEffectInstance => _companionCueEffectInstance;
@@ -115,6 +116,15 @@ namespace BotanicalGardenQR.Fairy.Backend
         internal int SpeechPlayCount { get; private set; }
         internal AudioClip LastSpeechClip { get; private set; }
 
+        public void BypassArrivalRitual()
+        {
+            _bypassArrival = true;
+            _arrivalCompleted = true;
+            _arrivalInProgress = false;
+            _ambientAudioSuppressed = true;
+            CancelArrival();
+        }
+
         internal void Initialize(
             Transform viewer,
             Transform groundReference,
@@ -122,9 +132,16 @@ namespace BotanicalGardenQR.Fairy.Backend
             Light arrivalEnvironmentLight,
             Action<DiagnosticEvent> diagnostics = null,
             Func<Vector3, Vector3?> arrivalHandPosition = null,
-            IFairyWalkSpace walkSpace = null)
+            IFairyWalkSpace walkSpace = null,
+            bool bypassArrival = false)
         {
             if (_viewer != null) throw new InvalidOperationException("Fairy controller is already initialized.");
+            _bypassArrival = bypassArrival;
+            if (bypassArrival)
+            {
+                _arrivalCompleted = true;
+                _ambientAudioSuppressed = true;
+            }
             _viewer = viewer != null ? viewer : throw new ArgumentNullException(nameof(viewer));
             _arrivalHandPosition = arrivalHandPosition;
             _walkSpace = walkSpace;
@@ -198,7 +215,8 @@ namespace BotanicalGardenQR.Fairy.Backend
             LastIdleLocomotionFeedbackClip = null;
             SpeechPlayCount = 0;
             LastSpeechClip = null;
-            _arrivalCompleted = false;
+            _arrivalCompleted = _bypassArrival;
+            if (_bypassArrival) _ambientAudioSuppressed = true;
             Publish(FairyPhase.Loading);
             try
             {
@@ -495,8 +513,9 @@ namespace BotanicalGardenQR.Fairy.Backend
             _speechBlocked = false;
             if (_arrivalRoutine != null || _arrivalInProgress)
                 return FairyResult.Success();
-            if (_arrivalCompleted)
+            if (_arrivalCompleted || _bypassArrival)
             {
+                _arrivalCompleted = true;
                 RevealInstance();
                 return FairyResult.Success();
             }
@@ -841,7 +860,7 @@ namespace BotanicalGardenQR.Fairy.Backend
 
         void EnsureIdleLocomotionRoutine()
         {
-            if (!Application.isPlaying || _idleLocomotionRoutine != null || _instance == null)
+            if (!Application.isPlaying || _idleLocomotionRoutine != null || _instance == null || _ambientAudioSuppressed || _bypassArrival)
                 return;
             _idleLocomotionRoutine = StartCoroutine(PlayIdleLocomotionFeedbackLoop());
         }

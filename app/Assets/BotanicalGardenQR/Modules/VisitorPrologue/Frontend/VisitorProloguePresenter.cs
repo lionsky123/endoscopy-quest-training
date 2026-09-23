@@ -86,7 +86,7 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         }
         public void OnVisitorPrologueStateChanged(VisitorPrologueViewState state)
         {
-            if (_disposed || state == null) return;
+            if (_disposed || state == null || !isActiveAndEnabled) return;
             if (_previous == null || _previous.Epoch != state.Epoch || _previous.Phase != state.Phase ||
                 _previous.CanInviteWithGaze != state.CanInviteWithGaze)
             { _failureGaze.Invalidate(); _invitationGaze.Invalidate(); }
@@ -150,6 +150,7 @@ namespace BotanicalGardenQR.VisitorPrologue.Frontend
         }
         void EnsurePlaced(long epoch)
         {
+            if (!isActiveAndEnabled) return;
             if (_placedEpoch == epoch) { SetVisible(true); return; }
             if (_pendingEpoch == epoch) return;
             if (_placement != null) StopCoroutine(_placement);

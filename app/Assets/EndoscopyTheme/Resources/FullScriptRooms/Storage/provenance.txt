@@ -1,0 +1,4 @@
+Architecture: supplied OfficeRoom-derived Waiting/Architecture and CorridorEntrance meshes; no waiting chairs or partition.
+Cabinet: authored generic structural model based on V07; 1.23m wide, 2.2m high, .64m deep; not a manufacturer specification.
+Two hinged leaves, glass, seals, handles, feet, vent openings, visible interior and empty mounting rail. Hanging instruments and actual ventilation performance NOT provided.
+Cabinet triangles: 1828

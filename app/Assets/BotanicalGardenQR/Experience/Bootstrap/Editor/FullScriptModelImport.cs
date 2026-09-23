@@ -15,6 +15,42 @@ namespace BotanicalGardenQR.Bootstrap.Editor
     {
         const string Source = "Assets/EndoscopyTheme/ImportedModels/Source/";
         const string Prepared = "Assets/EndoscopyTheme/ImportedModels/Prepared";
+        static readonly Dictionary<string, string> OfficeBaseColorTextures = new Dictionary<string, string> {
+            { "Material #65", "ScreenShot_2026-09-17_165931_432.png" },
+            { "Material #35", "白色.png" },
+            { "Material #38", "ScreenShot_2026-09-17_163548_276.png" },
+            { "Material #66", "ScreenShot_2026-09-11_155536_034.png" },
+            { "Material #37", "微信图片_20260910165213_789_58.png" },
+            { "Material #39", "金属贴图2.jpg" },
+            { "Material #40", "大理石.png" },
+            { "34RT3038", "34RT3001.png" },
+            { "34RT3014", "34RT3013.png" },
+            { "34RT3017", "34RT3020.png" },
+            { "34RT3019_1", "34RT3003.png" },
+            { "34RT3019_2", "34RT3004.png" },
+            { "34RT3019_3", "34RT3002.png" },
+            { "34RT3019_4", "34RT3005.png" },
+            { "34RT3045", "34RT3007.png" },
+            { "34RT3039_1", "34RT3017.png" },
+            { "34RT3039_2", "34RT3018.png" },
+            { "34RT3040", "34RT3010.png" },
+            { "34RT3010", "34RT3008.png" },
+            { "34RT3011", "34RT3009.png" },
+            { "34RT3006_1", "34RT3014.png" },
+            { "34RT3005", "34RT3015.png" },
+            { "34RT3033", "34RT3006.png" },
+            { "34RT3035", "34RT3016.png" },
+            { "34RT3023", "34RT3012.png" },
+            { "34RT3022", "34RT3019.png" },
+            { "34RT3021", "34RT3011.png" }
+        };
+        static readonly Dictionary<string, string> ClinicalBaseColorTextures = new Dictionary<string, string> {
+            { "Material #2957", "白色.png" },
+            { "Material #2960", "微信图片_20260910164711_787_58.png" },
+            { "Material #2958", "ScreenShot_2026-09-17_165931_432.png" },
+            { "Material #2959", "ScreenShot_2026-09-11_155536_034.png" },
+            { "Material #2956", "ScreenShot_2026-09-17_163548_276.png" }
+        };
         [Serializable] public sealed class Item
         {
             public string id, source, prefab, status;
@@ -42,10 +78,13 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 Directory.CreateDirectory(Prepared + "/Materials");
                 AssetDatabase.Refresh();
                 var items = new List<Item>();
-                foreach (var data in new[] {
+                var models = new[] {
                     ("OfficeRoom", "办公室.FBX", 0f), ("ClinicalRoom", "诊疗室模型.FBX", 0f),
                     ("Computer", "computer.fbx", .55f), ("Desk", "table.fbx", 1.6f),
-                    ("Gastroscope", "Gastroscope/Gastroscope.fbx", .65f) })
+                    ("Gastroscope", "Gastroscope/Gastroscope.fbx", .65f) };
+                if (args.Contains("-bgqrRoomsOnly")) models = models.Take(2).ToArray();
+                var generatePreviews = !args.Contains("-bgqrSkipPreview");
+                foreach (var data in models)
                 {
                     var importer = (ModelImporter)AssetImporter.GetAtPath(Source + data.Item2);
                     if (!importer) throw new InvalidOperationException("ModelImporter missing: " + data.Item2);
@@ -83,15 +122,16 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                         {
                             var original = materials[i];
                             if (!original) item.missingMaterials++;
-                            var texture = original ? (original.HasProperty("_BaseMap") ? original.GetTexture("_BaseMap") : original.mainTexture) : null;
+                            var sourceTexture = SourceBaseColorTexture(data.Item1, original);
+                            var texture = sourceTexture ? sourceTexture : original ? (original.HasProperty("_BaseMap") ? original.GetTexture("_BaseMap") : original.mainTexture) : null;
                             if (!texture) item.untexturedSlots++;
-                            if (original && original.shader && original.shader.name.StartsWith("Universal Render Pipeline/")) continue;
+                            if (original && !sourceTexture && original.shader && original.shader.name.StartsWith("Universal Render Pipeline/")) continue;
                             if (original && converted.TryGetValue(original, out var cached)) { materials[i] = cached; continue; }
                             if (!original && fallback) { materials[i] = fallback; continue; }
                             var replacement = new Material(Resources.Load<Material>("EndoscopyRoom/RoomSurface"));
                             replacement.name = data.Item1 + "-" + converted.Count;
-                            // Preserve imported colors and available maps; no claim that absent source textures were recovered.
-                            replacement.color = original && original.HasProperty("_Color") ? original.color : new Color(.8f, .82f, .82f);
+                            // Restore the diffuse map captured in the supplied FBX while retaining its material tint.
+                            replacement.color = SourceColor(original);
                             if (texture) replacement.SetTexture("_BaseMap", texture);
                             replacement.enableInstancing = true;
                             var path = Prepared + "/Materials/" + replacement.name + (original ? "" : "-fallback") + ".mat";
@@ -116,8 +156,11 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                             center = f.GetComponent<Renderer>().bounds.center, size = f.GetComponent<Renderer>().bounds.size,
                             triangles = (int)TriangleCount(f.sharedMesh) }).ToArray()
                     }, true));
-                    SavePreview(root, output, data.Item1, false);
-                    if (data.Item3 == 0) SavePreview(root, output, data.Item1 + "-cutaway", true);
+                    if (generatePreviews)
+                    {
+                        SavePreview(root, output, data.Item1, false);
+                        if (data.Item3 == 0) SavePreview(root, output, data.Item1 + "-cutaway", true);
+                    }
                     items.Add(item);
                     Debug.Log("Prepared " + JsonUtility.ToJson(item));
                 }
@@ -130,6 +173,25 @@ namespace BotanicalGardenQR.Bootstrap.Editor
             }
             catch (Exception error) { Debug.LogException(error); }
             EditorApplication.Exit(code);
+        }
+        static Texture2D SourceBaseColorTexture(string modelId, Material material)
+        {
+            if (!material) return null;
+            string textureFile;
+            string room;
+            var mappings = modelId == "OfficeRoom" ? OfficeBaseColorTextures : modelId == "ClinicalRoom" ? ClinicalBaseColorTextures : null;
+            if (mappings == null || !mappings.TryGetValue(material.name, out textureFile)) return null;
+            room = modelId == "OfficeRoom" ? "Office" : "Clinical";
+            var texture = Resources.Load<Texture2D>("FullScriptRooms/" + room + "/SourceTextures/" + Path.GetFileNameWithoutExtension(textureFile));
+            if (!texture) throw new InvalidOperationException("Embedded FBX texture missing: " + room + "/" + textureFile);
+            return texture;
+        }
+        static Color SourceColor(Material material)
+        {
+            if (!material) return new Color(.8f, .82f, .82f);
+            if (material.HasProperty("_BaseColor")) return material.GetColor("_BaseColor");
+            if (material.HasProperty("_Color")) return material.GetColor("_Color");
+            return new Color(.8f, .82f, .82f);
         }
         static long TriangleCount(Mesh mesh) { long count = 0; for (var i = 0; i < mesh.subMeshCount; i++) if (mesh.GetTopology(i) == MeshTopology.Triangles) count += mesh.GetIndexCount(i) / 3; return count; }
         static Bounds BoundsOf(GameObject root)

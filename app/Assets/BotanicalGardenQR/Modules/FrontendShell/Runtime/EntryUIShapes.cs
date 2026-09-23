@@ -161,7 +161,10 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
                 texture,
                 new Rect(0f, 0f, SpriteSize, SpriteSize),
                 new Vector2(0.5f, 0.5f),
-                1f,
+                // Match the default Canvas referencePixelsPerUnit. The fallback
+                // must retain 18px corners when the bounded sized cache is full,
+                // rather than scaling its border to 1800 UI units.
+                100f,
                 0,
                 SpriteMeshType.FullRect,
                 new Vector4(cornerRadius, cornerRadius, cornerRadius, cornerRadius));

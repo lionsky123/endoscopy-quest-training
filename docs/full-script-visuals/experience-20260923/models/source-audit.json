@@ -1,0 +1,67 @@
+{
+  "source": "C:\\Users\\i1204\\Desktop\\医务人员穿戴.FBX",
+  "copy": "medical-worker-ppe-source.FBX",
+  "bytes": 2411472,
+  "sha256": "c08849f9fe06120b3e3c6f5e43a7284f37a2f68c8bf9cc0081fe855b519cd77b",
+  "status": "source received; not imported into Unity; no visual or medical suitability approval",
+  "fbx_version": 7400,
+  "object_types": {
+    "Geometry": 1,
+    "Model": 1,
+    "Material": 1,
+    "Video": 1,
+    "Texture": 1,
+    "AnimationStack": 1,
+    "AnimationCurve": 3,
+    "AnimationCurveNode": 1,
+    "AnimationLayer": 1
+  },
+  "models": [
+    {
+      "name": "tripo_node_115cb9e0",
+      "type": "Mesh"
+    }
+  ],
+  "materials": [
+    "tripo_mat_115cb9e0"
+  ],
+  "geometry": [
+    {
+      "name": "",
+      "vertices": 17514,
+      "faces": 17512,
+      "uv_layers": 1
+    }
+  ],
+  "textures": [
+    {
+      "type": "Video",
+      "name": "Diffuse Texture",
+      "file_fields": {
+        "Filename": [
+          "D:\\000zyc\\医院培训项目\\模型\\人员\\textures\\tripo_node_4dd438a0_BaseColor.jpg"
+        ],
+        "RelativeFilename": [
+          "人员\\textures\\tripo_node_4dd438a0_BaseColor.jpg"
+        ],
+        "Content": [
+          {
+            "blob_bytes": 1248846
+          }
+        ]
+      }
+    },
+    {
+      "type": "Texture",
+      "name": "Diffuse Texture",
+      "file_fields": {
+        "FileName": [
+          "D:\\000zyc\\医院培训项目\\模型\\人员\\textures\\tripo_node_4dd438a0_BaseColor.jpg"
+        ],
+        "RelativeFilename": [
+          "人员\\textures\\tripo_node_4dd438a0_BaseColor.jpg"
+        ]
+      }
+    }
+  ]
+}

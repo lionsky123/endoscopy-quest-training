@@ -39,6 +39,7 @@ namespace BotanicalGardenQR.Tests.EditMode.Bootstrap
                     prefabRoot,
                     PrefabUnpackMode.Completely,
                     InteractionMode.AutomatedAction);
+            _installer.ConfigureArchivedBindingsForEditor();
         }
 
         [TearDown]

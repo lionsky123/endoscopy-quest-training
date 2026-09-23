@@ -39,10 +39,23 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             var surface=gameObject.AddComponent<ClippedPlaneSurface>();surface.InjectAllClippedPlaneSurface(plane,new[]{clip});
             poke=gameObject.AddComponent<PokeInteractable>();poke.InjectAllPokeInteractable(surface);poke.WhenPointerEventRaised+=OnPointer;
         }
-        void Resize(){if(clip&&rect){clip.Position=rect.rect.center;clip.Size=new Vector3(rect.rect.width,rect.rect.height,1);}}
+        Rect _lastRect;
+        void Resize()
+        {
+            if(clip&&rect)
+            {
+                var current=rect.rect;
+                if(current!=_lastRect)
+                {
+                    _lastRect=current;
+                    clip.Position=current.center;
+                    clip.Size=new Vector3(current.width,current.height,1);
+                }
+            }
+        }
         void OnRectTransformDimensionsChange()=>Resize();
         void LateUpdate(){Resize();if(!CanPress)ClearContacts();if(poke)poke.enabled=CanPress;}
-        void OnEnable(){Resize();readyAt=Time.unscaledTime+.35f;committed=false;}
+        void OnEnable(){_lastRect=default;Resize();readyAt=Time.unscaledTime+.35f;committed=false;}
         void OnPointer(PointerEvent e)
         {
             // Releases can arrive after a page has hidden/disabled this button.

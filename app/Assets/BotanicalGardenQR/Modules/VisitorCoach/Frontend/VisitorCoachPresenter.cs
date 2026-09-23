@@ -1,6 +1,7 @@
 using System;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.FrontendShell.Contracts;
+using Oculus.Interaction.Surfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,6 +41,15 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
     [DisallowMultipleComponent]
     public sealed class VisitorCoachPresenter : MonoBehaviour, IDisposable
     {
+        const float DialogueBodyTop = 66f;
+        const float DialogueBodyMinHeight = 54f;
+        const float DialogueBodyMaxHeight = 170f;
+        const float DialogueBodyPadding = 20f;
+        const float DialogueActionGap = 20f;
+        const float DialogueSurfacePadding = 16f;
+        const float DialogueBodyWidthWithPortrait = 610f;
+        const float DialogueBodyWidthWithoutPortrait = 760f;
+
         [Header("Surface")]
         [SerializeField] Canvas _canvas;
         [SerializeField] CanvasGroup _group;
@@ -355,7 +365,8 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
                 VisitorDialogueExpression.Wonder => _theme.WonderPortrait,
                 _ => _theme.ListeningPortrait
             };
-            _portrait.gameObject.SetActive(_portraitImage.sprite != null);
+            var portraitVisible = _portraitImage.sprite != null;
+            _portrait.gameObject.SetActive(portraitVisible);
             _dialogueRoot.SetActive(true);
             _actionRoot.SetActive(false);
             _chapter.text = string.IsNullOrWhiteSpace(state.Chapter) ? "同行见闻" : state.Chapter;
@@ -363,13 +374,63 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             _body.text = state.Body;
             _body.ForceMeshUpdate(true, true);
             _bodyCharacterCount = _body.textInfo.characterCount;
-            _page.text = $"{state.PageIndex + 1}/{state.PageCount}";
+            var pageCountVisible = state.PageCount > 1;
+            _page.gameObject.SetActive(pageCountVisible);
+            _page.text = pageCountVisible ? $"{state.PageIndex + 1}/{state.PageCount}" : string.Empty;
             _continueLabel.text = !string.IsNullOrWhiteSpace(state.PrimaryActionLabel)
                 ? state.PrimaryActionLabel : state.IsFinalPage ? "好，我们走吧" : "继续  ›";
             _restartLabel.text = string.IsNullOrWhiteSpace(state.SecondaryActionLabel) ? "从头回看" : state.SecondaryActionLabel;
             _restartButton.gameObject.SetActive(state.AllowRestart);
-            ((RectTransform)_continueButton.transform).anchoredPosition = new Vector2(state.AllowRestart ? 247f : 100f, -130f);
-            ((RectTransform)_continueButton.transform).sizeDelta = new Vector2(state.AllowRestart ? 292f : 580f, 58f);
+
+            var bodyWidth = portraitVisible ? DialogueBodyWidthWithPortrait : DialogueBodyWidthWithoutPortrait;
+            var preferredBody = _body.GetPreferredValues(_body.text, bodyWidth, 0f);
+            var bodyHeight = Mathf.Clamp(
+                Mathf.Ceil(preferredBody.y + DialogueBodyPadding),
+                DialogueBodyMinHeight,
+                DialogueBodyMaxHeight);
+            var bodyCenterX = portraitVisible ? 100f : 0f;
+            _body.rectTransform.sizeDelta = new Vector2(bodyWidth, bodyHeight);
+            _body.rectTransform.anchoredPosition = new Vector2(bodyCenterX, DialogueBodyTop - bodyHeight * .5f);
+
+            var buttonY = DialogueBodyTop - bodyHeight - DialogueActionGap - 29f;
+            var continueRect = (RectTransform)_continueButton.transform;
+            continueRect.anchoredPosition = new Vector2(
+                state.AllowRestart ? (portraitVisible ? 247f : 155f) : bodyCenterX,
+                buttonY);
+            continueRect.sizeDelta = new Vector2(state.AllowRestart ? 292f : bodyWidth, 58f);
+            MatchPointableBounds(_continuePokeTarget, continueRect);
+            var restartRect = (RectTransform)_restartButton.transform;
+            restartRect.anchoredPosition = new Vector2(portraitVisible ? -57f : -155f, buttonY);
+            MatchPointableBounds(_restartPokeTarget, restartRect);
+
+            var compactPortrait = bodyHeight <= 85f;
+            var portraitSize = portraitVisible ? (compactPortrait ? 156f : 180f) : 0f;
+            _portrait.anchoredPosition = new Vector2(-327f, -4f);
+            _portrait.sizeDelta = new Vector2(portraitSize, portraitSize);
+
+            _chapter.rectTransform.anchoredPosition = new Vector2(portraitVisible ? 75f : 55f, 100f);
+            _chapter.rectTransform.sizeDelta = new Vector2(portraitVisible ? 450f : 440f, 26f);
+            _page.rectTransform.anchoredPosition = new Vector2(portraitVisible ? 340f : 330f, 100f);
+            _page.rectTransform.sizeDelta = new Vector2(80f, 26f);
+            _speaker.rectTransform.anchoredPosition = new Vector2(portraitVisible ? -327f : -285f, 100f);
+            _speaker.rectTransform.sizeDelta = new Vector2(180f, 32f);
+            _speaker.alignment = TextAlignmentOptions.Center;
+
+            var bodyBottom = _body.rectTransform.anchoredPosition.y - bodyHeight * .5f;
+            var buttonBottom = buttonY - 29f;
+            var portraitBottom = _portrait.anchoredPosition.y - portraitSize * .5f;
+            var surfaceTop = Mathf.Max(
+                _chapter.rectTransform.anchoredPosition.y + 13f,
+                _speaker.rectTransform.anchoredPosition.y + _speaker.rectTransform.rect.height * .5f,
+                portraitVisible ? _portrait.anchoredPosition.y + portraitSize * .5f : float.NegativeInfinity);
+            var surfaceBottom = portraitVisible
+                ? Mathf.Min(bodyBottom, buttonBottom, portraitBottom)
+                : Mathf.Min(bodyBottom, buttonBottom);
+            var surfaceHeight = Mathf.Ceil(surfaceTop - surfaceBottom + DialogueSurfacePadding * 2f);
+            _panel.anchoredPosition = new Vector2(0f, (surfaceTop + surfaceBottom) * .5f);
+            _panel.sizeDelta = new Vector2(_theme.PanelPixels.x, surfaceHeight);
+            ((RectTransform)transform).sizeDelta = new Vector2(_theme.PanelPixels.x, surfaceHeight + DialogueSurfacePadding * 2f);
+
             _body.maxVisibleCharacters = int.MaxValue;
             _inputReadyAt = Time.unscaledTime + _theme.ConfirmDebounceSeconds;
             _lastAcceptedFrame = -1;
@@ -411,13 +472,13 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             CreateContractGraphic((RectTransform)_actionRoot.transform, false);
             _portrait.anchoredPosition = new Vector2(-327f, -4f);
             _portrait.sizeDelta = new Vector2(225f, 225f);
-            _speaker.rectTransform.anchoredPosition = new Vector2(-320f, 105f);
+            _speaker.rectTransform.anchoredPosition = new Vector2(-327f, 100f);
             _speaker.rectTransform.sizeDelta = new Vector2(180f, 32f);
             _speaker.alignment = TextAlignmentOptions.Center;
-            _chapter.color = new Color(_theme.AccentColor.r, _theme.AccentColor.g, _theme.AccentColor.b, .75f);
-            _page.color = new Color(_theme.DetailTextColor.r, _theme.DetailTextColor.g, _theme.DetailTextColor.b, .45f);
-            _body.rectTransform.anchoredPosition = new Vector2(100f, 15f);
-            _body.rectTransform.sizeDelta = new Vector2(610f, 170f);
+            _chapter.color = _theme.DetailTextColor;
+            _chapter.alignment = TextAlignmentOptions.MidlineLeft;
+            _page.color = _theme.DetailTextColor;
+            _page.alignment = TextAlignmentOptions.MidlineRight;
             StyleChoice(_continueButton, _continueLabel);
             StyleChoice(_restartButton, _restartLabel);
             StyleChoice(_replayButton, _replayLabel);
@@ -435,8 +496,26 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             var graphic = child.GetComponent<DialogueContractGraphic>();
-            graphic.Initialize(_theme.AccentColor, choice);
+            graphic.Initialize(_theme.PanelColor, _theme.AccentColor, choice);
             return graphic;
+        }
+
+        static void MatchPointableBounds(VisitorDialoguePointableTarget target, RectTransform rect)
+        {
+            if (target == null || rect == null) return;
+            var size = rect.rect.size;
+            foreach (var box in target.GetComponents<BoxCollider>())
+            {
+                var hitSize = box.size;
+                hitSize.x = size.x;
+                hitSize.y = size.y;
+                box.size = hitSize;
+            }
+            foreach (var clipper in target.GetComponents<BoundsClipper>())
+            {
+                clipper.Position = rect.rect.center;
+                clipper.Size = new Vector3(size.x, size.y, 28f);
+            }
         }
 
         void StyleChoice(Button button, TMP_Text label)

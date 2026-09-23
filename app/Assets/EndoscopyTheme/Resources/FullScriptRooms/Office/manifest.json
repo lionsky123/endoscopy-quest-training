@@ -21,9 +21,9 @@
             ]
         },
         {
-            "name": "34RT3006_1",
+            "name": "OfficeRoom-0",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3014",
             "color": [
                 0.5457180738449097,
                 0.5457180738449097,
@@ -31,9 +31,9 @@
             ]
         },
         {
-            "name": "34RT3005",
+            "name": "OfficeRoom-1",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3015",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -161,13 +161,13 @@
             ]
         },
         {
-            "name": "ReferenceOfficeOak",
+            "name": "OfficeRoom-2",
             "texture": "",
-            "textureResource": "ClinicalCourse/FullScriptVisuals/office-oak-v1",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3006",
             "color": [
-                1.0,
-                1.0,
-                1.0
+                0.7353569269180298,
+                0.7353569269180298,
+                0.7353569269180298
             ]
         },
         {
@@ -181,9 +181,9 @@
             ]
         },
         {
-            "name": "34RT3035",
+            "name": "OfficeRoom-3",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3016",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -221,9 +221,9 @@
             ]
         },
         {
-            "name": "34RT3010",
+            "name": "OfficeRoom-4",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3008",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -231,9 +231,9 @@
             ]
         },
         {
-            "name": "34RT3011",
+            "name": "OfficeRoom-5",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3009",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -251,9 +251,9 @@
             ]
         },
         {
-            "name": "34RT3019_4",
+            "name": "OfficeRoom-8",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3005",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -261,9 +261,9 @@
             ]
         },
         {
-            "name": "34RT3019_2",
+            "name": "OfficeRoom-9",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3004",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -271,9 +271,9 @@
             ]
         },
         {
-            "name": "34RT3019_3",
+            "name": "OfficeRoom-10",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3002",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -281,9 +281,9 @@
             ]
         },
         {
-            "name": "34RT3019_1",
+            "name": "OfficeRoom-11",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3003",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -301,7 +301,7 @@
             ]
         },
         {
-            "name": "OfficeRoom-0",
+            "name": "OfficeRoom-12",
             "texture": "",
             "textureResource": "",
             "color": [
@@ -311,7 +311,7 @@
             ]
         },
         {
-            "name": "OfficeRoom-1",
+            "name": "OfficeRoom-13",
             "texture": "",
             "textureResource": "",
             "color": [
@@ -321,9 +321,9 @@
             ]
         },
         {
-            "name": "34RT3038",
+            "name": "OfficeRoom-14",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3001",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -331,9 +331,9 @@
             ]
         },
         {
-            "name": "34RT3039_1",
+            "name": "OfficeRoom-15",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3017",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -341,9 +341,9 @@
             ]
         },
         {
-            "name": "34RT3039_2",
+            "name": "OfficeRoom-16",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3018",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -351,9 +351,9 @@
             ]
         },
         {
-            "name": "34RT3040",
+            "name": "OfficeRoom-17",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3010",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -371,7 +371,7 @@
             ]
         },
         {
-            "name": "OfficeRoom-2",
+            "name": "OfficeRoom-18",
             "texture": "",
             "textureResource": "",
             "color": [
@@ -381,7 +381,7 @@
             ]
         },
         {
-            "name": "OfficeRoom-3",
+            "name": "OfficeRoom-19",
             "texture": "",
             "textureResource": "",
             "color": [
@@ -421,9 +421,9 @@
             ]
         },
         {
-            "name": "34RT3045",
+            "name": "OfficeRoom-20",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3007",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -471,9 +471,9 @@
             ]
         },
         {
-            "name": "34RT3014",
+            "name": "OfficeRoom-6",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3013",
             "color": [
                 0.48452913761138918,
                 0.48452913761138918,
@@ -491,9 +491,9 @@
             ]
         },
         {
-            "name": "34RT3017",
+            "name": "OfficeRoom-7",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3020",
             "color": [
                 0.5820883512496948,
                 0.5820883512496948,
@@ -501,9 +501,9 @@
             ]
         },
         {
-            "name": "34RT3021",
+            "name": "OfficeRoom-21",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3011",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -511,9 +511,9 @@
             ]
         },
         {
-            "name": "34RT3022",
+            "name": "OfficeRoom-22",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3019",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -521,9 +521,9 @@
             ]
         },
         {
-            "name": "34RT3023",
+            "name": "OfficeRoom-23",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/34RT3012",
             "color": [
                 0.7353569269180298,
                 0.7353569269180298,
@@ -531,9 +531,9 @@
             ]
         },
         {
-            "name": "Material #38",
+            "name": "OfficeRoom-24",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/ScreenShot_2026-09-17_163548_276",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -541,9 +541,9 @@
             ]
         },
         {
-            "name": "Material #37",
+            "name": "OfficeRoom-25",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/微信图片_20260910165213_789_58",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -551,9 +551,9 @@
             ]
         },
         {
-            "name": "Material #35",
+            "name": "OfficeRoom-26",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/白色",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -591,9 +591,9 @@
             ]
         },
         {
-            "name": "Material #66",
+            "name": "OfficeRoom-27",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/ScreenShot_2026-09-11_155536_034",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -611,9 +611,9 @@
             ]
         },
         {
-            "name": "Material #39",
+            "name": "OfficeRoom-28",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/金属贴图2",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -621,9 +621,9 @@
             ]
         },
         {
-            "name": "Material #40",
+            "name": "OfficeRoom-29",
             "texture": "",
-            "textureResource": "",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/大理石",
             "color": [
                 0.7905896306037903,
                 0.7905896306037903,
@@ -631,13 +631,13 @@
             ]
         },
         {
-            "name": "ReferenceHospitalTerrazzo",
+            "name": "OfficeRoom-30",
             "texture": "",
-            "textureResource": "ClinicalCourse/FullScriptVisuals/hospital-terrazzo-v1",
+            "textureResource": "FullScriptRooms/Office/SourceTextures/ScreenShot_2026-09-17_165931_432",
             "color": [
-                1.0,
-                1.0,
-                1.0
+                0.7905896306037903,
+                0.7905896306037903,
+                0.7905896306037903
             ]
         }
     ],

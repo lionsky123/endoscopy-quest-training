@@ -126,6 +126,9 @@ namespace BotanicalGardenQR.Experience.Contracts
                 if(task.availability!=ClinicalContentAvailability.Ready && string.IsNullOrWhiteSpace(task.unavailableReason))
                     throw new ArgumentException("Unavailable content needs an explicit reason.");
             }
+            foreach (var taskId in taskIds)
+                if (!described.Contains(taskId))
+                    throw new ArgumentException("Every declared task needs a task description: " + taskId);
 
             foreach (var roomId in mainlineRoomIds)
                 if (string.IsNullOrWhiteSpace(roomId) || !roomIds.Contains(roomId))
@@ -165,6 +168,9 @@ namespace BotanicalGardenQR.Experience.Contracts
                     return transfer;
             return null;
         }
+
+        public bool CanTransfer(string fromRoomId, string toRoomId)
+            => FindTransfer(fromRoomId, toRoomId) != null;
 
         public ClinicalJourneyRoomDefinition FindRoomForTask(string taskId)
         {

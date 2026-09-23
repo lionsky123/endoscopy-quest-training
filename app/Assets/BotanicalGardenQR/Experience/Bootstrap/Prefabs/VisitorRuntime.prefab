@@ -33267,17 +33267,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0e84a00d0f20d429e4dc1ce2d5b0dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.Bootstrap::BotanicalGardenQR.Bootstrap.VisitorInstaller
-  _sceneLibrary: {fileID: 11400000, guid: 6882fa79dfb755e4a8ec85c493af5106, type: 2}
-  _contentEntries: {fileID: 11400000, guid: 65c027806e6ed8a49b7d3c80e994262c, type: 2}
+  _sceneLibrary: {fileID: 0}
+  _contentEntries: {fileID: 0}
   _runtimeOptions: {fileID: 11400000, guid: d7f93b1b3a6b02346966226efa2b1d8b, type: 2}
   _fairyConfiguration: {fileID: 11400000, guid: d9cbfe0b68ab4e92a09b0ab686bc50fc, type: 2}
   _globalUiDefaults: {fileID: 11400000, guid: ddfa4809e8d5598408ead7e5ffff8408, type: 2}
-  _collectionCatalog: {fileID: 11400000, guid: 48a9027c1b724684b651cd26c95146f6, type: 2}
+  _collectionCatalog: {fileID: 0}
   _visitorMapDefinition: {fileID: 4900000, guid: aade2d8aa3344cb68cbaaf95efc2ec91, type: 3}
   _guidanceRouteMaterial: {fileID: 2100000, guid: 0c480ca1de5d497e8e32379de6b3c09c, type: 2}
   _prologueTheme: {fileID: 11400000, guid: 9cfd4995bda08ba4a96ac7eaf238b44c, type: 2}
   _visitorCoachTheme: {fileID: 11400000, guid: 83275a95ed644bfc87c8f8e703b1d404, type: 2}
-  _physicalAugmentationCatalog: {fileID: 11400000, guid: c72db1d79b984f2fb572b2329aff3fa2, type: 2}
+  _physicalAugmentationCatalog: {fileID: 0}
   _xrRigRoot: {fileID: 0}
   _interactionRigRoot: {fileID: 0}
   _mrukRoot: {fileID: 0}

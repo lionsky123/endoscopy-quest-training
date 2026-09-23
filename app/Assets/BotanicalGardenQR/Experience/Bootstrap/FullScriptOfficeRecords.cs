@@ -21,10 +21,16 @@ namespace BotanicalGardenQR.Bootstrap
         readonly GameObject _terminal;
         readonly Texture2D _screen;
         readonly Material _textMaterial;
+        readonly bool _sourceOnly;
         GameObject _panel;
         bool _active,_disposed;
         int _date,_scope,_row,_field,_document=-1;
+        int _lastDocument;
+        string _linkedUseId;
+        bool _leakAssessment,_leakSelected;
         static readonly Color Ink=new Color(.10f,.19f,.28f), Blue=new Color(.05f,.34f,.59f), Paper=new Color(.96f,.98f,1);
+        int FieldCount=>ClinicalTrainingRecords.FieldCount;
+        int RowCount=>ClinicalTrainingRecords.Query().Length;
         internal bool IsOpen=>_active;
         internal GameObject Panel=>_panel;
         internal GameObject Terminal=>_terminal;
@@ -32,13 +38,14 @@ namespace BotanicalGardenQR.Bootstrap
         ClinicalTrainingRecords.Row[] Rows=>ClinicalTrainingRecords.Query(_date==0?null:_date==1?"2026-09-20":"2026-09-21",
             _scope==0?null:_scope==1?"DEMO-GI-001":"DEMO-RESP-001");
 
-        internal FullScriptOfficeRecords(FullScriptJourneyRuntime owner,FullScriptRoomVisit visit,Transform viewer,TMP_FontAsset font,Action leave)
+        internal FullScriptOfficeRecords(FullScriptJourneyRuntime owner,FullScriptRoomVisit visit,Transform viewer,TMP_FontAsset font,Action leave,bool sourceOnly=false)
         {
-            _owner=owner;_visit=visit;_viewer=viewer;_font=font;_continue=leave;
+            _owner=owner;_visit=visit;_viewer=viewer;_font=font;_continue=leave;_sourceOnly=sourceOnly;
             _screen=Resources.Load<Texture2D>("ClinicalCourse/FullScriptVisuals/office-records-reference-v2");
             if(!_screen)throw new InvalidOperationException("Document-reference office screen is missing.");
             _textMaterial=new Material(font.material);
             _textMaterial.SetFloat("_OutlineWidth",0);_textMaterial.SetColor("_FaceColor",Color.white);_textMaterial.DisableKeyword("UNDERLAY_ON");
+            if(_sourceOnly)return; // Shared data and screen only; never instantiate another room's terminal.
             _terminal=Canvas("OfficeRecordTerminal",new Vector2(780,450));
             _terminal.transform.SetParent(visit.Room.Root.transform,false);
             _terminal.transform.localScale=Vector3.one*.00082f;
@@ -51,18 +58,37 @@ namespace BotanicalGardenQR.Bootstrap
             ClinicalNearTouch.Bind(board,()=>Ready && !_panel);
             RefreshTerminal();_terminal.SetActive(false);
         }
-        internal void Begin(){_active=true;_terminal.SetActive(true);_owner.Session.TryBeginTask("OF-01");RefreshTerminal();}
+        void SetTerminalActive(bool active){if(_terminal)_terminal.SetActive(active);}
+        internal void Begin(){_active=true;SetTerminalActive(true);if(!_sourceOnly)_owner.Session.TryBeginTask("OF-01");RefreshTerminal();}
+        internal void BeginStationary(int document=-1)
+        {
+            _active=true;_document=document;
+            _leakAssessment=!_sourceOnly && document>=0 && ClinicalTrainingRecords.IsLeakDocument(document);
+            _leakSelected=false;
+            if(document<0 && !_sourceOnly)_owner.Session.TryBeginTask("OF-01");
+            RefreshTerminal();Open();
+        }
         void RefreshTerminal()
         {
+            if(!_terminal)return;
             var area=_terminal.transform.Find("TerminalRows");
-            for(int i=area.childCount-1;i>=0;i--){var child=area.GetChild(i);child.SetParent(null,false);Destroy(child.gameObject);}
             var rows=ClinicalTrainingRecords.Query();float scale=780f/1100;
-            float[] positions={-405,-200,4,158,255,410};
-            for(int r=0;r<rows.Length;r++)for(int f=0;f<6;f++)
+            for(int r=0;r<rows.Length;r++)for(int f=0;f<FieldCount;f++)
             {
                 var value=rows[r].Field(f);
-                var label=Text(area,"Cell"+r+"_"+f,string.IsNullOrEmpty(value)?"（空白）":value,positions[f]*scale,(82-r*52)*scale,(f==3||f==4?90:182)*scale,47*scale,13);
-                label.alignment=TextAlignmentOptions.Center;
+                var cellName="Cell"+r+"_"+f;
+                var existing=area.Find(cellName);
+                if(existing)
+                {
+                    var txt=existing.GetComponent<TMP_Text>();
+                    if(txt)txt.text=string.IsNullOrEmpty(value)?"（空白）":value;
+                }
+                else
+                {
+                    var label=Text(area,cellName,string.IsNullOrEmpty(value)?"（空白）":value,
+                        ColumnX(f,FieldCount)*scale,(82-r*52)*scale,ColumnWidth(FieldCount)*scale,47*scale,13);
+                    label.alignment=TextAlignmentOptions.Center;
+                }
             }
         }
         void Open()
@@ -70,12 +96,15 @@ namespace BotanicalGardenQR.Bootstrap
             if(!Ready || _panel)return;
             _panel=Canvas("OfficeRecordsExpanded",new Vector2(1100,900));
             var position=_viewer.position+_viewer.forward*.55f-Vector3.up*.18f;
-            position.y=Mathf.Max(position.y,_visit.Room.Root.transform.position.y+1.10f);
+            if(!_visit.Stationary)position.y=Mathf.Max(position.y,_visit.Room.Root.transform.position.y+1.10f);
             _panel.transform.SetPositionAndRotation(position,_viewer.rotation);
-            _terminal.SetActive(false);BuildPage();
+            SetTerminalActive(false);BuildPage();
         }
         void BuildPage()
         {
+            var learningTask=_document<0?(_leakAssessment || _sourceOnly?"OF-02":"OF-01"):
+                new[]{"OF-02","OF-03","OF-04","OF-05"}.FirstOrDefault(task=>ClinicalTrainingRecords.DocumentIndexForTask(task)==_document);
+            if(learningTask!=null)_owner.Session.TryRecordLearningAction(learningTask,ClinicalLearningAction.Opened,_document<0?"records":"document:"+_document);
             // Keep the world pose stable when changing tabs, filters or pages.
             for(int i=_panel.transform.childCount-1;i>=0;i--)
             {var old=_panel.transform.GetChild(i);old.SetParent(null,false);Destroy(old.gameObject);}
@@ -84,53 +113,145 @@ namespace BotanicalGardenQR.Bootstrap
             if(_document<0)BuildRecords(board);
             else
             {
+                _lastDocument=_document;
+                bool leak=ClinicalTrainingRecords.IsLeakDocument(_document);
+                _leakAssessment=!_sourceOnly && leak;
+                if(leak)BuildLeakPaper(board);
+                else
+                {
                 Text(board,"Title","资料查阅 · "+ClinicalTrainingRecords.DocumentTitle(_document),0,385,1030,65,30);
-                Text(board,"Provenance","模拟训练资料 · 非医院真实记录",0,323,1030,45,22);
-                for(int i=0;i<6;i++){int d=i;Control(board,"Doc"+i,ClinicalTrainingRecords.DocumentTitle(i),-450+i*180,260,167,58,()=>{_document=d;BuildPage();});}
+                Text(board,"Provenance",_sourceOnly?"与办公室同一份模拟资料 · 非医院真实记录":"模拟训练资料 · 非医院真实记录",0,323,1030,45,22);
                 Text(board,"DocumentBody",ClinicalTrainingRecords.DocumentBody(_document),0,40,1015,360,27);
-                Control(board,"BackToRows","返回电子记录与六字段核查",0,-210,780,65,()=>{_document=-1;BuildPage();},true);
+                }
+                for(int i=0;!_sourceOnly && i<ClinicalTrainingRecords.DocumentCount;i++)
+                {
+                    int d=i;
+                    var width=DocumentWidth(ClinicalTrainingRecords.DocumentCount);
+                    var tab=Control(board,"Doc"+i,ClinicalTrainingRecords.DocumentTitle(i),ColumnX(i,ClinicalTrainingRecords.DocumentCount,450),leak?-243:260,width,leak?44:58,()=>{_document=d;BuildPage();});
+                    if(leak)tab.GetComponentInChildren<TMP_Text>().fontSize=18;
+                }
+                Control(board,"BackToRows",_sourceOnly?"对照对应使用记录（只读）":leak?"逐次对照使用记录并填写判断":"返回电子记录与字段核查",0,leak?-300:-210,780,leak?46:65,()=>{if(!_sourceOnly && !leak)_owner.Session.TryBeginTask("OF-01");_document=-1;BuildPage();},true);
             }
-            Control(board,"ReturnToTerminal","收起到实体电脑",-264,-360,490,64,ClosePanel);
-            Control(board,"LeaveOfficeRecords","保留本次记录 · 去房门",264,-360,490,64,()=>{ClosePanel();_active=false;_terminal.SetActive(false);_continue();},true);
-            Text(board,"Footer","仅真实手部近触  |  途中可回查修改  |  最后回办公室统一提交",0,-418,1030,40,20);
+            Control(board,"ReturnToTerminal",_visit.Stationary?"返回本室检查目录":"收起到实体电脑",-264,-360,490,64,()=>
+            {
+                if(_visit.Stationary)_visit.QueueStationaryAction(()=>{ClosePanel();_active=false;SetTerminalActive(false);_visit.BeginStationary();});
+                else ClosePanel();
+            });
+            Control(board,"LeaveOfficeRecords",_visit.Stationary?"保留记录 · 选择房间":"保留本次记录 · 去房门",264,-360,490,64,()=>{ClosePanel();_active=false;SetTerminalActive(false);_continue();},true);
             ClinicalNearTouch.Bind(board,()=>Ready);
             if(_document<0)Refresh();
+        }
+        void BuildLeakPaper(RectTransform board)
+        {
+            var paper=Resources.Load<Texture2D>("ClinicalCourse/FullScriptVisuals/storage-cleaning-register-v1");
+            var entries=ClinicalTrainingRecords.LeakEntries(_document);
+            if(paper)
+            {
+                var image=Rect(board,"LeakRegisterPaper",0,60,1000,1000f*1024/1536).gameObject.AddComponent<RawImage>();
+                image.texture=paper;image.raycastTarget=false;
+            }
+            TMP_Text InkText(string name,string copy,float x,float y,float w,float h,int size)
+            {
+                var label=Text(board,name,copy,x,y,w,h,size,new Color(.015f,.025f,.035f));
+                label.alignment=TextAlignmentOptions.Center;label.raycastTarget=false;return label;
+            }
+            InkText("Title","模拟测漏登记表 · 逐次测漏",0,350,920,50,29);
+            InkText("Provenance","模拟训练记录 · 非医院原表 / 非实拍",0,306,920,36,20);
+            InkText("DocumentBody",ClinicalTrainingRecords.DocumentBody(_document),0,253,910,74,19);
+            if(!paper || entries.Length!=3)
+            {
+                InkText("LeakRegisterUnavailable","纸表或本版登记数据暂不可用，请返回其他资料。",0,20,900,100,26);
+                return;
+            }
+            float X(float pixel)=>-500+pixel*1000/1536;
+            float Y(float pixel)=>60+1000f*512/1536-pixel*1000/1536;
+            var columns=new[]{139f,388,635,883,1131,1386};
+            var headings=new[]{"登记号","使用号 / 内镜编号","测漏时间","操作人员","登记结果"};
+            for(int c=0;c<5;c++)InkText("LeakHeading"+c,headings[c],X((columns[c]+columns[c+1])/2),Y(345),152,60,c==1?19:23);
+            var rows=new[]{399f,506,613,721};
+            for(int row=0;row<entries.Length;row++)
+            {
+                var entry=entries[row];var use=ClinicalTrainingRecords.Query().Single(r=>r.Id==entry.UseId);
+                float y=Y((rows[row]+rows[row+1])/2);
+                var link=Control(board,"LeakUseLink"+row,"",X((139+1386)/2f),y,(1386-139)*1000f/1536,65,()=>OpenLinkedUse(entry.UseId));
+                link.GetComponent<Image>().color=entry.UseId==_linkedUseId?new Color(.25f,.60f,.85f,.14f):Color.clear;
+                var values=new[]{entry.Id,entry.UseId+"\n"+use.Scope,entry.Time,entry.Operator,entry.Result};
+                for(int c=0;c<5;c++)InkText("LeakCell"+row+"_"+c,values[c],X((columns[c]+columns[c+1])/2),y,152,62,c==1?19:23);
+            }
+            InkText("LeakLinkHint",string.IsNullOrEmpty(_linkedUseId)?"近触一条登记，定位对应使用记录；查阅不自动作答。":"刚才对照使用号："+_linkedUseId+" · 可近触另一条继续对照",0,-164,920,24,19);
+            InkText("LeakPaperOrigin","教学示例；登记结果不证明实际检测效果。",0,-201,920,30,19);
+        }
+        void OpenLinkedUse(string useId)
+        {
+            var rows=ClinicalTrainingRecords.Query();
+            int index=Array.FindIndex(rows,row=>row.Id==useId);
+            if(index<0)return;
+            // A user-requested evidence jump clears restrictive filters, not the
+            // world pose or saved findings. Selecting a row is not assessment.
+            _date=0;_scope=0;_row=index;_field=0;_linkedUseId=useId;
+            SelectLeakUse();
+            _document=-1;BuildPage();
         }
         void BuildRecords(RectTransform board)
         {
             ScreenImage(board,1100,110);
             Text(board,"Provenance","模拟训练数据 · 示例时长不是标准",230,347,520,42,20);
-            Control(board,"FilterDate","日期："+(_date==0?"全部":_date==1?"09-20":"09-21"),120,286,235,45,()=>{_date=(_date+1)%3;_row=0;BuildPage();});
-            Control(board,"FilterScope","镜号："+(_scope==0?"全部":_scope==1?"GI-001":"RESP-001"),375,286,250,45,()=>{_scope=(_scope+1)%3;_row=0;BuildPage();});
+            Control(board,"FilterDate","日期："+(_date==0?"全部":_date==1?"09-20":"09-21"),120,286,235,45,()=>{_date=(_date+1)%3;_row=0;_leakSelected=false;BuildPage();});
+            Control(board,"FilterScope","镜号："+(_scope==0?"全部":_scope==1?"GI-001":"RESP-001"),375,286,250,45,()=>{_scope=(_scope+1)%3;_row=0;_leakSelected=false;BuildPage();});
             var rows=Rows;
             Text(board,"StartEndColumns","开始       结束",208,225,188,22,15).alignment=TextAlignmentOptions.Center;
-            for(int r=0;r<rows.Length;r++)for(int i=0;i<6;i++)
+            for(int r=0;r<rows.Length;r++)for(int i=0;i<FieldCount;i++)
             {
                 int field=i,rowIndex=r;
-                float[] x={-405,-200,4,158,255,410};
-                float width=i==3||i==4?94:188;
-                var button=Control(board,FieldName(r,i),"",x[i],192-r*52,width,49,()=>
+                var button=Control(board,FieldName(r,i),"",ColumnX(i,FieldCount),192-r*52,ColumnWidth(FieldCount),49,()=>
                 {
                     _field=field;_row=rowIndex;
-                    if(Rows.Length>0 && _owner.Session.CanEdit)
+                    SelectLeakUse();
+                    if(!_sourceOnly && !_leakAssessment && Rows.Length>0 && _owner.Session.CanEdit)
                     {
-                        _owner.OfficeFieldsViewed|=1<<field;
-                        _owner.OfficeRowsViewed|=1<<Array.FindIndex(ClinicalTrainingRecords.Query(),r=>r.Id==Rows[_row].Id);
+                        _owner.OfficeFieldsViewed.Add(ClinicalTrainingRecords.Criterion(field));
+                        _owner.OfficeRowsViewed.Add(Rows[_row].Id);
+                        _owner.Session.TryRecordLearningAction("OF-01",ClinicalLearningAction.Observed,Rows[_row].Id+":"+ClinicalTrainingRecords.Criterion(field));
                     }
                     Refresh();
                 });
                 button.GetComponent<Image>().color=Color.clear;
-                button.GetComponentInChildren<TMP_Text>().fontSize=19;
+                var cellText=button.GetComponentInChildren<TMP_Text>();
+                cellText.fontSize=19;
+                cellText.enableAutoSizing=true;
+                cellText.fontSizeMin=12;
+                cellText.fontSizeMax=19;
+                cellText.textWrappingMode=TextWrappingModes.NoWrap;
+                cellText.overflowMode=TextOverflowModes.Ellipsis;
             }
             Text(board,"RowInfo","",-160,-6,680,48,21);
-            Control(board,"PreviousRow","上一条",-450,-76,165,49,()=>{var count=Rows.Length;if(count>0)_row=(_row+count-1)%count;Refresh();});
-            Control(board,"NextRow","下一条",-265,-76,165,49,()=>{var count=Rows.Length;if(count>0)_row=(_row+1)%count;Refresh();});
-            Control(board,"OpenDocuments","查阅资料",320,-76,350,55,()=>{_document=0;BuildPage();},true);
+            Control(board,"PreviousRow","上一条",-450,-76,165,49,()=>{var count=Rows.Length;if(count>0)_row=(_row+count-1)%count;SelectLeakUse();Refresh();});
+            Control(board,"NextRow","下一条",-265,-76,165,49,()=>{var count=Rows.Length;if(count>0)_row=(_row+1)%count;SelectLeakUse();Refresh();});
+            Control(board,"OpenDocuments",_sourceOnly?"返回测漏登记":_linkedUseId!=null?"返回刚才登记":"查阅资料",320,-76,350,55,()=>{_document=_sourceOnly?ClinicalTrainingRecords.DocumentIndexForTask("OF-02"):_lastDocument;if(_document>=0)BuildPage();},true);
             // Original screenshot navigation is a visual reference, not five fake working modules.
             Fill(Rect(board,"NavigationCover",0,-156,1040,65),Paper,0);
             Text(board,"NavigationScope","当前仅开放训练记录查询与资料查阅；不连接真实系统或导出患者资料。",0,-156,1010,55,21);
             Text(board,"ReadStatus","",0,-211,1030,48,21);
-            if(_owner.Session.Mode==ClinicalJourneyMode.IndependentCheck)
+            if(_sourceOnly)
+            {
+                Text(board,"LinkedRecordScope","与办公室共用同一份模拟资料和对账结果；不替代实物检测。",0,-254,1030,38,21);
+                Control(board,"PracticeLinkedLeak","判断这次使用的登记关联",0,-299,710,48,BeginSelectedPractice,true);
+            }
+            else if(_leakAssessment)
+            {
+                if(_owner.Session.Mode==ClinicalJourneyMode.IndependentCheck)
+                {
+                    Control(board,"LeakMatch","本次有对应登记",-265,-266,510,54,()=>RecordLeak(ClinicalJourneyJudgement.NoIssue));
+                    Control(board,"LeakMissing","本次未找到对应登记",265,-266,510,54,()=>RecordLeak(ClinicalJourneyJudgement.IssueFound));
+                }
+                else
+                {
+                    Control(board,"CompleteLeakLearning","判断本次登记关联",-265,-266,510,54,BeginSelectedPractice,true);
+                    Control(board,"SkipLeakLearning","明确跳过对账教学",265,-266,510,54,()=>{_owner.Session.TrySkipGuidedTask("OF-02");Refresh();});
+                }
+                Text(board,"LeakFindingStatus","",0,-319,1030,46,20);
+            }
+            else if(_owner.Session.Mode==ClinicalJourneyMode.IndependentCheck)
             {
                 Control(board,"FindingNoIssue","此字段：未发现缺项",-265,-266,510,54,()=>Record(ClinicalJourneyJudgement.NoIssue));
                 Control(board,"FindingIssue","此字段：发现缺项",265,-266,510,54,()=>Record(ClinicalJourneyJudgement.IssueFound));
@@ -138,7 +259,7 @@ namespace BotanicalGardenQR.Bootstrap
             }
             else
             {
-                Control(board,"CompleteOfficeLearning","确认已学六字段核查方法",-265,-266,510,54,()=>{if(_owner.OfficeFieldsViewed==63 && _owner.OfficeRowsViewed==7)_owner.Session.TryCompleteGuidedTask("OF-01");Refresh();},true);
+                Control(board,"CompleteOfficeLearning","判断当前字段",-265,-266,510,54,BeginSelectedPractice,true);
                 Control(board,"SkipOfficeLearning","明确跳过本项教学",265,-266,510,54,()=>{_owner.Session.TrySkipGuidedTask("OF-01");Refresh();});
                 Text(board,"FindingStatus","",0,-319,1030,40,20);
             }
@@ -151,6 +272,7 @@ namespace BotanicalGardenQR.Bootstrap
         }
         void Record(ClinicalJourneyJudgement judgement)
         {
+            if(_sourceOnly || _leakAssessment)return;
             var rows=Rows;if(rows.Length==0)return;
             _owner.Session.TryRecordFinding("OF-01",ClinicalTrainingRecords.Criterion(_field),judgement,new[]{rows[_row].Id});Refresh();
         }
@@ -158,34 +280,105 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if(!_panel || _document>=0)return;
             var rows=Rows;_row=rows.Length==0?0:Mathf.Clamp(_row,0,rows.Length-1);var row=rows.Length==0?null:rows[_row];
-            Set("RowInfo",row==null?"无匹配记录，请调整筛选":$"共{rows.Length}条 · 当前引用 {row.Id} · 未使用表格行不属于记录范围");
-            for(int r=0;r<rows.Length;r++)for(int i=0;i<6;i++)
+            Set("RowInfo",row==null?"无匹配记录，请调整筛选":_sourceOnly || row.Id==_linkedUseId?$"使用 {row.Id} · 对应测漏登记 {row.LeakId}":$"共{rows.Length}条 · 当前引用 {row.Id} · 未使用表格行不属于记录范围");
+            for(int r=0;r<rows.Length;r++)for(int i=0;i<FieldCount;i++)
             {
                 var b=_panel.transform.Find(FieldName(r,i)).GetComponent<Button>();
                 b.GetComponentInChildren<TMP_Text>().text=string.IsNullOrEmpty(rows[r].Field(i))?"（空白）":rows[r].Field(i);
                 b.GetComponent<Image>().color=r==_row && i==_field?new Color(.40f,.70f,.95f,.18f):Color.clear;
             }
             var findings=_owner.Session.GetFindings("OF-01");
+            if(_sourceOnly)
+            {
+                Set("ReadStatus","与办公室共用同一份模拟资料；可筛选、逐条对照。查阅不自动完成检查。");
+                _panel.transform.Find("PracticeLinkedLeak").GetComponent<Button>().interactable=_owner.Session.CanEdit && _leakSelected && row!=null;
+                return;
+            }
+            if(_leakAssessment)
+            {
+                Set("ReadStatus","按使用号逐次核对完整登记范围；先作判断，需要时可请求提示或讲解。");
+                var leakFindings=_owner.Session.GetFindings("OF-02");
+                if(_owner.Session.Mode==ClinicalJourneyMode.IndependentCheck)
+                {
+                    var saved=leakFindings.FirstOrDefault(f=>row!=null && f.CriterionId==ClinicalRecordReview.LeakCriterion(row.Id));
+                    Set("LeakFindingStatus",(row==null?"无匹配使用":row.Id)+" · 已答 "+leakFindings.Length+"/"+RowCount+" · "+(saved.Judgement==ClinicalJourneyJudgement.None?"本次未答":saved.Judgement==ClinicalJourneyJudgement.NoIssue?"已记有对应登记":"已记未找到登记")+(_owner.Session.IsFinished?" · 已提交只读":" · 可回查修改"));
+                    foreach(var name in new[]{"LeakMatch","LeakMissing"})_panel.transform.Find(name).GetComponent<Button>().interactable=_owner.Session.CanEdit && _leakSelected && row!=null;
+                }
+                else
+                {
+                    _owner.Session.TryGetTask("OF-02",out var leakTask);
+                    Set("LeakFindingStatus","已对照 "+LeakViewed+"/"+RowCount+" · "+(leakTask.Status==ClinicalJourneyTaskStatus.Completed?"各次判断已核对":leakTask.Status==ClinicalJourneyTaskStatus.Skipped?"已明确跳过":"可逐次判断"));
+                    _panel.transform.Find("CompleteLeakLearning").GetComponent<Button>().interactable=_owner.Session.CanEdit && _leakSelected && row!=null;
+                    _panel.transform.Find("SkipLeakLearning").GetComponent<Button>().interactable=_owner.Session.CanEdit;
+                }
+                return;
+            }
             Set("ReadStatus",_owner.Session.Mode==ClinicalJourneyMode.GuidedLearning
-                ?"逐项近触查看，并翻阅全部3条。注意复合字段应分别核对，不用示例时长判断效果。"
+                ?"逐项近触查看，并翻阅全部"+RowCount+"条。注意复合字段应分别核对，不用示例时长判断效果。"
                 :"选择字段，再记录判断；引用当前行号。缺项应引用对应空白行；提交前不公布答案。");
             _owner.Session.TryGetTask("OF-01",out var task);
             if(_owner.Session.Mode==ClinicalJourneyMode.GuidedLearning)
             {
-                _panel.transform.Find("CompleteOfficeLearning").GetComponent<Button>().interactable=_owner.Session.CanEdit && _owner.OfficeFieldsViewed==63 && _owner.OfficeRowsViewed==7;
+                _panel.transform.Find("CompleteOfficeLearning").GetComponent<Button>().interactable=_owner.Session.CanEdit && row!=null && _owner.OfficeFieldsViewed.Contains(ClinicalTrainingRecords.Criterion(_field));
                 _panel.transform.Find("SkipOfficeLearning").GetComponent<Button>().interactable=_owner.Session.CanEdit;
-                Set("FindingStatus",$"已查看字段 {Count(_owner.OfficeFieldsViewed)}/6 · 记录 {Count(_owner.OfficeRowsViewed)}/3 · "+(task.Status==ClinicalJourneyTaskStatus.Completed?"已学（非合规成绩）":task.Status==ClinicalJourneyTaskStatus.Skipped?"已明确跳过":"待确认"));
+                Set("FindingStatus","已查看字段 "+_owner.OfficeFieldsViewed.Count+"/"+FieldCount+" · 已判断 "+findings.Length+"/"+FieldCount+" · "+(task.Status==ClinicalJourneyTaskStatus.Completed?"各字段判断已核对":task.Status==ClinicalJourneyTaskStatus.Skipped?"已明确跳过":"可返回原表核对"));
             }
             else
             {
                 var finding=findings.FirstOrDefault(f=>f.CriterionId==ClinicalTrainingRecords.Criterion(_field));
                 var saved=finding.Judgement==ClinicalJourneyJudgement.None?"本字段未答":(finding.Judgement==ClinicalJourneyJudgement.IssueFound?"已记缺项":"已记未发现缺项")+" · "+string.Join(",",finding.EvidenceIds);
-                Set("FindingStatus",$"当前：{ClinicalTrainingRecords.Heading(_field)} · 已记录 {findings.Length}/6\n{saved}"+(_owner.Session.IsSubmitted?" · 已提交，只读":" · 可修改"));
+                Set("FindingStatus","当前："+ClinicalTrainingRecords.Heading(_field)+" · 已记录 "+findings.Length+"/"+FieldCount+Environment.NewLine+saved+(_owner.Session.IsSubmitted?" · 已提交，只读":" · 可修改"));
                 foreach(var name in new[]{"FindingNoIssue","FindingIssue"})_panel.transform.Find(name).GetComponent<Button>().interactable=_owner.Session.CanEdit && row!=null;
             }
         }
-        static int Count(int mask){int n=0;while(mask>0){n+=mask&1;mask>>=1;}return n;}
+        static float ColumnX(int index,int count,float halfWidth=410f)
+            =>count<=1?0f:Mathf.Lerp(-halfWidth,halfWidth,index/(float)(count-1));
+        static float ColumnWidth(int count)
+            =>Mathf.Max(72f,Mathf.Min(188f,820f/Mathf.Max(1,count)-10f));
+        static float DocumentWidth(int count)
+            =>Mathf.Max(100f,Mathf.Min(167f,900f/Mathf.Max(1,count)-10f));
         void Set(string name,string value)=>_panel.transform.Find(name).GetComponent<TMP_Text>().text=value;
+        int LeakViewed=>ClinicalTrainingRecords.Query().Count(r=>_owner.ScriptStepsViewed.Contains("OF-02:use:"+r.Id));
+        void SelectLeakUse()
+        {
+            if((!_leakAssessment && !_sourceOnly) || Rows.Length==0)return;
+            _leakSelected=true;
+            var useId=Rows[Mathf.Clamp(_row,0,Rows.Length-1)].Id;
+            if(_owner.Session.CanEdit && !_sourceOnly)_owner.ScriptStepsViewed.Add("OF-02:use:"+useId);
+            _owner.Session.TryRecordLearningAction("OF-02",ClinicalLearningAction.Observed,useId);
+        }
+        void BeginSelectedPractice()
+        {
+            if(!Ready || Rows.Length==0)return;
+            var row=Rows[Mathf.Clamp(_row,0,Rows.Length-1)];
+            bool leak=_leakAssessment || _sourceOnly;
+            string task=leak?"OF-02":"OF-01";
+            string criterion=leak?ClinicalRecordReview.LeakCriterion(row.Id):ClinicalTrainingRecords.Criterion(_field);
+            string[] evidence={row.Id};
+            if(leak)
+            {
+                int doc=ClinicalTrainingRecords.DocumentIndexForTask("OF-02");
+                if(doc<0 || !_leakSelected)return;
+                var entry=ClinicalTrainingRecords.LeakEntries(doc).FirstOrDefault(item=>item.UseId==row.Id);
+                if(entry!=null)evidence=new[]{row.Id,entry.Id};
+            }
+            var pose=new Pose(_panel.transform.position,_panel.transform.rotation);
+            EndView();
+            _visit.BeginRecordPractice(task,criterion,evidence,()=>
+            {
+                _visit.CloseLearningPractice();_active=true;Open();
+                if(_panel)_panel.transform.SetPositionAndRotation(pose.position,pose.rotation);
+            });
+        }
+        void RecordLeak(ClinicalJourneyJudgement judgement)
+        {
+            if(!_leakAssessment || _sourceOnly || !_leakSelected || Rows.Length==0)return;
+            var use=Rows[Mathf.Clamp(_row,0,Rows.Length-1)];
+            int doc=ClinicalTrainingRecords.DocumentIndexForTask("OF-02");if(doc<0)return;
+            var entry=ClinicalTrainingRecords.LeakEntries(doc).FirstOrDefault(e=>e.UseId==use.Id);
+            _owner.Session.TryRecordFinding("OF-02",ClinicalRecordReview.LeakCriterion(use.Id),judgement,entry==null?new[]{use.Id}:new[]{use.Id,entry.Id});
+            Refresh();
+        }
         TMP_Text Text(Transform parent,string name,string value,float x,float y,float w,float h,float size,Color? color=null)
         {var label=Label(parent,_font,name,x,y,w,h,size);label.fontSharedMaterial=_textMaterial;label.text=value;label.color=color??Ink;return label;}
         Button Control(Transform parent,string name,string caption,float x,float y,float w,float h,Action action,bool primary=false)
@@ -193,7 +386,12 @@ namespace BotanicalGardenQR.Bootstrap
             var rect=Rect(parent,name,x,y,w,h);var fill=Fill(rect,primary?Blue:Color.white,3);fill.raycastTarget=true;
             var button=rect.gameObject.AddComponent<Button>();button.targetGraphic=fill;button.navigation=new Navigation{mode=Navigation.Mode.None};
             var colors=button.colors;colors.pressedColor=new Color(.70f,.84f,.98f);colors.disabledColor=new Color(.65f,.69f,.73f);button.colors=colors;
-            button.onClick.AddListener(()=>{if(Ready)action();});
+            button.onClick.AddListener(()=>
+            {
+                if(!Ready)return;
+                if(_visit.Stationary)_visit.QueueStationaryAction(()=>{if(Ready)action();});
+                else action();
+            });
             var text=Text(rect,"Label",caption,0,0,w-24,h-8,22,primary?Color.white:Ink);text.alignment=TextAlignmentOptions.Center;
             return button;
         }
@@ -203,7 +401,8 @@ namespace BotanicalGardenQR.Bootstrap
             rect.sizeDelta=size;rect.localScale=Vector3.one*.0006f;
             var canvas=result.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;return result;
         }
-        void ClosePanel(){if(_panel){Destroy(_panel);_panel=null;}if(!_disposed && _active){RefreshTerminal();_terminal.SetActive(true);}}
+        void ClosePanel(){if(_panel){Destroy(_panel);_panel=null;}if(!_disposed && _active){RefreshTerminal();SetTerminalActive(true);}}
+        internal void EndView(){_active=false;ClosePanel();SetTerminalActive(false);}
         static void Destroy(GameObject item){item.SetActive(false);if(Application.isPlaying)UnityEngine.Object.Destroy(item);else UnityEngine.Object.DestroyImmediate(item);}
         public void Dispose(){if(_disposed)return;_disposed=true;_active=false;ClosePanel();if(_terminal)Destroy(_terminal);if(_textMaterial){if(Application.isPlaying)UnityEngine.Object.Destroy(_textMaterial);else UnityEngine.Object.DestroyImmediate(_textMaterial);}}
     }

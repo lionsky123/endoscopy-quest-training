@@ -61,6 +61,7 @@ namespace BotanicalGardenQR.Video.Backend
                 _audioSource.playOnAwake = false;
                 _audioSource.loop = false;
                 _audioSource.spatialBlend = 0f;
+                ConfigureListenerSilence(_audioSource, _options);
 
                 _player.playOnAwake = false;
                 _player.waitForFirstFrame = true;
@@ -125,6 +126,7 @@ namespace BotanicalGardenQR.Video.Backend
                         if (_phase == VideoPhase.Paused)
                         {
                             _player.Play();
+                            _audioSource?.UnPause();
                             Publish(VideoPhase.Playing);
                             return VideoResult.Success();
                         }
@@ -135,6 +137,7 @@ namespace BotanicalGardenQR.Video.Backend
                             return VideoResult.Failure(VideoFailureCode.InvalidIntent, "video.replay.unavailable");
                         _player.time = 0d;
                         _player.Play();
+                        _audioSource?.UnPause();
                         Publish(VideoPhase.Playing);
                         return VideoResult.Success();
 
@@ -199,6 +202,25 @@ namespace BotanicalGardenQR.Video.Backend
             ++_generation;
             ReleaseRuntime();
             _states.Dispose();
+        }
+
+        internal static void ConfigureListenerSilence(AudioSource source, VideoRuntimeOptions options)
+        {
+            source.ignoreListenerPause = options.IgnoreListenerSilence;
+            source.ignoreListenerVolume = options.IgnoreListenerSilence;
+        }
+
+        void OnApplicationPause(bool paused)
+        {
+            if (!paused || _player == null) return;
+            if (_phase == VideoPhase.Loading)
+                FailPreparation(new UserFault("视频已中断，请重新加载。"));
+            else if (_phase == VideoPhase.Playing)
+            {
+                _player.Pause();
+                _audioSource?.Pause();
+                Publish(VideoPhase.Paused);
+            }
         }
 
         void OnPrepared(VideoPlayer player, SessionToken session, uint generation)
@@ -296,8 +318,7 @@ namespace BotanicalGardenQR.Video.Backend
 
         void Fail(UserFault fault)
         {
-            HideSurface();
-            Publish(VideoPhase.Failed, fault);
+            FailPreparation(fault);
         }
 
         bool IsCurrent(VideoPlayer player, SessionToken session, uint generation)
@@ -322,6 +343,7 @@ namespace BotanicalGardenQR.Video.Backend
 
         void ReleaseRuntime()
         {
+            _audioSource?.Stop();
             if (_player != null)
             {
                 _player.targetTexture = null;

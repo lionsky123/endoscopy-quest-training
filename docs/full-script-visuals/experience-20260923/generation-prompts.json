@@ -1,0 +1,35 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-09-23",
+  "entries": [
+    {
+      "id": "V09",
+      "prompt": "Use case: precise-object-edit. Input image is the equipment reference extracted from the user's endoscopy training script (image4.png), and is the EDIT TARGET. Produce one high-resolution portrait reference plate preserving the exact original photographic equipment, original perspective and geometry, original white molded washing workstation, chrome faucet, coiled transparent and black hoses, controls, water and visible scope in basin. Remove ONLY the large red overlaid Chinese annotation words and their red arrow lines; reconstruct small underlying areas unobtrusively. Preserve all physical manufacturer labels and screens as found; do not invent or change numbers, label wording, equipment, medical claims or water condition. Do not relight, stylize, turn into an infographic or add additional objects. Preserve full original framing and original aspect ratio. No new UI, no title, no border, no watermark or instructional captions. This is a cleaned reference photograph for separate runtime teaching hotspots, not a compliance record. All annotation text will be displayed separately by the application; no instructions printed into this image.",
+      "reference": "artifacts/full-script-reference-images/image4.png",
+      "output": "equipment-hotspot-teaching-v1.png",
+      "role": "generated teaching plate; labels/numbers are not authoritative; original retained"
+    },
+    {
+      "id": "V10-draft",
+      "prompt": "Use case: precise-object-edit, isolated teaching illustration. Input is the PPE reference from the user's endoscopy training script image5.png, EDIT TARGET. Extract and faithfully reconstruct only the single front-facing full-body clinical worker shown at the center, with the same neutral pose arms relaxed slightly apart, blue protective cap, transparent protective goggles distinct from pale surgical mask, long blue protective gown/apron silhouette, pale gloves, covered pale work shoes. Keep the depicted garment layering, proportions and visual identity; do not invent extra PPE, equipment, medical symbols or logos. Entire figure visible including cap and both shoes, hands naturally formed, goggles visibly separate from mask. Clean professional realistic 3D teaching illustration matching the original, restrained neutral illumination, fine visible garment folds. Center isolated figure on a genuinely transparent background, large enough for runtime focus on head, eye, mask, body, gloves and shoes. Remove all original background room, translucent frame, leader lines, labels and words. No text anywhere, no baked highlighter, no panel or drop shadow. This is a visual teaching reference derived from the supplied illustration, not a hospital photo or certified PPE specification. Portrait image.",
+      "reference": "artifacts/full-script-reference-images/image5.png",
+      "output": "ppe-teaching-plate-v1-rejected.png",
+      "role": "rejected background; file removed during 2026-09-23 cleanup; retain prompt and hash in IMAGE_CLEANUP_20260923.md"
+    },
+    {
+      "id": "V10",
+      "prompt": "Edit ONLY the background of the supplied full-body PPE teaching illustration. Keep the entire human figure, face, cap, goggles, mask, blue gown, gloves, pose and shoes exactly unchanged. Remove the black background, all blue/white glow and all cast background shadows. Replace with a perfectly uniform matte pale warm grey background #F1F3F2, edge to edge. No vignette, no gradient, no halo, no floor line, no graphic panel, no text, no logos, no extra equipment. Preserve full body and all margins, portrait composition. This should be a calm clean teaching plate, NOT a dramatic portrait. Do not modify the figure.",
+      "reference": "ppe-teaching-plate-v1-rejected.png",
+      "referenceStatus": "source image removed during 2026-09-23 cleanup; source hash retained in IMAGE_CLEANUP_20260923.md",
+      "output": "ppe-teaching-plate-v2.png",
+      "role": "opaque teaching plate; not a transparent sprite or a 3D personnel asset"
+    },
+    {
+      "id": "D01",
+      "prompt": "Use case: ui-mockup for a seated VR training game, one polished first-person concept frame, landscape 4:3. Input image is the current hospital lobby screenshot, an architectural reference and edit target for background. Preserve the bright hospital atrium, glass facade, white columns, stone floor, teal kiosks and eye-level perspective. REMOVE the huge black panel and bottom red hands. Design a restrained in-world chapter-selection composition after the welcome screen: keep at least upper 60 percent of scene clear. Lower foreground has only THREE compact slim white frosted rectangular chapter tabs arranged in a shallow reachable arc, not a wall or dashboard grid, subtle teal selected edge, soft realistic depth and shadows, coherent modest corner radius, crisp large dark Chinese labels. Exact tab labels: '办公室' on left, '储存库' in center, '候诊区' on right. Center selected tab has small text '前往储存库'. Left tab small text '回查'. Right tab small text '稍后开放'. No scores, stars or progress bars. A small compact dialogue strip offset above left side of arc, only two lines with exact text: '安小卫' and '接下来，看看内镜如何存放。'. Do not invent or depict a new fairy character; this frame focuses on panel layout. Do not create any selectable hospital lobby tab. No decorative sci-fi beams, portals, glowing rings, neon, giant floating boards, bubbles, dense lists, development notes, diagrams or extra text. Hospital backdrop must remain dominant. Conceptual spatial layout image only; no claims of runtime screenshot.",
+      "reference": "artifacts/production-play/lobby-panorama.png",
+      "output": "lobby-chapter-layout-v1.png",
+      "role": "design concept; file removed during 2026-09-23 cleanup because it had no runtime consumer; prompt and hash retained in IMAGE_CLEANUP_20260923.md"
+    }
+  ]
+}

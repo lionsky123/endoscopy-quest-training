@@ -174,7 +174,11 @@ namespace BotanicalGardenQR.Panorama.Backend
 
             yield return operation;
 
-            if (_released || generation != _generation) yield break;
+            if (_released || generation != _generation)
+            {
+                DisposeRequest();
+                yield break;
+            }
             if (_request.result != UnityWebRequest.Result.Success)
             {
                 ReportFailure(PanoramaRenderFailure.LoadFailed, _request.error ?? "UnityWebRequest failed.");

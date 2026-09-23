@@ -10,12 +10,33 @@ namespace BotanicalGardenQR.Bootstrap
     internal static class FullScriptRoomCatalog
     {
         internal const string DevelopmentResource = "FullScriptDevelopment";
+        internal const string FurnishedResource = "FullScriptFurnished";
         internal const string Overview = "本房间说明";
         internal const string Door = "房门";
         internal const string Washing = "R05_REPROCESSING";
+        internal const string LobbyPanorama = "FullScriptRooms/Stationary/LobbyPanorama";
+        internal const string WaitingRoom = "FullScriptRooms/Waiting/WaitingRoom";
+        internal const string StorageRoom = "FullScriptRooms/Storage/StorageRoom";
 
-        internal static MapDefinition Map(string id, MapDefinition washing, bool teachWashing)
+        internal static MapDefinition Map(string id, MapDefinition washing, bool teachWashing, bool stationary = false)
         {
+            if(stationary && id=="R02_STORAGE")
+            {
+                var entrance=new MapPosition(2.35f,0,-2.1f);var view=new MapPosition(-.9f,0,0);
+                var route=new[]{entrance,new MapPosition(2.35f,0,-1.4f),new MapPosition(-.9f,0,-1.4f),view};
+                return new MapDefinition{mapId=id,roomResource=StorageRoom,scale=1,start=entrance,
+                    points=new[]{new MapPoint{id=Overview,position=view},new MapPoint{id=Door,position=entrance}},
+                    routes=new[]{new MapRoute{from="Start",to=Overview,samples=route},new MapRoute{from=Overview,to=Door,samples=route.Reverse().ToArray()}}};
+            }
+            if(stationary && id=="R03_WAITING")
+            {
+                var entrance=new MapPosition(2.35f,0,-2.1f);
+                var view=new MapPosition(.4f,0,-1.05f);
+                var route=new[]{entrance,new MapPosition(1.4f,0,-2.1f),new MapPosition(.4f,0,-2.1f),view};
+                return new MapDefinition{mapId=id,roomResource=WaitingRoom,scale=1,start=entrance,
+                    points=new[]{new MapPoint{id=Overview,position=view},new MapPoint{id=Door,position=entrance}},
+                    routes=new[]{new MapRoute{from="Start",to=Overview,samples=route},new MapRoute{from=Overview,to=Door,samples=route.Reverse().ToArray()}}};
+            }
             if(id=="R01_OFFICE" || id=="R04_GI" || id=="R04_RESP")
             {
                 // Resolve only the requested room's small map; never enumerate/load room assets.
@@ -45,10 +66,10 @@ namespace BotanicalGardenQR.Bootstrap
                 return map;
             }
             var start = new MapPosition(0, 0, 0);
-            var overview = new MapPosition(-3, 0, 0);
+            var overview = (stationary && id == "R00_LOBBY") ? new MapPosition(0, 0, 0) : new MapPosition(-3, 0, 0);
             return new MapDefinition
             {
-                mapId = id, roomResource = DevelopmentResource, scale = 1,
+                mapId = id, roomResource = stationary ? (id=="R00_LOBBY" ? LobbyPanorama : FurnishedResource) : DevelopmentResource, scale = 1,
                 start = start,
                 points = new[] { new MapPoint { id = Overview, position = overview }, new MapPoint { id = Door, position = start } },
                 routes = new[]
@@ -59,13 +80,21 @@ namespace BotanicalGardenQR.Bootstrap
             };
         }
 
-        internal static void BuildDevelopmentGeometry(GameObject root, string id, List<UnityEngine.Object> owned)
+        internal static void BuildDevelopmentGeometry(GameObject root, string id, List<UnityEngine.Object> owned, bool furnished=false)
         {
             var template = Resources.Load<Material>("EndoscopyRoom/RoomSurface");
             if (!template) throw new InvalidOperationException("Room surface material is missing.");
             var wall = new Material(template) { color = new Color(.64f,.74f,.77f) }; owned.Add(wall);
             var floor = new Material(template) { color = new Color(.24f,.34f,.38f) }; owned.Add(floor);
             var accent = new Material(template) { color = new Color(.16f,.53f,.48f) }; owned.Add(accent);
+            if(furnished)
+            {
+                wall.color=new Color(.86f,.88f,.86f);
+                floor.color=Color.white;
+                floor.mainTexture=Resources.Load<Texture2D>("ClinicalCourse/FullScriptVisuals/hospital-terrazzo-v1");
+                floor.mainTextureScale=new Vector2(3,3);
+                accent.color=new Color(.67f,.75f,.76f);
+            }
             void Box(string name, Vector3 center, Vector3 size, Material material)
             {
                 var item = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -97,7 +126,17 @@ namespace BotanicalGardenQR.Bootstrap
             else if (id == "R02_STORAGE")
                 Box("StorageCabinet", new Vector3(-3.8f,1,1.6f), new Vector3(1.2f,2,.65f),accent);
             else if (id == "R03_WAITING")
-                for (var n=0;n<3;n++) Box("Seat"+n,new Vector3(-1-n,.45f,1.6f),new Vector3(.7f,.12f,.6f),accent);
+            {
+                for (var n=0;n<3;n++)
+                {
+                    if(!furnished){Box("Seat"+n,new Vector3(-1-n,.45f,1.6f),new Vector3(.7f,.12f,.6f),accent);continue;}
+                    var chair=Resources.Load<GameObject>("FullScriptRooms/Stationary/Chair");
+                    if(!chair)throw new InvalidOperationException("Published supplied chair is missing.");
+                    var seat=UnityEngine.Object.Instantiate(chair,root.transform,false);
+                    seat.transform.localPosition=new Vector3(-1-n,0,1.65f);
+                }
+                if(furnished)Box("WaitingPartition",new Vector3(-1.5f,1.5f,-1.5f),new Vector3(2.8f,3,.10f),wall);
+            }
             else
             {
                 Box("ClinicalBed",new Vector3(-3,.7f,1.6f),new Vector3(2,.3f,.8f),wall);

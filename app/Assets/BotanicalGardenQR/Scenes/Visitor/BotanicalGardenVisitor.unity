@@ -2891,7 +2891,7 @@ MonoBehaviour:
   virtualGreenScreenDepthTolerance: 0.2
   mrcActivationMode: 0
   launchSimultaneousHandsControllersOnStartup: 1
-  isInsightPassthroughEnabled: 0
+  isInsightPassthroughEnabled: 1
   shouldBoundaryVisibilityBeSuppressed: 0
   requestBodyTrackingPermissionOnStartup: 0
   requestFaceTrackingPermissionOnStartup: 0
@@ -3128,6 +3128,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 362473817904651288, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 1286065455943784091, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
       propertyPath: _viewer
       value: 
@@ -3203,6 +3207,10 @@ PrefabInstance:
     - target: {fileID: 7808919922434067523, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
       propertyPath: m_Name
       value: VisitorRuntime
+      objectReference: {fileID: 0}
+    - target: {fileID: 8428591737104078685, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5669,17 +5677,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
---- !u!114 &1471115970 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5967989618383167226, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
-  m_PrefabInstance: {fileID: 735735541}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: BotanicalGardenQR.FrontendShell.Contracts::BotanicalGardenQR.FrontendShell.Contracts.NearOnlyButton
 --- !u!114 &1471115971 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3388301262493790884, guid: bc854b44969c9354c820fa11eb96ebfb, type: 3}
@@ -7266,12 +7263,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 91628483334439857, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 91628483334439857, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: m_Name
       value: ApplicationModeGateway
+      objectReference: {fileID: 0}
+    - target: {fileID: 91628483334439857, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2247767047734365617, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7416,7 +7413,7 @@ PrefabInstance:
     - target: {fileID: 6391636829177178671, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: '_blockedBackgroundSelectables.Array.data[22]'
       value: 
-      objectReference: {fileID: 1471115970}
+      objectReference: {fileID: 0}
     - target: {fileID: 6391636829177178671, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: '_blockedBackgroundSelectables.Array.data[23]'
       value: 
@@ -7476,7 +7473,7 @@ PrefabInstance:
     - target: {fileID: 6391636829177178671, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: '_blockedBackgroundSelectables.Array.data[37]'
       value: 
-      objectReference: {fileID: 1471115970}
+      objectReference: {fileID: 0}
     - target: {fileID: 6391636829177178671, guid: f885cab0732406d408f6dd3342a116d2, type: 3}
       propertyPath: '_blockedBackgroundSelectables.Array.data[38]'
       value: 
@@ -7583,8 +7580,19 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc3115f71c5841078600752259d33fd1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockPositionToListener: 1
+  width: 8
+  height: 3
+  depth: 5
+  leftMaterial: 18
+  rightMaterial: 18
+  ceilingMaterial: 0
+  floorMaterial: 4
+  frontMaterial: 18
+  backMaterial: 18
+  clutterFactor: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

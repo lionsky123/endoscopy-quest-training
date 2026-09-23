@@ -1,0 +1,241 @@
+{
+  "source": "清洗室模型.FBX",
+  "sourceSHA256": "1f597a7d3fe779123328d65ad36e2b7758ffac50a238be424e457bbb5070be38",
+  "fbxVersion": 7400,
+  "embeddedImageCount": 11,
+  "embeddedImages": [
+    {
+      "videoId": "2313661105664",
+      "videoName": "贴图 #10",
+      "textureId": "2278194544784",
+      "sourceFilename": "大理石.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194544784_大理石.png",
+      "bytes": 144665,
+      "sha256": "0515bf910c9805410b88337e7283151635f453bd849a90b3222c0c693fa33364"
+    },
+    {
+      "videoId": "2313661121504",
+      "videoName": "贴图 #8",
+      "textureId": "2278194548144",
+      "sourceFilename": "白色.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194548144_白色.png",
+      "bytes": 1060,
+      "sha256": "5ef43a9a264dfb67bad8322025260259eb2a9d197c5d8b50fcca6bb6666015f9"
+    },
+    {
+      "videoId": "2313661108544",
+      "videoName": "贴图 #9",
+      "textureId": "2278194546704",
+      "sourceFilename": "微信图片_20260910164711_787_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194546704_微信图片_20260910164711_787_58.png",
+      "bytes": 672967,
+      "sha256": "b15c014c03548554270b70ca78cc8b3509727f3a5487f63c66f9e74af3b2d95f"
+    },
+    {
+      "videoId": "2313661114304",
+      "videoName": "贴图 #4",
+      "textureId": "2278194701200",
+      "sourceFilename": "微信图片_20260910164711_785_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194701200_微信图片_20260910164711_785_58.png",
+      "bytes": 980702,
+      "sha256": "759e0480b47c9c14cb9bfa348f570b88281f1614ca28e35c9945240fffb2d85f"
+    },
+    {
+      "videoId": "2313661109504",
+      "videoName": "贴图 #11",
+      "textureId": "2278194702160",
+      "sourceFilename": "ScreenShot_2026-09-11_155536_034.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194702160_ScreenShot_2026-09-11_155536_034.png",
+      "bytes": 105971,
+      "sha256": "0c44bdde03dfa5b9aa3b2896445f52a6e7cd7aef3998f9ddb9773fcb73853fb6"
+    },
+    {
+      "videoId": "2313661109984",
+      "videoName": "贴图 #7",
+      "textureId": "2313661134464",
+      "sourceFilename": "金属贴图2.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661134464_金属贴图2.jpg",
+      "bytes": 54051,
+      "sha256": "fb88475eb345c75b83c8f9b9e76c4edbfd6ff26d8e8f2376741622ccf1ec92b0"
+    },
+    {
+      "videoId": "2313661111904",
+      "videoName": "贴图 #5",
+      "textureId": "2313661125344",
+      "sourceFilename": "微信图片_20260910165213_791_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661125344_微信图片_20260910165213_791_58.png",
+      "bytes": 1079955,
+      "sha256": "7db17f04d8ecd678ca964c571299fff504ec260254693bf7fd634f4e69691b7d"
+    },
+    {
+      "videoId": "2313661110464",
+      "videoName": "贴图 #3",
+      "textureId": "2313661118144",
+      "sourceFilename": "ScreenShot_2026-09-17_165931_11432.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661118144_ScreenShot_2026-09-17_165931_11432.jpg",
+      "bytes": 4852,
+      "sha256": "ab3b5a367e4a3a61cc795376af11ee2f4e50f5b523b9afff876fc34acdcba49a"
+    },
+    {
+      "videoId": "2313661121984",
+      "videoName": "贴图 #4",
+      "textureId": "2313661119104",
+      "sourceFilename": "tripo_node_b1b0791c-f008-42c1-8edc-7e391422aca1_BaseColor.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661119104_tripo_node_b1b0791c-f008-42c1-8edc-7e391422aca1_BaseColor.jpg",
+      "bytes": 1656766,
+      "sha256": "910abaaff62d8ed47adb319d817d3f699e2be3691041fc28e25eefd7220db3f9"
+    },
+    {
+      "videoId": "2313661124384",
+      "videoName": "Diffuse Texture",
+      "textureId": "2313661121024",
+      "sourceFilename": "3d66Model-14221683-files-1.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661121024_3d66Model-14221683-files-1.jpg",
+      "bytes": 320795,
+      "sha256": "295164aab638b62376da8ee1f2fa138088db2b6d4bbfe6b66bfc4539dc87c7b8"
+    },
+    {
+      "videoId": "2313661126304",
+      "videoName": "Diffuse Texture",
+      "textureId": "2313661106144",
+      "sourceFilename": "Color.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661106144_Color.jpg",
+      "bytes": 1251271,
+      "sha256": "85014dda9e7cd33326fbce149c2215e34bbd67a75639f23794ea75258e2c63f8"
+    }
+  ],
+  "materialBindings": [
+    {
+      "materialName": "Mat3d66-14221683-1-93143",
+      "textureName": "Diffuse Texture",
+      "textureId": "2313661121024",
+      "videoId": "2313661124384",
+      "sourceFilename": "3d66Model-14221683-files-1.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661121024_3d66Model-14221683-files-1.jpg",
+      "sha256": "295164aab638b62376da8ee1f2fa138088db2b6d4bbfe6b66bfc4539dc87c7b8",
+      "bytes": 320795,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #100",
+      "textureName": "贴图 #4",
+      "textureId": "2313661119104",
+      "videoId": "2313661121984",
+      "sourceFilename": "tripo_node_b1b0791c-f008-42c1-8edc-7e391422aca1_BaseColor.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661119104_tripo_node_b1b0791c-f008-42c1-8edc-7e391422aca1_BaseColor.jpg",
+      "sha256": "910abaaff62d8ed47adb319d817d3f699e2be3691041fc28e25eefd7220db3f9",
+      "bytes": 1656766,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #28",
+      "textureName": "贴图 #2",
+      "textureId": "2313661130144",
+      "videoId": "2313661121504",
+      "sourceFilename": "白色.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194548144_白色.png",
+      "sha256": "5ef43a9a264dfb67bad8322025260259eb2a9d197c5d8b50fcca6bb6666015f9",
+      "bytes": 1060,
+      "sharedFilenameFallback": true
+    },
+    {
+      "materialName": "Material #32",
+      "textureName": "贴图 #4",
+      "textureId": "2278194701200",
+      "videoId": "2313661114304",
+      "sourceFilename": "微信图片_20260910164711_785_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194701200_微信图片_20260910164711_785_58.png",
+      "sha256": "759e0480b47c9c14cb9bfa348f570b88281f1614ca28e35c9945240fffb2d85f",
+      "bytes": 980702,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #33",
+      "textureName": "贴图 #5",
+      "textureId": "2313661125344",
+      "videoId": "2313661111904",
+      "sourceFilename": "微信图片_20260910165213_791_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661125344_微信图片_20260910165213_791_58.png",
+      "sha256": "7db17f04d8ecd678ca964c571299fff504ec260254693bf7fd634f4e69691b7d",
+      "bytes": 1079955,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #35",
+      "textureName": "贴图 #7",
+      "textureId": "2313661134464",
+      "videoId": "2313661109984",
+      "sourceFilename": "金属贴图2.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661134464_金属贴图2.jpg",
+      "sha256": "fb88475eb345c75b83c8f9b9e76c4edbfd6ff26d8e8f2376741622ccf1ec92b0",
+      "bytes": 54051,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #36",
+      "textureName": "贴图 #8",
+      "textureId": "2278194548144",
+      "videoId": "2313661121504",
+      "sourceFilename": "白色.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194548144_白色.png",
+      "sha256": "5ef43a9a264dfb67bad8322025260259eb2a9d197c5d8b50fcca6bb6666015f9",
+      "bytes": 1060,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #37",
+      "textureName": "贴图 #9",
+      "textureId": "2278194546704",
+      "videoId": "2313661108544",
+      "sourceFilename": "微信图片_20260910164711_787_58.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194546704_微信图片_20260910164711_787_58.png",
+      "sha256": "b15c014c03548554270b70ca78cc8b3509727f3a5487f63c66f9e74af3b2d95f",
+      "bytes": 672967,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #38",
+      "textureName": "贴图 #10",
+      "textureId": "2278194544784",
+      "videoId": "2313661105664",
+      "sourceFilename": "大理石.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194544784_大理石.png",
+      "sha256": "0515bf910c9805410b88337e7283151635f453bd849a90b3222c0c693fa33364",
+      "bytes": 144665,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #39",
+      "textureName": "贴图 #11",
+      "textureId": "2278194702160",
+      "videoId": "2313661109504",
+      "sourceFilename": "ScreenShot_2026-09-11_155536_034.png",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2278194702160_ScreenShot_2026-09-11_155536_034.png",
+      "sha256": "0c44bdde03dfa5b9aa3b2896445f52a6e7cd7aef3998f9ddb9773fcb73853fb6",
+      "bytes": 105971,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "Material #73",
+      "textureName": "贴图 #3",
+      "textureId": "2313661118144",
+      "videoId": "2313661110464",
+      "sourceFilename": "ScreenShot_2026-09-17_165931_11432.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661118144_ScreenShot_2026-09-17_165931_11432.jpg",
+      "sha256": "ab3b5a367e4a3a61cc795376af11ee2f4e50f5b523b9afff876fc34acdcba49a",
+      "bytes": 4852,
+      "sharedFilenameFallback": false
+    },
+    {
+      "materialName": "tripo_mat_1f166351",
+      "textureName": "Diffuse Texture",
+      "textureId": "2313661106144",
+      "videoId": "2313661126304",
+      "sourceFilename": "Color.jpg",
+      "assetPath": "Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/EmbeddedTextures/embedded_2313661106144_Color.jpg",
+      "sha256": "85014dda9e7cd33326fbce149c2215e34bbd67a75639f23794ea75258e2c63f8",
+      "bytes": 1251271,
+      "sharedFilenameFallback": false
+    }
+  ]
+}

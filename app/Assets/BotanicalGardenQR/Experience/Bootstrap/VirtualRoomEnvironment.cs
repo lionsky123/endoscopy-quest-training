@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BotanicalGardenQR.MapNavigation.Contracts;
 using BotanicalGardenQR.Panorama.Contracts;
@@ -17,21 +18,30 @@ namespace BotanicalGardenQR.Bootstrap
         readonly List<UnityEngine.Object> _owned = new List<UnityEngine.Object>();
         readonly AmbientMode _ambientMode;
         readonly Color _ambientLight;
+        readonly Color _ambientSky, _ambientEquator, _ambientGround;
         readonly bool _fog;
+        Light _sceneDirectionalLight;
+        float _originalDirectionalLightIntensity;
+        bool _restoreDirectionalLightIntensity;
         VirtualRoomTrackingOrigin _trackingOrigin;
         bool _ownsTracking = true;
         bool _disposed;
+
+
         Bounds[] _publishedObstacles;
         internal Vector3? TerminalPosition { get; private set; }
         internal GameObject Root => _root;
         internal VirtualRoomTrackingOrigin TrackingOrigin => _trackingOrigin;
         internal VirtualRoomGuidePath GuidePath { get; private set; }
-        public MapFrame Frame { get; }
+        public MapFrame Frame { get; private set; }
 
         VirtualRoomEnvironment(Transform rig, MapDefinition definition)
         {
             _ambientMode = RenderSettings.ambientMode;
             _ambientLight = RenderSettings.ambientLight;
+            _ambientSky=RenderSettings.ambientSkyColor;
+            _ambientEquator=RenderSettings.ambientEquatorColor;
+            _ambientGround=RenderSettings.ambientGroundColor;
             _fog = RenderSettings.fog;
             // Model -X is down the long aisle, and is the initial forward view.
             var firstStep=definition.routes[0].samples[1];
@@ -46,7 +56,7 @@ namespace BotanicalGardenQR.Bootstrap
         }
 
         public static VirtualRoomEnvironment Create(GameObject xrRig, GameObject mruk, MapDefinition definition, ITrackingOriginTiming timing = null,
-            VirtualRoomTrackingOrigin sharedTracking = null)
+            VirtualRoomTrackingOrigin sharedTracking = null, bool trackHead = true)
         {
             MapDefinitionValidation.Validate(definition);
             if (string.IsNullOrWhiteSpace(definition.roomResource))
@@ -68,8 +78,16 @@ namespace BotanicalGardenQR.Bootstrap
             var room = new VirtualRoomEnvironment(xrRig.transform, definition);
             try
             {
-                if (definition.roomResource == FullScriptRoomCatalog.DevelopmentResource)
-                    FullScriptRoomCatalog.BuildDevelopmentGeometry(room._root, definition.mapId, room._owned);
+                if (definition.roomResource == "EndoscopyRoom") room.SetCleaningRoomLight(xrRig.scene);
+                if (definition.roomResource == FullScriptRoomCatalog.DevelopmentResource || definition.roomResource == FullScriptRoomCatalog.FurnishedResource)
+                    FullScriptRoomCatalog.BuildDevelopmentGeometry(room._root, definition.mapId, room._owned, definition.roomResource==FullScriptRoomCatalog.FurnishedResource);
+                else if(definition.roomResource == FullScriptRoomCatalog.LobbyPanorama) room.LoadLobby();
+                else if(definition.roomResource == FullScriptRoomCatalog.WaitingRoom || definition.roomResource == FullScriptRoomCatalog.StorageRoom)
+                {
+                    var prefab=Resources.Load<GameObject>(definition.roomResource);
+                    if(!prefab)throw new InvalidOperationException("Published supplied-architecture room is missing: "+definition.roomResource);
+                    UnityEngine.Object.Instantiate(prefab,room._root.transform,false);
+                }
                 else room.Load(definition.roomResource, definition.modelDigest);
                 room.GuidePath = new VirtualRoomGuidePath(definition, room.Frame, room._root.GetComponentsInChildren<MeshFilter>(),room._publishedObstacles);
                 var cameraRig = xrRig.GetComponentInChildren<OVRCameraRig>(true);
@@ -78,7 +96,7 @@ namespace BotanicalGardenQR.Bootstrap
                     room._trackingOrigin = sharedTracking;
                     room._ownsTracking = false;
                 }
-                else if (cameraRig)
+                else if (cameraRig && trackHead)
                 {
                     var start = room.Frame.Transform(definition.start);
                     var next = room.Frame.Transform(definition.routes[0].samples[1]);
@@ -95,9 +113,77 @@ namespace BotanicalGardenQR.Bootstrap
                 RenderSettings.ambientMode = AmbientMode.Flat;
                 RenderSettings.ambientLight = new Color(.72f, .76f, .80f);
                 RenderSettings.fog = false;
+                if(definition.roomResource==FullScriptRoomCatalog.StorageRoom || definition.roomResource==FullScriptRoomCatalog.WaitingRoom)
+                    room.LightSuppliedArchitecture();
                 return room;
             }
             catch { room.Dispose(); throw; }
+        }
+
+        void LightSuppliedArchitecture()
+        {
+            // These two authored layouts share the supplied office architecture.
+            // Four ceiling emitters are a bounded lighting approximation, not a
+            // surveyed luminaire plan. No camera-following lights or shadow maps.
+            RenderSettings.ambientMode=AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor=new Color(.68f,.68f,.67f);
+            RenderSettings.ambientEquatorColor=new Color(.56f,.56f,.55f);
+            RenderSettings.ambientGroundColor=new Color(.49f,.49f,.48f);
+            var group=new GameObject("RoomCeilingLighting").transform;group.SetParent(_root.transform,false);
+            int index=0;
+            foreach(float x in new[]{-1.4f,1.4f})foreach(float z in new[]{-1.25f,1.25f})
+            {
+                var lamp=new GameObject("CeilingEmitter"+(index++),typeof(Light));lamp.transform.SetParent(group,false);
+                lamp.transform.localPosition=new Vector3(x,2.70f,z);
+                lamp.transform.localRotation=Quaternion.Euler(90,0,0);
+                var light=lamp.GetComponent<Light>();light.type=LightType.Spot;
+                light.color=new Color(1f,.99f,.97f);light.intensity=1.1f;light.range=4.5f;
+                light.spotAngle=140;light.innerSpotAngle=120;light.shadows=LightShadows.None;
+                light.renderMode=LightRenderMode.ForcePixel;
+            }
+        }
+
+        void SetCleaningRoomLight(UnityEngine.SceneManagement.Scene scene)
+        {
+            _sceneDirectionalLight = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<Light>(true))
+                .FirstOrDefault(light => light && light.type == LightType.Directional && light.isActiveAndEnabled);
+            if (!_sceneDirectionalLight) return;
+            _originalDirectionalLightIntensity = _sceneDirectionalLight.intensity;
+            _sceneDirectionalLight.intensity = .77f;
+            _restoreDirectionalLightIntensity = true;
+        }
+        void LoadLobby()
+        {
+            var prefab=Resources.Load<GameObject>(FullScriptRoomCatalog.LobbyPanorama);
+            if(!prefab)throw new InvalidOperationException("Published lobby panorama is missing.");
+            var panorama=UnityEngine.Object.Instantiate(prefab,_root.transform,false);
+            // A panoramic display shell is not physical architecture or an obstacle.
+            _publishedObstacles=Array.Empty<Bounds>();
+            var view=InspectionViewConfiguration.Load()?.Find("R00_LOBBY")?.initial;
+            panorama.transform.localRotation=Quaternion.Euler(0,view?.yaw??0,0);
+            panorama.SetActive(true);
+        }
+        internal void AlignStationaryView(MapDefinition map, Transform viewer, float floor, MapPosition? target = null, Vector3? localForward = null)
+        {
+            // Called only while covered by the transition curtain, once per visit.
+            // Actual head/hand poses and their tracking scale are never modified.
+            if(localForward.HasValue)
+            {
+                var facing=Vector3.ProjectOnPlane(viewer.forward,Vector3.up);
+                if(facing.sqrMagnitude<.01f)facing=viewer.root.forward;
+                var direction=localForward.Value;
+                var yaw=Mathf.Atan2(facing.x,facing.z)*Mathf.Rad2Deg-Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;
+                _root.transform.rotation=Quaternion.Euler(0,yaw,0);
+                var position=_root.transform.position;
+                Frame=new MapFrame(new MapPosition(position.x,position.y,position.z),yaw,Frame.Scale);
+            }
+            var point=Frame.Transform(target ?? map.points[0].position);
+            var delta=new Vector3(viewer.position.x-point.x, floor-_root.transform.position.y, viewer.position.z-point.z);
+            _root.transform.position+=delta;
+            var origin=_root.transform.position;
+            Frame=new MapFrame(new MapPosition(origin.x,origin.y,origin.z),Frame.YawDegrees,Frame.Scale);
+            GuidePath=new VirtualRoomGuidePath(map,Frame,_root.GetComponentsInChildren<MeshFilter>(),_publishedObstacles);
         }
 
         void Load(string resource, string expectedDigest)
@@ -148,12 +234,16 @@ namespace BotanicalGardenQR.Bootstrap
                 var vertices = new Vector3[vertexCount];
                 var normals = new Vector3[vertexCount];
                 var uv = new Vector2[vertexCount];
+                var rawVertexBytes = reader.ReadBytes(vertexCount * 32);
+                var rawFloats = new float[vertexCount * 8];
+                Buffer.BlockCopy(rawVertexBytes, 0, rawFloats, 0, rawVertexBytes.Length);
                 for (var i = 0; i < vertexCount; i++)
                 {
+                    var f = i * 8;
                     // Same 180-degree normalization used by the original room inspection.
-                    vertices[i] = new Vector3(-reader.ReadSingle(), reader.ReadSingle(), -reader.ReadSingle());
-                    normals[i] = new Vector3(-reader.ReadSingle(), reader.ReadSingle(), -reader.ReadSingle());
-                    uv[i] = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                    vertices[i] = new Vector3(-rawFloats[f], rawFloats[f + 1], -rawFloats[f + 2]);
+                    normals[i] = new Vector3(-rawFloats[f + 3], rawFloats[f + 4], -rawFloats[f + 5]);
+                    uv[i] = new Vector2(rawFloats[f + 6], rawFloats[f + 7]);
                 }
                 var mesh = new Mesh { name = name, indexFormat = vertexCount > 65535 ? IndexFormat.UInt32 : IndexFormat.UInt16 };
                 _owned.Add(mesh);
@@ -164,8 +254,10 @@ namespace BotanicalGardenQR.Bootstrap
                 for (var sub = 0; sub < subCount; sub++)
                 {
                     assigned[sub] = materials[reader.ReadInt32()];
-                    var indices = new int[reader.ReadInt32()];
-                    for (var i = 0; i < indices.Length; i++) indices[i] = reader.ReadInt32();
+                    var indexCount = reader.ReadInt32();
+                    var indices = new int[indexCount];
+                    var rawIndexBytes = reader.ReadBytes(indexCount * 4);
+                    Buffer.BlockCopy(rawIndexBytes, 0, indices, 0, rawIndexBytes.Length);
                     mesh.SetTriangles(indices, sub);
                 }
                 mesh.RecalculateBounds();
@@ -187,12 +279,17 @@ namespace BotanicalGardenQR.Bootstrap
             if (_disposed) return;
             _disposed = true;
             if (_ownsTracking) _trackingOrigin?.Dispose();
+            if (_restoreDirectionalLightIntensity && _sceneDirectionalLight)
+                _sceneDirectionalLight.intensity = _originalDirectionalLightIntensity;
             if (_root) _root.SetActive(false);
             Destroy(_root);
             foreach (var item in _owned) Destroy(item);
             _owned.Clear();
             RenderSettings.ambientMode = _ambientMode;
             RenderSettings.ambientLight = _ambientLight;
+            RenderSettings.ambientSkyColor=_ambientSky;
+            RenderSettings.ambientEquatorColor=_ambientEquator;
+            RenderSettings.ambientGroundColor=_ambientGround;
             RenderSettings.fog = _fog;
         }
 

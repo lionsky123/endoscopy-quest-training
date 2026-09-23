@@ -20,8 +20,9 @@ namespace BotanicalGardenQR.Bootstrap.Editor
         const string MapPath = "Assets/BotanicalGardenQR/Content/Published/VisitorMapDefinition.json";
         const string VisitorPath = "Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity";
         const string RootName = "清洗消毒室";
+        const float PreviewLightIntensity = .77f;
 
-        [MenuItem("Endoscopy/房间模型/打开房间编辑场景", false, 1)]
+        [MenuItem("Endoscopy/历史工具/旧洗消室快照/打开房间编辑场景", false, 100)]
         public static void Open()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -48,7 +49,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
             var lighting = new GameObject("查看用灯光");
             var light = lighting.AddComponent<Light>();
             light.type = LightType.Directional;
-            light.intensity = .65f;
+            light.intensity = PreviewLightIntensity;
             light.shadows = LightShadows.None;
             lighting.transform.rotation = Quaternion.Euler(50, -30, 0);
             RenderSettings.ambientMode = AmbientMode.Flat;
@@ -68,6 +69,24 @@ namespace BotanicalGardenQR.Bootstrap.Editor
 
             if (!EditorSceneManager.SaveScene(scene, ScenePath)) throw new IOException("Could not save room workspace.");
             Debug.Log($"Room workspace ready: {ScenePath}; {room.GetComponentsInChildren<MeshFilter>().Length} meshes. Preview edits do not change the published Quest map.");
+        }
+
+        public static void RefreshPublishedRoom()
+        {
+            if (!BakeRoom()) throw new IOException("Could not rebuild the cleaning-room preview prefab.");
+            if (!File.Exists(ScenePath)) return;
+
+            var scene = EditorSceneManager.OpenScene(ScenePath, UnityEditor.SceneManagement.OpenSceneMode.Single);
+            var light = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Light>(true))
+                .FirstOrDefault(candidate => candidate.name == "查看用灯光");
+            if (!light) throw new InvalidOperationException("The cleaning-room workspace preview light is missing.");
+            var serialized = new SerializedObject(light);
+            var intensity = serialized.FindProperty("m_Intensity");
+            if (intensity == null) throw new InvalidOperationException("The cleaning-room preview light intensity field is missing.");
+            intensity.floatValue = PreviewLightIntensity;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorSceneManager.MarkSceneDirty(scene);
+            if (!EditorSceneManager.SaveScene(scene)) throw new IOException("Could not save the cleaning-room workspace scene.");
         }
 
         static GameObject BakeRoom()

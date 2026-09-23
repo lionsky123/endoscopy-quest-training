@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using BotanicalGardenQR.Experience.Application;
 using BotanicalGardenQR.Experience.Contracts;
@@ -12,29 +13,35 @@ using static BotanicalGardenQR.FrontendShell.Runtime.ClinicalPanelStyle;
 
 namespace BotanicalGardenQR.Bootstrap
 {
-    internal sealed class FullScriptRoomVisit : IDisposable
+    internal sealed partial class FullScriptRoomVisit : IDisposable
     {
         readonly FullScriptJourneyRuntime _owner;
         readonly Transform _viewer;
         readonly TMP_FontAsset _font;
         GameObject _panel;
         readonly FullScriptOfficeRecords _office;
+        FullScriptOfficeRecords _linkedRecords;
         bool _disposed, _door,_clinicalRecords;
         int _summaryPage=-1;
         int _recordReviewPage=-1;
+        bool _confirmSubmission;
         internal string RoomId { get; }
         internal MapDefinition Map { get; }
         internal VirtualRoomEnvironment Room { get; }
         internal VisitorPrologueController Prologue => _owner.Prologue;
         internal long CompletionRevision { get; private set; }
         internal void AcceptTeachingReviewClosed(SessionToken session){if(!_disposed)CompletionRevision++;}
-        internal bool ContentOpen => (_panel && _panel.activeSelf) || _office?.IsOpen == true;
+        internal bool ContentOpen => (_panel && _panel.activeSelf) || _office?.IsOpen == true || _linkedRecords?.IsOpen == true;
         internal bool DoorOpen => ContentOpen && _door;
+        internal bool Stationary => _owner.Stationary;
+        internal string DisplayName => _owner.Definition.FindRoom(RoomId).displayName;
+        internal string StartRoomId => _owner.Definition.startRoomId;
+        internal int MainlineIndex => _owner.Session.MainlineIndex;
         internal bool InputAllowed => !_disposed && _owner.InputAllowed;
         internal ClinicalCourseSession ResumeWashingLesson(ClinicalCourseLesson lesson) => _owner.ResumeWashingLesson(lesson);
         internal bool TeachingReadOnly => _owner.Session.IsFinished;
         internal BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress ObservationProgress => _owner.ObservationProgress;
-        internal GameObject Panel => _panel ? _panel : _office?.Panel;
+        internal GameObject Panel => _panel ? _panel : _office?.Panel ? _office.Panel : _linkedRecords?.Panel;
         internal GameObject OfficeTerminal => _office?.Terminal;
         internal bool AtDoor
         {
@@ -50,6 +57,8 @@ namespace BotanicalGardenQR.Bootstrap
             VirtualRoomEnvironment room, Transform viewer, TMP_FontAsset font)
         {
             _owner=owner; RoomId=id; Map=map; Room=room; _viewer=viewer; _font=font;
+            if(owner.ScriptPositions.TryGetValue(id,out var position))
+            {_scriptIndex=position.x;_detailIndex=position.y;_themeChosen=true;}
             if(id=="R01_OFFICE") _office=new FullScriptOfficeRecords(owner,this,viewer,font,LeaveIncompleteTasks);
             if(id=="R04_GI" || id=="R04_RESP")
             {
@@ -80,8 +89,14 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if (!InputAllowed) return false;
             if (point != FullScriptRoomCatalog.Overview && point != FullScriptRoomCatalog.Door) return false;
-            if (point == FullScriptRoomCatalog.Door && !AtDoor) return false;
-            if(point==FullScriptRoomCatalog.Overview && _office!=null && !_owner.Session.HasVisitedAllMainlineRooms)
+            if (point == FullScriptRoomCatalog.Door && !Stationary && !AtDoor) return false;
+            if(point==FullScriptRoomCatalog.Overview && RoomId==_owner.Definition.startRoomId && _owner.Session.MainlineIndex>0)
+            {Show(true);return true;}
+            var finalOfficeVisit=ClinicalActSelection.OfficeVisitStage(_owner.Definition,_owner.Session)==ClinicalOfficeVisitStage.FinalSummary;
+            if(Stationary && point==FullScriptRoomCatalog.Overview && RoomId!="R00_LOBBY" &&
+                !finalOfficeVisit)
+            {ShowScriptTask();return true;}
+            if(point==FullScriptRoomCatalog.Overview && _office!=null && !finalOfficeVisit)
             { _door=false;_office.Begin();return true; }
             Show(point == FullScriptRoomCatalog.Door);
             return true;
@@ -92,11 +107,12 @@ namespace BotanicalGardenQR.Bootstrap
             ClosePanel(); _door=door;
             _panel = new GameObject("FullScriptRoomPanel",typeof(RectTransform),typeof(Canvas));
             var board=(RectTransform)_panel.transform;
-            board.localScale=Vector3.one*.00075f;
+            var coachTheme=_owner.CoachTheme;
+            board.localScale=Vector3.one*(door?coachTheme.CanvasScale:.00075f);
             board.sizeDelta=new Vector2(840,650);
             var canvas=_panel.GetComponent<Canvas>(); canvas.renderMode=RenderMode.WorldSpace;
             canvas.worldCamera=_viewer.GetComponent<Camera>(); canvas.sortingOrder=120;
-            if (door)
+            if (door && !Stationary)
             {
                 var p=Room.Frame.Transform(new MapPosition(Map.start.x+.45f,Map.start.y+1.25f,Map.start.z));
                 board.SetPositionAndRotation(new Vector3(p.x,p.y,p.z),Quaternion.Euler(0,Room.Frame.YawDegrees+90,0));
@@ -104,28 +120,52 @@ namespace BotanicalGardenQR.Bootstrap
             else
                 board.SetPositionAndRotation(_viewer.position+_viewer.forward*.55f-Vector3.up*.18f,_viewer.rotation);
             Frame(board);
-            board.GetComponent<Image>().color=new Color(.055f,.075f,.073f,1);
-            Label(board,_font,"RoomTitle",0,275,770,55,32).text=_owner.Definition.FindRoom(RoomId).displayName;
+            var title=Label(board,_font,"RoomTitle",0,275,770,55,32);
+            title.text=door?(RoomId=="R00_LOBBY"&&MainlineIndex==0?"下一步":"选择下一步"):_owner.Definition.FindRoom(RoomId).displayName;
+            if(door)
+            {
+                board.GetComponent<Image>().color=coachTheme.PanelColor;
+                title.color=coachTheme.TextColor;
+                title.alignment=TextAlignmentOptions.Center;
+                var border=board.Find("FineBorder")?.GetComponent<Image>();
+                if(border)border.color=new Color(coachTheme.DetailTextColor.r,coachTheme.DetailTextColor.g,coachTheme.DetailTextColor.b,.22f);
+                Fill(Rect(board,"NavigationAccent",0,board.sizeDelta.y*.5f-12,board.sizeDelta.x-48,5),coachTheme.AccentColor,2);
+            }
             var body=Label(board,_font,"RoomBrief",0,120,770,235,25);
+            if(door)
+            {
+                body.color=coachTheme.DetailTextColor;
+                body.alignment=TextAlignmentOptions.Center;
+            }
+            var mainlineButtons=new HashSet<Button>();
             if (door)
             {
-                body.text="请停在门口，近触选择目的房间。\n房间内请实际走动；转场期间请原地等待。";
+                body.text=Stationary
+                    ? RoomId=="R00_LOBBY"&&MainlineIndex==0
+                        ? "下一站是办公室。到达后，安小卫会继续引导你。切换时请保持原位。"
+                        : "可继续主线或回看已到访的房间。切换期间，请保持原位。"
+                    : "请停在门口，选择下一房间或回查。\n转场期间请原地等待。";
                 var targets=_owner.Destinations().ToArray();
+                var columns=targets.Length==1?1:2;
                 for(var i=0;i<targets.Length;i++)
                 {
-                    var target=targets[i]; var column=i%2; var row=i/2;
-                    Button(board,_font,"Travel_"+target,"前往"+_owner.Definition.FindRoom(target).displayName,
-                        column==0?-192:192,-45-row*75,360,62,()=>
-                        { if(InputAllowed && AtDoor) _owner.RequestRoom(target); },true);
+                    var destination=targets[i]; var column=columns==1?0:i%columns; var row=i/columns;
+                    var isMainline=destination.Kind==ClinicalActDestinationKind.ContinueMainline;
+                    var label=destination.Kind==ClinicalActDestinationKind.ReturnToLobby
+                        ? "返回大厅"
+                        : (isMainline?"前往":"回查")+_owner.Definition.FindRoom(destination.RoomId).displayName;
+                    var button=Button(board,_font,"Travel_"+destination.RoomId,label,
+                        columns==1?0:column==0?-192:192,-45-row*75,columns==1?640:360,columns==1?82:62,()=>
+                        { if(InputAllowed && (Stationary || AtDoor)) _owner.RequestRoom(destination.RoomId); },isMainline);
+                    if(isMainline) mainlineButtons.Add(button);
                 }
             }
             else if (RoomId=="R00_LOBBY")
             {
-                body.text="卫蓝行动 · 内镜中心监督检查\n大厅 → 办公室 → 储存库 → 候诊区 → 消化诊疗室 → 呼吸诊疗室 → 洗消室 → 办公室汇总\n模型与正式资料逐项接入中；缺失内容单列。";
-                Button(board,_font,"ModeGuided","带教学习",-195,-60,360,70,()=>StartMode(ClinicalJourneyMode.GuidedLearning),true);
-                Button(board,_font,"ModeIndependent","独立核查",195,-60,360,70,()=>StartMode(ClinicalJourneyMode.IndependentCheck));
+                body.text="请保持原位，由安小卫带你进入检查路线。";
+                Button(board,_font,"StartLearning","开始学习",0,-60,480,70,BeginFromEntryGuide,true);
             }
-            else if(RoomId==_owner.Definition.summaryRoomId && _owner.Session.HasVisitedAllMainlineRooms)
+            else if(ClinicalActSelection.OfficeVisitStage(_owner.Definition,_owner.Session)==ClinicalOfficeVisitStage.FinalSummary)
             {
                 body.fontSize=22;
                 Button details=null,recordReview=null,submit=null;
@@ -137,10 +177,11 @@ namespace BotanicalGardenQR.Bootstrap
                         : _summaryPage<0?Summary():SummaryRoom(_summaryPage);
                     recordReview.gameObject.SetActive(review.Length>0);
                     submit.interactable=!_owner.Session.IsFinished;
-                    submit.GetComponentInChildren<TMP_Text>().text=_owner.Session.IsFinished?"已提交 · 只读":"确认结束本次检查";
+                    if(_confirmSubmission && !_owner.Session.IsFinished)body.text="请核对以下未完成与待补项，再次近触确认提交。\n"+Summary();
+                    submit.GetComponentInChildren<TMP_Text>().text=_owner.Session.IsFinished?"已提交 · 只读":_confirmSubmission?"再次确认 · 提交并锁定":"确认结束本次检查";
                 }
                 details=Button(board,_font,"ResultDetails","逐项查看记录 →",-195,-35,370,60,()=>
-                {if(InputAllowed){_recordReviewPage=-1;_summaryPage++;if(_summaryPage>=_owner.Definition.rooms.Sum(r=>r.taskIds.Length)+6)_summaryPage=-1;RefreshSummary();}});
+                {if(InputAllowed){_recordReviewPage=-1;_summaryPage++;if(_summaryPage>=_owner.Definition.rooms.Sum(r=>r.taskIds.Length)+(Stationary?0:6))_summaryPage=-1;RefreshSummary();}});
                 recordReview=Button(board,_font,"RecordReview","逐字段复盘 →",195,-35,370,60,()=>
                 {
                     if(!InputAllowed)return;
@@ -151,14 +192,15 @@ namespace BotanicalGardenQR.Bootstrap
                 submit=Button(board,_font,"SubmitJourney","确认结束本次检查",0,-110,600,65,()=>
                 {
                     if(!InputAllowed || _owner.Session.IsFinished) return;
+                    if(Stationary && !_confirmSubmission){_confirmSubmission=true;RefreshSummary();return;}
                     if(_owner.Session.Mode==ClinicalJourneyMode.IndependentCheck) _owner.Session.TrySubmitIndependentAtSummary();
                     else _owner.Session.TryFinishGuidedAtSummary();
                     RefreshSummary();
                 },true);
                 RefreshSummary();
-                Button(board,_font,"ReviewRooms","前往门口回查",-195,-195,370,65,ContinueToDoor);
+                Button(board,_font,"ReviewRooms",Stationary?"选择房间回查":"前往门口回查",-195,-195,370,65,ContinueToDoor);
                 Button(board,_font,"ReviewOfficeRecords","回看本室电脑",195,-195,370,65,()=>
-                {if(InputAllowed){ClosePanel();_office.Begin();}});
+                {if(InputAllowed){ClosePanel();if(Stationary)_office.BeginStationary();else _office.Begin();}});
             }
             else
             {
@@ -174,22 +216,26 @@ namespace BotanicalGardenQR.Bootstrap
                 }
                 Button(board,_font,"ContinueRoom","保留未完成项，前往房门",0,-100,690,75,LeaveIncompleteTasks,true);
             }
-            Label(board,_font,"WalkingHint",0,-282,770,48,20).text=door?"走到门口才能切换 · 真实手部近触":"跟随精灵沿地面路线走到房门 · 每次重启新进度";
-            ClinicalNearTouch.Bind(board,()=>InputAllowed && (!_door || AtDoor));
+            var hint=Label(board,_font,"WalkingHint",0,-282,770,48,20);
+            hint.text=Stationary?(door?"伸手轻触要前往的房间。":RoomId=="R00_LOBBY"?"伸手轻触“开始学习”。":"伸手轻触按钮继续。"):door?"走到门口，轻触按钮选择房间。":"跟随安小卫前往房门。";
+            if(door)hint.color=coachTheme.DetailTextColor;
+            ClinicalNearTouch.Bind(board,()=>InputAllowed && (Stationary || !_door || AtDoor));
             foreach(var button in board.GetComponentsInChildren<Button>())
-                EmphasizeButton(button,false,button.name.StartsWith("Travel_") || button.name=="SubmitJourney" || button.name=="ModeGuided");
+            {
+                EmphasizeButton(button,false,mainlineButtons.Contains(button) || button.name=="SubmitJourney" || button.name=="ModeGuided");
+                if(Stationary)
+                {
+                    var original=button.onClick;
+                    button.onClick=new Button.ButtonClickedEvent();
+                    button.onClick.AddListener(()=>QueueStationaryAction(()=>original.Invoke()));
+                }
+            }
         }
 
-        void StartMode(ClinicalJourneyMode mode)
-        {
-            if(!InputAllowed) return;
-            _owner.SelectMode(mode);
-            _owner.Session.TryCompleteInstruction("N00");
-            ContinueToDoor();
-        }
         void ContinueToDoor()
         {
             if(!InputAllowed) return;
+            if(Stationary){Show(true);return;}
             ClosePanel(); CompletionRevision++;
         }
         void LeaveIncompleteTasks()
@@ -211,8 +257,12 @@ namespace BotanicalGardenQR.Bootstrap
                     else if(state.Status==ClinicalJourneyTaskStatus.Skipped) skipped++;
                     else unanswered++;
                 }
-            return $"本次记录：完成 {completed} 项，主动跳过 {skipped} 项，未答/未开始 {unanswered} 项。\n暂不可用 {unavailable} 项（不计正确或错误）；不生成合规成绩。\n"+
-                (_owner.Session.IsFinished?"已提交，可回看房间，不能修改本次记录。":"可继续到门口回查；确认结束后本次记录只读。");
+            var learning=_owner.Session.LearningAttempts();
+            return $"完成 {completed} 项 · 主动跳过 {skipped} 项 · 未答 {unanswered} 项\n暂不可用 {unavailable} 项，不计作答错。\n"+
+                (Stationary?$"打开 {_owner.Session.LearningActionCount(ClinicalLearningAction.Opened)} 项；有效查阅 {_owner.Session.LearningActionCount(ClinicalLearningAction.Observed)} 处；操作 {_owner.Session.LearningActionCount(ClinicalLearningAction.Operated)} 项。\n"+
+                $"已判断 {learning.Count(item=>item.Attempts>0)} 项；曾需重试 {learning.Count(item=>item.IncorrectAttempts>0)} 项；修改 {learning.Sum(item=>item.Revisions)} 次。\n"+
+                $"使用提示 {_owner.Session.LearningActionCount(ClinicalLearningAction.Hint)} 项；查看讲解 {_owner.Session.LearningActionCount(ClinicalLearningAction.Explanation)} 项。\n":"")+
+                (_owner.Session.IsFinished?"已提交，只读回看；以上不作为合规成绩。":"可回查修改；确认提交后只读。");
         }
         string SummaryRoom(int index)
         {
@@ -221,20 +271,22 @@ namespace BotanicalGardenQR.Bootstrap
                 if(index>=room.taskIds.Length){index-=room.taskIds.Length;continue;}
                 var id=room.taskIds[index];
                 var definition=_owner.Definition.FindTask(id);
-                var heading=room.displayName+" · "+(index+1)+"/"+room.taskIds.Length+"\n"+id+" · "+definition?.title+"\n\n";
-                if(!_owner.Session.IsContentAvailable(id))return heading+"暂不可用："+definition?.unavailableReason+"\n不计作学员跳过、答错或完成。";
+                var heading=room.displayName+" · "+(index+1)+"/"+room.taskIds.Length+"\n"+definition?.title+"\n\n";
+                if(!_owner.Session.IsContentAvailable(id))return heading+"本项内容尚不齐全，暂不能作完整判断。\n不计作学员跳过、答错或完成。"+
+                    (Stationary?$"\n本次细项已查阅 {_owner.ScriptStepsViewed.Count(s=>s.StartsWith(id+":"))} 项"+(id=="RE-01" && _owner.ScriptActions.Contains("RE-01:door-closed")?"；门体已完成闭合操作。":"。") : "");
                 _owner.Session.TryGetTask(id,out var task);
                 string state=task.Status==ClinicalJourneyTaskStatus.Completed?"已完成":
                     task.Status==ClinicalJourneyTaskStatus.Skipped?"已跳过":
                     task.Status==ClinicalJourneyTaskStatus.Unanswered?"未答":
                     task.Status==ClinicalJourneyTaskStatus.InProgress?"进行中 / 未完成":"未开始";
                 return heading+state+
-                    (id=="OF-01"?"\n电脑六字段："+CountOfficeFields()+"/6 已查看，非任务通过":"")+
+                    (id=="OF-01"?"\n电脑字段："+CountOfficeFields()+"/"+ClinicalTrainingRecords.FieldCount+" 已查看，非任务通过":"")+
+                    "\n判断 "+_owner.Session.LearningAttempts(id).Count(item=>item.Attempts>0)+" 项；修改 "+_owner.Session.LearningAttempts(id).Sum(item=>item.Revisions)+" 次；曾需重试 "+_owner.Session.LearningAttempts(id).Count(item=>item.IncorrectAttempts>0)+" 项。"+
                     "\n不以到访或查阅代替合规成绩。";
             }
-            return _owner.WashingLearningSummary(index);
+            return Stationary ? Summary() : _owner.WashingLearningSummary(index);
         }
-        int CountOfficeFields(){int count=0;for(int i=0;i<6;i++)if((_owner.OfficeFieldsViewed&(1<<i))!=0)count++;return count;}
+        int CountOfficeFields()=>_owner.OfficeFieldsViewed.Count;
         static string Brief(string id)
         {
             switch(id)
@@ -249,11 +301,16 @@ namespace BotanicalGardenQR.Bootstrap
         }
         void ClosePanel()
         {
+            CloseSinkVideo();
+            _linkedRecords?.EndView();
+            _storageRegisterActive=false;
+            DisableStorageCabinetHands();
+            CloseScriptObject();
             if(!_panel) return;
             _panel.SetActive(false);
             if(Application.isPlaying) UnityEngine.Object.Destroy(_panel); else UnityEngine.Object.DestroyImmediate(_panel);
             _panel=null;
         }
-        public void Dispose(){if(_disposed)return;_disposed=true;_office?.Dispose();ClosePanel();}
+        public void Dispose(){if(_disposed)return;_disposed=true;_office?.Dispose();_linkedRecords?.Dispose();ClosePanel();DisposeScript();}
     }
 }

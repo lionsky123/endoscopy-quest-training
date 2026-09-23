@@ -128,6 +128,11 @@ namespace BotanicalGardenQR.Experience.Application
             return ClinicalRoomTransitionStartResult.Accept(_pendingRequest);
         }
 
+        // The stationary control surface replaces the physical door prerequisite.
+        // Hand confirmation, route locks, transaction identity and recovery still apply.
+        public ClinicalRoomTransitionStartResult TryBeginStationary(string targetRoomId, bool handConfirmed)
+            => TryBeginAtDoor(targetRoomId, true, handConfirmed);
+
         public ClinicalRoomTransitionCompletion Complete(ClinicalRoomTransitionRequest request, bool roomLoaded)
         {
             if (Phase != ClinicalRoomTransitionPhase.Loading)

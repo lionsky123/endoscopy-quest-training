@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.Experience.Application;
 using BotanicalGardenQR.Experience.Contracts;
@@ -28,16 +29,28 @@ namespace BotanicalGardenQR.Bootstrap
         readonly Image _shade;
         readonly TMP_Text _message;
         readonly GameObject _recover;
-        enum Stage { Initial, Active, FadeOut, Unload, BeginRelease, WaitRelease, Load, WaitTracking, FadeIn, Failed }
+        readonly float _audioListenerVolume;
+        readonly bool _audioListenerPaused;
+        enum Stage { Initial, Active, FadeOut, Unload, BeginRelease, WaitRelease, Load, WaitTracking, FadeIn, Failed, FocusOut, FocusMove, FocusIn }
+        Action _focusComplete;
+        BotanicalGardenQR.MapNavigation.Contracts.MapPosition _focusPoint;
+        Vector3? _focusForward;
         Stage _stage;
         float _alpha=1, _wait;
-        bool _started, _disposed, _restoring;
+        bool _started, _disposed, _restoring, _viewAligned, _initialRecovery;
+        readonly bool _editorPreview;
         internal ClinicalJourneyDefinition Definition { get; }
         internal ClinicalJourneySession Session { get; private set; }
-        internal VisitorPrologueController Prologue { get; } = VisitorPrologueModuleFactory.Create();
+        internal VisitorPrologueController Prologue { get; }
+        internal VisitorCoachThemeAsset CoachTheme => _bindings.Configuration.VisitorCoachTheme;
+        internal string LoadingStage => _stage.ToString();
         internal FullScriptRoomVisit Visit => _visit;
-        internal int OfficeFieldsViewed { get; set; }
-        internal int OfficeRowsViewed { get; set; }
+        internal bool Stationary { get; }
+        internal readonly HashSet<string> ScriptStepsViewed = new HashSet<string>(StringComparer.Ordinal);
+        internal readonly Dictionary<string,Vector2Int> ScriptPositions = new Dictionary<string,Vector2Int>(StringComparer.Ordinal);
+        internal readonly HashSet<string> ScriptActions = new HashSet<string>(StringComparer.Ordinal);
+        internal readonly HashSet<string> OfficeFieldsViewed = new HashSet<string>(StringComparer.Ordinal);
+        internal readonly HashSet<string> OfficeRowsViewed = new HashSet<string>(StringComparer.Ordinal);
         internal BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress ObservationProgress { get; private set; }
             = new BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress();
         readonly Dictionary<string,ClinicalCourseSession> _washingLessons = new Dictionary<string,ClinicalCourseSession>();
@@ -60,16 +73,25 @@ namespace BotanicalGardenQR.Bootstrap
         internal bool InputAllowed => !_disposed && _stage==Stage.Active && (_tracking==null || _tracking.CanInteract);
 
         internal FullScriptJourneyRuntime(VisitorRuntimeBindings bindings, Action<DiagnosticEvent> diagnostics,
-            ITrackingOriginTiming timing = null, IClinicalRoomAssetRelease assetRelease = null)
+            ITrackingOriginTiming timing = null, IClinicalRoomAssetRelease assetRelease = null, bool stationary = true, bool editorPreview = false)
         {
-            _bindings=bindings; _diagnostics=diagnostics;
+            _bindings=bindings; _diagnostics=diagnostics; Stationary=stationary;
+#if UNITY_EDITOR
+            _editorPreview=editorPreview;
+#endif
+            if(!stationary) Prologue=VisitorPrologueModuleFactory.Create();
+            ClinicalTrainingRecordsConfiguration.Load();
+            _audioListenerVolume=AudioListener.volume;
+            _audioListenerPaused=AudioListener.pause;
+            AudioListener.volume=0f;
+            AudioListener.pause=true;
             _assetRelease=assetRelease ?? new ClinicalRoomAssetRelease();
             Definition=ClinicalJourneyConfiguration.Load() ?? throw new InvalidOperationException("Full-script journey configuration is missing or invalid.");
             Session=new ClinicalJourneySession(Definition,ClinicalJourneyMode.GuidedLearning);
             _transitions=new ClinicalRoomTransitionCoordinator(Session);
             var rig=bindings.Platform.XrRigRoot.GetComponentInChildren<OVRCameraRig>(true);
             var manager=bindings.Platform.XrRigRoot.GetComponentInChildren<OVRManager>(true);
-            if(rig)
+            if(rig && !_editorPreview)
             {
                 var start=new Pose(bindings.Platform.XrRigRoot.transform.position,bindings.Platform.XrRigRoot.transform.rotation);
                 _tracking=new VirtualRoomTrackingOrigin(rig,manager,timing,start);
@@ -94,41 +116,103 @@ namespace BotanicalGardenQR.Bootstrap
             ClinicalNearTouch.Bind(retry.transform,()=>_stage==Stage.Failed && (_tracking==null || _tracking.CanInteract));
             _recover.SetActive(false);
             try { LoadRoom(Session.CurrentRoomId); }
-            catch { Dispose();throw; }
+            catch(Exception e)
+            {
+                Debug.LogWarning("[FullScript] Initial room load failed: "+e.Message);
+                ReleaseVisit();
+                _initialRecovery=true;
+                Fail("大厅暂时无法加载。\n请轻触按钮重试。");
+            }
         }
 
         internal void StartExperience(){_started=true;}
 
         internal void SelectMode(ClinicalJourneyMode mode)
         {
+            if (Stationary && mode != ClinicalJourneyMode.GuidedLearning) return;
             if(!InputAllowed || Session.CurrentRoomId!=Definition.startRoomId || Session.MainlineIndex!=0) return;
             Session=new ClinicalJourneySession(Definition,mode);
-            OfficeFieldsViewed=0;
-            OfficeRowsViewed=0;
+            OfficeFieldsViewed.Clear();
+            OfficeRowsViewed.Clear();
+            ScriptStepsViewed.Clear();
+            ScriptActions.Clear();
             _washingLessons.Clear();
             ObservationProgress=new BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress();
             _transitions=new ClinicalRoomTransitionCoordinator(Session);
         }
 
-        internal IEnumerable<string> Destinations()
-        {
-            var next=Session.MainlineIndex+1;
-            if(next<Definition.mainlineRoomIds.Length && Definition.mainlineRoomIds[next]!=Session.CurrentRoomId)
-                yield return Definition.mainlineRoomIds[next];
-            foreach(var room in Definition.rooms)
-                if(room.id!=Session.CurrentRoomId && Session.HasVisited(room.id) &&
-                   (next>=Definition.mainlineRoomIds.Length || room.id!=Definition.mainlineRoomIds[next])) yield return room.id;
-        }
+        internal IEnumerable<ClinicalActDestination> Destinations()
+            => ClinicalActSelection.AvailableDestinations(Definition, Session);
 
         internal bool RequestRoom(string target)
         {
-            if(!InputAllowed || !_visit.AtDoor || !_visit.DoorOpen) return false;
-            var result=_transitions.TryBeginAtDoor(target,true,true);
+            if(!InputAllowed || (!_visit.Stationary && !_visit.AtDoor) || !_visit.DoorOpen) return false;
+            var result=Stationary ? _transitions.TryBeginStationary(target,true) : _transitions.TryBeginAtDoor(target,true,true);
             if(!result.Accepted) return false;
             _request=result.Request;_stage=Stage.FadeOut;_wait=0;_alpha=0;
             _curtain.SetActive(true);_recover.SetActive(false);
             _message.text="请原地等待\n正在前往"+Definition.FindRoom(target).displayName;
             return true;
+        }
+
+        internal bool RequestInspectionPoint(string taskId, Action after)
+        {
+            if(!Stationary || !InputAllowed || after==null)return false;
+            var configured=InspectionViewConfiguration.Load()?.Find(_visit.RoomId,taskId);
+            if(configured!=null)
+            {
+                _focusPoint=new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(configured.position.x,configured.position.y,configured.position.z);
+                _focusForward=configured.Forward;
+                return BeginObservationTransition(after);
+            }
+            var points=_bindings.Configuration.MapDefinition.points;
+            int index=taskId=="RE-01"?0:taskId=="RE-02"?2:taskId=="RE-03"||taskId=="RE-06"?3:taskId=="RE-04"?4:5;
+            _focusPoint=_visit.RoomId==FullScriptRoomCatalog.Washing ? points[index].position : _visit.Map.points[0].position;
+            _focusForward=null;
+            return BeginObservationTransition(after);
+        }
+
+        internal bool RequestWaitingObservation(bool corridor, Action after)
+        {
+            if(!Stationary || !InputAllowed || after==null || _visit?.RoomId!="R03_WAITING")return false;
+            var name=corridor?"ClinicalCorridorObservation":"WaitingObservation";
+            var anchor=_room.Root.GetComponentsInChildren<Transform>().SingleOrDefault(t=>t.name==name);
+            if(!anchor)return false;
+            var point=_room.Root.transform.InverseTransformPoint(anchor.position);
+            _focusPoint=new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(point.x,point.y,point.z);
+            // Oblique views retain the divider while exposing seats/aisle beside it.
+            // Straight-on framing at seated eye height hid the floor behind the base.
+            _focusForward=corridor?new Vector3(.6f,0,-.8f):new Vector3(-.6f,0,.8f);
+            return BeginObservationTransition(after);
+        }
+
+        bool BeginObservationTransition(Action after)
+        {
+            _focusComplete=after;_stage=Stage.FocusOut;_alpha=0;
+            _curtain.SetActive(true);_recover.SetActive(false);_message.text="请留在原位\n正在切换检查点";
+            return true;
+        }
+
+        internal bool RequestStorageRegisterObservation(Transform register,Action after)
+        {
+            if(!Stationary || !InputAllowed || after==null || _visit?.RoomId!="R02_STORAGE" || !register || !register.IsChildOf(_room.Root.transform))return false;
+            // Keep the fixed .52m reading panel/tool bar in front of the cabinet
+            // surface, not inside it. The paper remains within near-hand reach.
+            var point=_room.Root.transform.InverseTransformPoint(register.position-register.forward*.60f);
+            _focusPoint=new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(point.x,0,point.z);
+            _focusForward=_room.Root.transform.InverseTransformDirection(register.forward);
+            return BeginObservationTransition(after);
+        }
+
+        internal bool RequestStorageObservation(bool close,Action after)
+        {
+            if(!Stationary || !InputAllowed || after==null || _visit?.RoomId!="R02_STORAGE")return false;
+            var anchor=_room.Root.GetComponentsInChildren<Transform>().SingleOrDefault(t=>t.name=="StorageObservation");
+            if(!anchor)return false;
+            var point=_room.Root.transform.InverseTransformPoint(anchor.position);
+            _focusPoint=close?new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(point.x,point.y,point.z):_visit.Map.points[0].position;
+            _focusForward=Vector3.forward;
+            return BeginObservationTransition(after);
         }
 
         internal void Tick(float dt)
@@ -138,9 +222,41 @@ namespace BotanicalGardenQR.Bootstrap
             bool tracked=_tracking==null || _tracking.CanInteract;
             switch(_stage)
             {
+                case Stage.FocusOut:
+                    _alpha=Mathf.Min(1,_alpha+dt*4);
+                    if(_alpha>=1 && tracked){_stage=Stage.FocusMove;_wait=0;}
+                    else if(_alpha>=1 && !tracked)
+                    {
+                        _message.text="请保持原位，等待头显恢复追踪。";
+                    }
+                    break;
+                case Stage.FocusMove:
+                    if(!tracked)
+                    {
+                        _message.text="请保持原位，等待头显恢复追踪。";
+                        break;
+                    }
+                    _room.AlignStationaryView(_visit.Map,_bindings.Platform.Viewer,_bindings.Platform.XrRigRoot.transform.position.y,_focusPoint,_focusForward);
+                    _stage=Stage.FocusIn;_wait=0;
+                    break;
+                case Stage.FocusIn:
+                    if(!tracked)
+                    {
+                        _alpha=1;
+                        _message.text="请保持原位，等待头显恢复追踪。";
+                        break;
+                    }
+                    _alpha=Mathf.Max(0,_alpha-dt*4);
+                    if(_alpha<=0)
+                    {
+                        _curtain.SetActive(false);_stage=Stage.Active;
+                        var completed=_focusComplete;_focusComplete=null;completed?.Invoke();
+                    }
+                    break;
                 case Stage.Initial:
+                    _wait += dt;
                     _message.text="正在准备医院大厅\n请原地等待定位";
-                    if(tracked){_stage=Stage.FadeIn;_wait=0;}
+                    if(tracked){AlignReadyView();_stage=Stage.FadeIn;_wait=0;}
                     break;
                 case Stage.Active:
                     _composition.Tick(dt);
@@ -162,6 +278,21 @@ namespace BotanicalGardenQR.Bootstrap
                     if(_assetRelease.IsComplete) _stage=Stage.Load;
                     break;
                 case Stage.Load:
+                    if(_initialRecovery)
+                    {
+                        try
+                        {
+                            LoadRoom(Session.CurrentRoomId);
+                            _initialRecovery=false;_stage=Stage.Initial;_wait=0;
+                        }
+                        catch(Exception e)
+                        {
+                            Debug.LogWarning("[FullScript] Initial room retry failed: "+e.Message);
+                            ReleaseVisit();
+                            Fail("大厅暂时无法加载。\n请轻触按钮重试。");
+                        }
+                        break;
+                    }
                     try { LoadRoom(_restoring?_request.FromRoomId:_request.TargetRoomId);_stage=Stage.WaitTracking;_wait=0; }
                     catch(Exception e)
                     {
@@ -175,10 +306,11 @@ namespace BotanicalGardenQR.Bootstrap
                     _wait+=dt;
                     if(tracked)
                     {
+                        AlignReadyView();
                         if(_restoring)
                         {
                             _transitions.Complete(_request,false);
-                            Fail("已恢复原房间，进度保留。\n近触继续后可再次从房门切换。");
+                            Fail("已恢复原房间，进度保留。\n近触继续后可重新选择目的房间。");
                         }
                         else if(_transitions.Complete(_request,true).Succeeded) _stage=Stage.FadeIn;
                         else {_restoring=true;_stage=Stage.Unload;}
@@ -190,7 +322,8 @@ namespace BotanicalGardenQR.Bootstrap
                     }
                     break;
                 case Stage.FadeIn:
-                    if(!tracked){_message.text="请停止走动，等待头显恢复追踪。";break;}
+                    _wait+=dt;
+                    if(!tracked){_message.text="请保持原位，等待头显恢复追踪。";break;}
                     _alpha=Mathf.Max(0,_alpha-dt*4);
                     if(_alpha<=0)
                     {
@@ -207,6 +340,11 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if(_stage!=Stage.Failed || (_tracking!=null && !_tracking.CanInteract)) return;
             _recover.SetActive(false);
+            if(_initialRecovery)
+            {
+                _message.text="正在重新准备医院大厅\n请保持原位";
+                _stage=Stage.BeginRelease;return;
+            }
             if(_room==null){_stage=Stage.BeginRelease;_restoring=true;return;}
             _transitions.RecoverAfterFailure();_restoring=false;_stage=Stage.FadeIn;
         }
@@ -215,10 +353,25 @@ namespace BotanicalGardenQR.Bootstrap
             if(_room!=null || _visit!=null || _composition!=null)
                 throw new InvalidOperationException("Release the current room before loading another room.");
             var map=FullScriptRoomCatalog.Map(id,_bindings.Configuration.MapDefinition,
-                Session.Mode==ClinicalJourneyMode.GuidedLearning && !Session.IsFinished);
-            _room=VirtualRoomEnvironment.Create(_bindings.Platform.XrRigRoot,_bindings.Platform.MrukRoot,map,sharedTracking:_tracking);
+                !Stationary && Session.Mode==ClinicalJourneyMode.GuidedLearning && !Session.IsFinished, Stationary);
+            _room=VirtualRoomEnvironment.Create(_bindings.Platform.XrRigRoot,_bindings.Platform.MrukRoot,map,sharedTracking:_tracking,trackHead:!_editorPreview);
+            _viewAligned=false;
             _visit=new FullScriptRoomVisit(this,id,map,_room,_bindings.Platform.Viewer,_bindings.Configuration.UiDefaults.SharedFont);
             _composition=VisitorRuntimeComposition.Create(_bindings,_diagnostics,_visit);
+        }
+        void AlignReadyView()
+        {
+            if(_viewAligned || !Stationary)return;
+            var configured=InspectionViewConfiguration.Load()?.Find(_visit.RoomId)?.initial;
+            BotanicalGardenQR.MapNavigation.Contracts.MapPosition? point=null;
+            Vector3? forward=null;
+            if(configured!=null)
+            {
+                point=new BotanicalGardenQR.MapNavigation.Contracts.MapPosition(configured.position.x,configured.position.y,configured.position.z);
+                forward=configured.Forward;
+            }
+            _room.AlignStationaryView(_visit.Map,_bindings.Platform.Viewer,_bindings.Platform.XrRigRoot.transform.position.y,point,forward);
+            _viewAligned=true;
         }
         void ReleaseVisit()
         {
@@ -229,8 +382,11 @@ namespace BotanicalGardenQR.Bootstrap
         public void Dispose()
         {
             if(_disposed)return;_disposed=true;
-            ReleaseVisit();Prologue.Dispose();_guard?.Dispose();_tracking?.Dispose();
+            ReleaseVisit();Prologue?.Dispose();_guard?.Dispose();_tracking?.Dispose();
+            _focusComplete=null;
             _washingLessons.Clear();
+            AudioListener.pause=_audioListenerPaused;
+            AudioListener.volume=_audioListenerVolume;
             if(_curtain){_curtain.SetActive(false);if(Application.isPlaying)UnityEngine.Object.Destroy(_curtain);else UnityEngine.Object.DestroyImmediate(_curtain);}
         }
     }

@@ -47,16 +47,19 @@ namespace BotanicalGardenQR.Bootstrap
                 PhysicalAugmentationCatalogAsset physicalAugmentationCatalog,
                 TextAsset visitorMapDefinition = null, Material guidanceRouteMaterial = null)
             {
-                RuntimeBindingValidator.Required(library, "_sceneLibrary");
-                RuntimeBindingValidator.Required(routes, "_contentEntries");
                 RuntimeBindingValidator.Required(options, "_runtimeOptions");
+                if (!options.VirtualRoomEnabled)
+                {
+                    RuntimeBindingValidator.Required(library, "_sceneLibrary");
+                    RuntimeBindingValidator.Required(routes, "_contentEntries");
+                    RuntimeBindingValidator.Required(collectionCatalog, "_collectionCatalog");
+                    RuntimeBindingValidator.Required(physicalAugmentationCatalog, "_physicalAugmentationCatalog");
+                }
                 RuntimeBindingValidator.Required(fairy, "_fairyConfiguration");
                 RuntimeBindingValidator.Required(uiDefaults, "_globalUiDefaults");
                 RuntimeBindingValidator.Required(uiDefaults.SharedFont, "_globalUiDefaults._sharedFont");
-                RuntimeBindingValidator.Required(collectionCatalog, "_collectionCatalog");
                 RuntimeBindingValidator.Required(prologueTheme, "_prologueTheme");
                 RuntimeBindingValidator.Required(visitorCoachTheme, "_visitorCoachTheme");
-                RuntimeBindingValidator.Required(physicalAugmentationCatalog, "_physicalAugmentationCatalog");
                 if (!prologueTheme.IsValid(out var error)) throw new InvalidOperationException(error);
                 if (!visitorCoachTheme.IsValid(out error)) throw new InvalidOperationException(error);
                 MapDefinition = VisitorMapConfiguration.Resolve(visitorMapDefinition);

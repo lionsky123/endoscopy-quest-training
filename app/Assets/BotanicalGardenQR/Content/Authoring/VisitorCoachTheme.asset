@@ -37,29 +37,29 @@ MonoBehaviour:
     y: 0.3
   _fairySpeakerName: 小精灵
   _panelColor:
-    r: 0.025
-    g: 0.073
-    b: 0.057
+    r: 0.95
+    g: 0.965
+    b: 0.95
     a: 0.985
   _textColor:
-    r: 0.95
-    g: 0.925
-    b: 0.855
+    r: 0.065
+    g: 0.12
+    b: 0.13
     a: 1
   _detailTextColor:
-    r: 0.85
-    g: 0.87
-    b: 0.79
+    r: 0.23
+    g: 0.34
+    b: 0.35
     a: 1
   _accentColor:
-    r: 0.72
-    g: 0.6
-    b: 0.38
+    r: 0.24
+    g: 0.88
+    b: 0.69
     a: 1
   _speakerColor:
-    r: 0.91
-    g: 0.79
-    b: 0.53
+    r: 0.09
+    g: 0.37
+    b: 0.35
     a: 1
   _toolPreparationIntroduction: 学习册记录发现，卷轴为我们指路。把一只手放在胸前，掌心朝上，稍停片刻——试试看。
   _toolPreparationPracticeCopy: '我在这里等你。

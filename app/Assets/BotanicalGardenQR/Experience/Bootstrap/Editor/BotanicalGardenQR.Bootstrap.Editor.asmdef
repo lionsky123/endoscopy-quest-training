@@ -5,6 +5,7 @@
     "BotanicalGardenQR.MapNavigation.Contracts",
     "BotanicalGardenQR.MapNavigation.Frontend",
     "BotanicalGardenQR.Bootstrap",
+    "BotanicalGardenQR.Experience.Application",
     "BotanicalGardenQR.Activation.Adapters",
     "BotanicalGardenQR.Activation.Contracts",
     "BotanicalGardenQR.Activation.Runtime",

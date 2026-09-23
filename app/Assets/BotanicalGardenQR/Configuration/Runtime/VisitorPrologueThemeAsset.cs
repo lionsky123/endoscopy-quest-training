@@ -32,6 +32,11 @@ namespace BotanicalGardenQR.Configuration.Runtime
         public string FirstContinueAction => _firstContinueAction;
         public string RetryAction => _retryAction;
         public int EncounterPageCount => _encounterPages?.Length ?? 0;
+        internal void UseStationaryCopy()
+        {
+            _encounterPages[3]="请留在原位，用真实手部近触操作。检查点和房间都由你主动选择，画面淡出后切换，无需跟随或走到门口。现在选择学习模式。";
+            _invitationDetail="请坐稳或站稳，留出双手活动空间。将手掌靠近学习册封面印记，稍停片刻。";
+        }
         public bool TryGetEncounterPage(int index, out string text)
         {
             text = _encounterPages != null && index >= 0 && index < _encounterPages.Length ? _encounterPages[index] : string.Empty;
@@ -82,6 +87,14 @@ namespace BotanicalGardenQR.Configuration.Runtime
         public float BookOpenSeconds => _bookOpenSeconds;
         public AudioClip InvitationAudio => _invitationAudio;
         public VisitorPrologueCopyRecord Copy => _copy;
+        public VisitorPrologueThemeAsset CreateStationaryVariant()
+        {
+            var copy=Instantiate(this);
+            copy._copy=JsonUtility.FromJson<VisitorPrologueCopyRecord>(JsonUtility.ToJson(_copy));
+            copy._copy.UseStationaryCopy();
+            copy._minimumStandingPanelCenterHeight=.2f;
+            return copy;
+        }
         public bool IsValid(out string error)
         {
             if (_presentationPrefab == null || _invitationAudio == null)

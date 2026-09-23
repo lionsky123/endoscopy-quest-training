@@ -4,6 +4,7 @@ using BotanicalGardenQR.FrontendShell.Contracts;
 using BotanicalGardenQR.VisitorCoach.Contracts;
 using BotanicalGardenQR.VisitorCoach.Frontend;
 using NUnit.Framework;
+using Oculus.Interaction.Surfaces;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -139,6 +140,9 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
             Assert.That(theme.DialogueFontSize, Is.GreaterThanOrEqualTo(28f));
             Assert.That(theme.ConfirmDebounceSeconds, Is.InRange(0.1f, 0.3f));
             Assert.That(theme.SpeakerColor, Is.Not.EqualTo(theme.TextColor));
+            Assert.That(theme.PanelColor.r, Is.GreaterThan(.85f), "Dialogue surfaces use a light, low-glare base.");
+            Assert.That(theme.TextColor.r, Is.LessThan(.2f), "Dialogue body copy remains dark and readable.");
+            Assert.That(theme.AccentColor.g, Is.GreaterThan(.8f), "Selection feedback uses the shared restrained cyan-green accent.");
         }
 
         [Test]
@@ -196,6 +200,101 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                 presenter.Dispose();
                 UnityEngine.Object.DestroyImmediate(instance);
                 UnityEngine.Object.DestroyImmediate(viewer);
+            }
+        }
+
+        [Test]
+        public void DialogueLayoutFitsCopyAndOnlyShowsPageCountForMultiPageText()
+        {
+            var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(ThemePath);
+            var uiDefaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(UiDefaultsPath);
+            var viewer = new GameObject("DialogueLayoutViewer", typeof(Camera));
+            var noImageViewer = new GameObject("DialogueNoImageViewer", typeof(Camera));
+            var instance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
+            var noImageTheme = UnityEngine.Object.Instantiate(theme);
+            GameObject noImageInstance = null;
+            var presenter = instance.GetComponentInChildren<VisitorCoachPresenter>(true);
+            VisitorCoachPresenter noImagePresenter = null;
+            try
+            {
+                presenter.Configure(viewer.transform, theme, uiDefaults.SharedFont, new DialogueGazeRegistry());
+                presenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                var stage = instance.transform.Find("DialogueStage");
+                var body = stage.Find("DialogueBody").GetComponent<RectTransform>();
+                var stageRect = stage.GetComponent<RectTransform>();
+                var pageCounter = stage.Find("PageCounter").gameObject;
+                var continueButton = (RectTransform)stage.Find("Continue");
+                var continueHitVolume = continueButton.GetComponent<BoxCollider>();
+                var continueSurface = continueButton.GetComponent<BoundsClipper>();
+                var context = new VisitorDialogueContextId("dialogue:compact-layout");
+
+                presenter.Present(new VisitorDialogueSurfaceState(
+                    1, context, VisitorDialogueOwner.Guidance, VisitorDialogueSurfaceMode.Dialogue,
+                    "欢迎", "安小卫", "开始学习。", 0, 1,
+                    primaryActionLabel: "开始学习", allowDefer: false, allowRestart: false));
+
+                var shortBodyHeight = body.rect.height;
+                var shortStageHeight = stageRect.rect.height;
+                Assert.That(shortBodyHeight, Is.LessThan(100f), "Short copy should not reserve the old fixed paragraph block.");
+                Assert.That(pageCounter.activeSelf, Is.False, "A single page should not look pageable.");
+                Assert.That(presenter.DisplayedPage, Is.Empty);
+                Assert.That(presenter.BodyFits, Is.True);
+                Assert.That(continueHitVolume.size.x, Is.EqualTo(continueButton.rect.width).Within(.1f));
+                Assert.That(continueHitVolume.size.y, Is.EqualTo(continueButton.rect.height).Within(.1f));
+                Assert.That(continueSurface.Size.x, Is.EqualTo(continueButton.rect.width).Within(.1f));
+                Assert.That(continueSurface.Size.y, Is.EqualTo(continueButton.rect.height).Within(.1f));
+
+                const string longChineseCopy = "先查看本室项目，再按提示观察和操作。\n不确定时可以暂留，之后再回办公室修改。";
+                presenter.Present(new VisitorDialogueSurfaceState(
+                    2, context, VisitorDialogueOwner.Guidance, VisitorDialogueSurfaceMode.Dialogue,
+                    "储存库", "安小卫", longChineseCopy, 0, 2,
+                    primaryActionLabel: "继续", allowDefer: false, allowRestart: false));
+
+                Assert.That(body.rect.height, Is.GreaterThan(shortBodyHeight), "Longer Chinese copy should gain readable height instead of shrinking the font.");
+                Assert.That(pageCounter.activeSelf, Is.True);
+                Assert.That(presenter.DisplayedPage, Is.EqualTo("1/2"));
+                Assert.That(presenter.BodyFits, Is.True);
+                var bodyBottom = body.anchoredPosition.y - body.rect.height * .5f;
+                var buttonTop = continueButton.anchoredPosition.y + continueButton.rect.height * .5f;
+                Assert.That(bodyBottom - buttonTop, Is.GreaterThanOrEqualTo(12f), "Primary action should stay below the full body.");
+
+                var themeCopy = new SerializedObject(noImageTheme);
+                themeCopy.FindProperty("_welcomePortrait").objectReferenceValue = null;
+                themeCopy.FindProperty("_listeningPortrait").objectReferenceValue = null;
+                themeCopy.FindProperty("_wonderPortrait").objectReferenceValue = null;
+                themeCopy.ApplyModifiedPropertiesWithoutUndo();
+                Assert.That(noImageTheme.IsValid(out var themeError), Is.True, themeError);
+
+                noImageInstance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
+                noImagePresenter = noImageInstance.GetComponentInChildren<VisitorCoachPresenter>(true);
+                noImagePresenter.Configure(noImageViewer.transform, noImageTheme, uiDefaults.SharedFont, new DialogueGazeRegistry());
+                noImagePresenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                var noImageStage = noImageInstance.transform.Find("DialogueStage");
+                var noImageBody = noImageStage.Find("DialogueBody").GetComponent<RectTransform>();
+                var noImageButton = (RectTransform)noImageStage.Find("Continue");
+                var noImagePortrait = noImageInstance.transform.Find("SpeakerPortrait");
+                noImagePresenter.Present(new VisitorDialogueSurfaceState(
+                    1, new VisitorDialogueContextId("dialogue:no-portrait-layout"), VisitorDialogueOwner.Guidance,
+                    VisitorDialogueSurfaceMode.Dialogue, "欢迎", "安小卫", "开始学习。", 0, 1,
+                    primaryActionLabel: "开始学习", allowDefer: false, allowRestart: false));
+
+                Assert.That(noImagePortrait.gameObject.activeSelf, Is.False, "Missing portrait assets should not leave a blank portrait box.");
+                Assert.That(noImageBody.rect.width, Is.EqualTo(760f).Within(.1f));
+                Assert.That(noImageBody.anchoredPosition.x, Is.EqualTo(0f).Within(.1f), "Copy should use the full centered surface when the portrait is absent.");
+                Assert.That(noImageButton.rect.width, Is.EqualTo(noImageBody.rect.width).Within(.1f));
+                Assert.That(noImageStage.GetComponent<RectTransform>().rect.height, Is.LessThan(shortStageHeight),
+                    "The no-portrait layout should collapse the empty portrait column and use a shorter surface.");
+                Assert.That(noImagePresenter.BodyFits, Is.True);
+            }
+            finally
+            {
+                presenter.Dispose();
+                if (noImagePresenter != null) noImagePresenter.Dispose();
+                UnityEngine.Object.DestroyImmediate(instance);
+                if (noImageInstance != null) UnityEngine.Object.DestroyImmediate(noImageInstance);
+                UnityEngine.Object.DestroyImmediate(noImageTheme);
+                UnityEngine.Object.DestroyImmediate(viewer);
+                UnityEngine.Object.DestroyImmediate(noImageViewer);
             }
         }
 

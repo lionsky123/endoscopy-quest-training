@@ -1,0 +1,819 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using BotanicalGardenQR.Bootstrap;
+using BotanicalGardenQR.VisitorPrologue.Contracts;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace BotanicalGardenQR.Tests.EditMode
+{
+    public sealed class StationaryScriptTests
+    {
+        FullScriptJourneyRuntime _runtime;
+        VisitorRuntimeBindings _bindings;
+        OVRCameraRig _rig;
+        readonly Release _release=new Release();
+        Timing _timing;
+        [SetUp] public void Setup()
+        {
+            var scene=EditorSceneManager.OpenScene("Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity",OpenSceneMode.Single);
+            var installer=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<VisitorInstaller>(true)).Single();
+            var prefab=PrefabUtility.GetOutermostPrefabInstanceRoot(installer.gameObject);
+            if(prefab)PrefabUtility.UnpackPrefabInstance(prefab,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction);
+            _bindings=installer.CreateValidatedBindings();
+            _rig=_bindings.Platform.XrRigRoot.GetComponentInChildren<OVRCameraRig>(true);_rig.EnsureGameObjectIntegrity();
+            _rig.centerEyeAnchor.localPosition=new Vector3(0,1.15f,0);
+            _release.Complete=true;
+            _timing=new Timing();
+            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release);
+            _runtime.StartExperience();
+            (typeof(OVRCameraRig).GetField("UpdatedAnchors",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(_rig) as Action<OVRCameraRig>)?.Invoke(_rig);
+            Frames();
+        }
+        [TearDown] public void Cleanup(){_runtime?.Dispose();EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);}
+        [Test] public void DefaultLobbyBindsSuppliedGaussianAndNoDevelopmentBoxes()
+        {
+            Assert.That(_runtime.Stationary,Is.True);
+            Assert.That(_runtime.Visit.Map.roomResource,Is.EqualTo(FullScriptRoomCatalog.LobbyGaussian));
+            var renderer=_runtime.Visit.Room.Root.GetComponentsInChildren<MonoBehaviour>(true).Single(b=>b.GetType().Name=="GaussianSplatRenderer");
+            var asset=renderer.GetType().GetField("m_Asset").GetValue(renderer);
+            Assert.That(asset.GetType().GetProperty("splatCount").GetValue(asset),Is.EqualTo(793729));
+            Assert.That(_runtime.Visit.Room.Root.transform.Find("DoorPanel"),Is.Null);
+            Assert.That(GameObject.Find("VirtualWashingRoom"),Is.Null);
+        }
+        [Test] public void ProductionPrefabDoesNotReferenceArchivedCourseAssets()
+        {
+            Assert.That(_bindings.Configuration.Library,Is.Null);
+            Assert.That(_bindings.Configuration.Routes,Is.Null);
+            Assert.That(_bindings.Configuration.CollectionCatalog,Is.Null);
+            Assert.That(_bindings.Configuration.PhysicalAugmentationDefinitions,Is.Null);
+            var paths=AssetDatabase.GetDependencies("Assets/BotanicalGardenQR/Experience/Bootstrap/Prefabs/VisitorRuntime.prefab",true);
+            Assert.That(paths.Where(p=>p.Contains("/Content/Scenes/") || p.EndsWith("/ContentSceneLibrary.asset")),Is.Empty);
+            Assert.That(()=>VisitorRuntimeComposition.Create(_bindings,null),Throws.InvalidOperationException.With.Message.Contains("Archived composition"));
+        }
+        [Test] public void OriginalScriptReferencesImportAsRuntimeTextures()
+        {
+            foreach(var name in new[]{"script-equipment","script-ppe"})
+            {
+                var image=Resources.Load<Texture2D>("ClinicalCourse/FullScriptVisuals/"+name);
+                Assert.That(image,Is.Not.Null,name);
+                Assert.That(image.width,Is.GreaterThan(100));
+            }
+        }
+        [Test] public void ProductionStationaryEntryDoesNotCreateArchivedCourseModules()
+        {
+            AssertNoArchivedModules();
+            FinishOpening();
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1))
+            {
+                _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);
+                AssertNoArchivedModules();
+            }
+            for(int page=0;page<_runtime.Definition.rooms.Sum(r=>r.taskIds.Length)+7;page++)
+            {
+                Touch("ResultDetails");
+                var copy=_runtime.Visit.Panel.transform.Find("RoomBrief").GetComponent<TMPro.TMP_Text>().text;
+                Assert.That(copy,Does.Not.Contain("旧洗消"));
+                Assert.That(copy,Does.Not.Contain("到门口"));
+            }
+        }
+        [Test] public void ProductionEntryDoesNotInstantiateOrCompleteTheArchivedPrologue()
+        {
+            Assert.That(_runtime.Prologue, Is.Null, "The current script must not create a legacy state machine.");
+            var names = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(b => b).Select(b => b.GetType().Name).ToArray();
+            Assert.That(names, Does.Not.Contain("VisitorProloguePresenter"));
+            Assert.That(names, Does.Not.Contain("VisitorHandReadinessAdapter"));
+            Assert.That(_runtime.Visit.Panel, Is.Not.Null, "The brief starts directly after the room is ready.");
+        }
+        [Test] public void ProductionOffersOnlyGuidedLearningWithoutWalking()
+        {
+            var panel=_runtime.Visit.Panel;
+            var buttons=panel.GetComponentsInChildren<Button>();
+            Assert.That(buttons.Length,Is.EqualTo(1));
+            Assert.That(buttons[0].GetComponentInChildren<TMPro.TMP_Text>().text,Is.EqualTo("开始学习"));
+            Assert.That(panel.transform.Find("RoomBrief").GetComponent<TMPro.TMP_Text>().text,Does.Contain("无需走动"));
+            _runtime.SelectMode(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyMode.IndependentCheck);
+            Assert.That(_runtime.Session.Mode,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyMode.GuidedLearning));
+            Touch("ModeGuided");Frames();
+            Assert.That(_runtime.Visit.DoorOpen,Is.True);
+        }
+        [TestCase(0)]
+        [TestCase(3)]
+        [TestCase(4)]
+        public void InspectionPointWaitsForTrackingWithoutFalseCompletion(int ticksBeforeLoss)
+        {
+            int completions=0;
+            var head=_rig.centerEyeAnchor.position;
+            var left=_rig.leftHandAnchor.position;
+            Assert.That(_runtime.RequestInspectionPoint("N00",()=>completions++),Is.True);
+            for(int i=0;i<ticksBeforeLoss;i++)_runtime.Tick(.1f);
+            _timing.Tracked=false;Samples();
+            var roomPose=new Pose(_runtime.Visit.Room.Root.transform.position,_runtime.Visit.Room.Root.transform.rotation);
+            for(int i=0;i<300;i++)_runtime.Tick(.1f);
+            Assert.That(completions,Is.Zero,"Lost tracking must not complete an unaligned inspection point after a timeout.");
+            Assert.That(GameObject.Find("FullScriptTransitionCurtain"),Is.Not.Null);
+            Assert.That(_runtime.InputAllowed,Is.False);
+            Assert.That(_runtime.Visit.Room.Root.transform.position,Is.EqualTo(roomPose.position));
+            Assert.That(_runtime.Visit.Room.Root.transform.rotation,Is.EqualTo(roomPose.rotation));
+            _timing.Tracked=true;Samples();Frames();
+            Assert.That(completions,Is.EqualTo(1));
+            Assert.That(_runtime.InputAllowed,Is.True);
+            Assert.That(GameObject.Find("FullScriptTransitionCurtain"),Is.Null);
+            Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(head));
+            Assert.That(_rig.leftHandAnchor.position,Is.EqualTo(left));
+            Frames();Assert.That(completions,Is.EqualTo(1));
+        }
+        [Test] public void InitialLobbyWaitsForReliableTrackingWithoutTimeoutReveal()
+        {
+            _runtime.Dispose();_timing.Tracked=false;
+            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release);
+            _runtime.StartExperience();Samples();
+            for(int i=0;i<300;i++)_runtime.Tick(.1f);
+            Assert.That(_runtime.InputAllowed,Is.False);
+            Assert.That(GameObject.Find("FullScriptTransitionCurtain"),Is.Not.Null);
+            Assert.That(_runtime.Visit.Panel,Is.Null);
+            _timing.Tracked=true;Samples();Frames();
+            Assert.That(_runtime.InputAllowed,Is.True);
+            Assert.That(_runtime.Visit.Panel,Is.Not.Null);
+        }
+        void Samples() => (typeof(OVRCameraRig).GetField("UpdatedAnchors",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(_rig) as Action<OVRCameraRig>)?.Invoke(_rig);
+        [Test] public void MissingInitialLobbyCanRetryAfterAssetsAreRestored()
+        {
+            const string original="Assets/EndoscopyTheme/Resources/FullScriptRooms/Stationary/LobbyGaussian.prefab";
+            const string unavailable="Assets/EndoscopyTheme/Resources/FullScriptRooms/Stationary/LobbyGaussian.UnavailableForTest.prefab";
+            _runtime.Dispose();
+            Assert.That(AssetDatabase.MoveAsset(original,unavailable),Is.Empty);
+            try
+            {
+                Assert.DoesNotThrow(()=>_runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release),
+                    "A missing first room must retain the loading/retry surface instead of aborting startup.");
+                _runtime.StartExperience();Samples();Frames();
+                Assert.That(_runtime.Visit,Is.Null);
+                Assert.That(_runtime.InputAllowed,Is.False);
+                Assert.That(GameObject.Find("RetryRoom"),Is.Not.Null);
+                Assert.That(GameObject.Find("FullScriptTransitionCurtain"),Is.Not.Null);
+                Assert.That(AssetDatabase.MoveAsset(unavailable,original),Is.Empty);
+                _release.Complete=false;
+                var retry=GameObject.Find("RetryRoom").GetComponent<Button>();
+                using(var hand=new ClinicalHandFixture(retry.gameObject,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(retry);
+                Frames();Assert.That(_runtime.Visit,Is.Null,"Retry must honor the asset release barrier.");
+                _release.Complete=true;Frames();
+                Assert.That(_runtime.InputAllowed,Is.True);
+                Assert.That(_runtime.Visit.RoomId,Is.EqualTo("R00_LOBBY"));
+                Assert.That(_runtime.Visit.Panel,Is.Not.Null);
+                Assert.That(_runtime.Session.VisitedRooms.Count,Is.EqualTo(1));
+            }
+            finally
+            {
+                if(AssetDatabase.LoadAssetAtPath<GameObject>(unavailable))
+                    Assert.That(AssetDatabase.MoveAsset(unavailable,original),Is.Empty);
+            }
+        }
+        void AssertNoArchivedModules()
+        {
+            var forbidden=new[]{"VideoController","PanoramaController","ModelController","NarrationController","ImageRingFrontend"};
+            var found=UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include,FindObjectsSortMode.None)
+                .Where(b=>b && forbidden.Contains(b.GetType().Name)).Select(b=>b.GetType().Name).ToArray();
+            Assert.That(found,Is.Empty,"Archived course modules must not be initialized by the production entry.");
+            Assert.That(GameObject.Find("CollectionWorldPresentation"),Is.Null);
+        }
+        [Test] public void EntireNewRouteWorksWithoutMovingHeadOrHandsAndUsesLatestWashingOrder()
+        {
+            FinishOpening();
+            var head=_rig.centerEyeAnchor.position;var left=_rig.leftHandAnchor.position;var right=_rig.rightHandAnchor.position;
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1))
+            {
+                Assert.That(_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door),Is.True);
+                Touch("Travel_"+room);Frames();
+                Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo(room));
+                Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(head));
+                Assert.That(_rig.leftHandAnchor.position,Is.EqualTo(left));
+                Assert.That(_rig.rightHandAnchor.position,Is.EqualTo(right));
+                Assert.That(_runtime.Visit.Panel,Is.Not.Null);
+                if(room==FullScriptRoomCatalog.Washing)
+                {
+                    Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("RE-01"));
+                    foreach(var id in new[]{"RE-02","RE-03","RE-06","RE-04","RE-05"})
+                    {Touch("NextTask");Frames();Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo(id));}
+                }
+            }
+            Assert.That(_runtime.Session.HasVisitedAllMainlineRooms,Is.True);
+        }
+        [TestCase(2,"逐次测漏","SIM-LEAK")]
+        [TestCase(3,"生物学监测","资料待补")]
+        [TestCase(4,"消毒剂监测","资料待核验")]
+        [TestCase(5,"人员培训","SIM-TRAIN")]
+        public void OfficeTaskOpensMatchingDocumentWithoutStartingRecordTask(int index,string title,string body)
+        {
+            FinishOpening();_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R01_OFFICE");Frames();
+            for(int i=0;i<index;i++)Touch("NextTask");
+            _runtime.Session.TryGetTask("OF-01",out var before);
+            var previousStatus=before.Status;
+            Touch("OpenCurrentDocument");
+            Assert.That(_runtime.Visit.Panel.transform.Find("Title").GetComponent<TMPro.TMP_Text>().text,Does.EndWith(title));
+            Assert.That(_runtime.Visit.Panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Does.Contain(body));
+            if(index==2)AssertLeakPaper(_runtime.Visit.Panel);
+            _runtime.Session.TryGetTask("OF-01",out var after);
+            Assert.That(after.Status,Is.EqualTo(previousStatus),"Reading a different document must not begin OF-01");
+            Assert.That(_runtime.OfficeFieldsViewed,Is.Empty);
+            Assert.That(_runtime.OfficeRowsViewed,Is.Empty);
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void WashingLeakRecordsReuseOfficeSourceWithoutAssessmentOrTerminal(bool independent)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1).Take(6))
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            for(int i=0;i<5;i++)Touch("NextTask");
+            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("RE-05"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("OpenLinkedLeakRecords"),Is.Null,"Packaging is a separate subitem");
+            Touch("NextDetail");
+            _runtime.Session.TryGetTask("OF-01",out var office);var officeStatus=office.Status;
+            _runtime.Session.TryGetTask("RE-05",out var washing);var washingStatus=washing.Status;
+            var fields=_runtime.OfficeFieldsViewed.Count;var rows=_runtime.OfficeRowsViewed.Count;
+            Touch("OpenLinkedLeakRecords");
+            var panel=_runtime.Visit.Panel;var position=panel.transform.position;
+            Assert.That(GameObject.Find("OfficeRecordTerminal"),Is.Null);
+            int document=BotanicalGardenQR.Experience.Application.ClinicalTrainingRecords.DocumentIndexForTask("OF-02");
+            Assert.That(panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(BotanicalGardenQR.Experience.Application.ClinicalTrainingRecords.DocumentBody(document)));
+            AssertLeakPaper(panel);
+            Touch("BackToRows");
+            Assert.That(panel.transform.Find("FindingNoIssue"),Is.Null);
+            Assert.That(panel.transform.Find("CompleteOfficeLearning"),Is.Null);
+            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,Does.Contain("SIM-L001"));
+            Touch("NextRow");
+            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,Does.Contain("SIM-L002"));
+            Touch("RecordField0");Touch("FilterDate");Touch("OpenDocuments");
+            Assert.That(panel.transform.position,Is.EqualTo(position));
+            Assert.That(panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(BotanicalGardenQR.Experience.Application.ClinicalTrainingRecords.DocumentBody(document)));
+            Assert.That(_runtime.OfficeFieldsViewed.Count,Is.EqualTo(fields));Assert.That(_runtime.OfficeRowsViewed.Count,Is.EqualTo(rows));
+            _runtime.Session.TryGetTask("OF-01",out office);Assert.That(office.Status,Is.EqualTo(officeStatus));
+            _runtime.Session.TryGetTask("RE-05",out washing);Assert.That(washing.Status,Is.EqualTo(washingStatus));
+            Touch("ReturnToTerminal");Assert.That(panel==null,Is.True);Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("RE-05"));
+            Touch("OpenLinkedLeakRecords");panel=_runtime.Visit.Panel;
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Assert.That(panel==null,Is.True,"External navigation closes related media");
+            Touch("Travel_R01_OFFICE");Assert.That(GameObject.Find("OfficeRecordsExpanded"),Is.Null);
+        }
+        static void AssertLeakPaper(GameObject panel)
+        {
+            var paper=panel.transform.Find("LeakRegisterPaper").GetComponent<RawImage>();
+            Assert.That(paper.texture,Is.SameAs(Resources.Load<Texture2D>("ClinicalCourse/FullScriptVisuals/storage-cleaning-register-v1")));
+            Assert.That(panel.GetComponentsInChildren<TMPro.TMP_Text>().Count(t=>t.name.StartsWith("LeakCell")),Is.EqualTo(15));
+            Assert.That(panel.transform.Find("LeakCell1_1").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo("SIM-R002\nDEMO-RESP-001"));
+            Assert.That(panel.transform.Find("LeakCell2_2").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo("09:55"));
+            Assert.That(panel.transform.Find("LeakCell3_0"),Is.Null,"Unused fourth row is not a missing record");
+            Assert.That(panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Does.Contain("第4行未使用"));
+        }
+        [TestCase(false,false)]
+        [TestCase(true,false)]
+        [TestCase(false,true)]
+        [TestCase(true,true)]
+        public void LeakRowNearTouchLocatesExactUseAndReturnsWithoutAutoAssessment(bool independent,bool washing)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1).Take(washing?6:1))
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            for(int i=0;i<(washing?5:2);i++)Touch("NextTask");
+            if(washing)Touch("NextDetail");
+            Touch(washing?"OpenLinkedLeakRecords":"OpenCurrentDocument");
+            var panel=_runtime.Visit.Panel;var position=panel.transform.position;var rotation=panel.transform.rotation;
+            _runtime.Session.TryGetTask("OF-01",out var task);var initial=task.Status;
+            int fields=_runtime.OfficeFieldsViewed.Count,rows=_runtime.OfficeRowsViewed.Count;
+            for(int i=0;i<3;i++)
+            {
+                Touch("LeakUseLink"+i);
+                string id="SIM-R00"+(i+1),leak="SIM-L00"+(i+1);
+                Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,Does.Contain(id).And.Contain(leak));
+                Assert.That(panel.transform.Find("FilterDate").GetComponentInChildren<TMPro.TMP_Text>().text,Does.Contain("全部"));
+                Assert.That(panel.transform.Find("FilterScope").GetComponentInChildren<TMPro.TMP_Text>().text,Does.Contain("全部"));
+                Touch("FilterDate");Touch("FilterScope"); // Hide some uses before next explicit evidence jump.
+                Touch("OpenDocuments");
+                AssertLeakPaper(panel);
+                Assert.That(panel.transform.Find("LeakLinkHint").GetComponent<TMPro.TMP_Text>().text,Does.Contain(id));
+                Assert.That(panel.transform.Find("LeakUseLink"+i).GetComponent<Image>().color.a,Is.GreaterThan(0));
+                Assert.That(panel.transform.position,Is.EqualTo(position));Assert.That(panel.transform.rotation,Is.EqualTo(rotation));
+            }
+            Assert.That(panel.transform.Find("LeakUseLink3"),Is.Null);
+            Assert.That(_runtime.OfficeFieldsViewed.Count,Is.EqualTo(fields));Assert.That(_runtime.OfficeRowsViewed.Count,Is.EqualTo(rows));
+            Assert.That(_runtime.Session.GetFindings("OF-01"),Is.Empty);
+            _runtime.Session.TryGetTask("OF-01",out task);Assert.That(task.Status,Is.EqualTo(initial));
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OfficeLeakJudgementsAreExplicitPerUseAndDoNotModifySixFields(bool independent)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R01_OFFICE");
+            Touch("NextTask");Touch("NextTask");Touch("OpenCurrentDocument");
+            Touch("BackToRows");
+            var panel=_runtime.Visit.Panel;
+            Assert.That(panel.transform.Find("FindingNoIssue"),Is.Null);
+            var initial=panel.transform.Find(independent?"LeakMatch":"CompleteLeakLearning").GetComponent<Button>();
+            Assert.That(initial.interactable,Is.False);
+            Touch("OpenDocuments");
+            for(int i=0;i<3;i++)
+            {
+                Touch("LeakUseLink"+i);
+                if(independent)
+                {
+                    if(i==1)Touch("LeakMissing");
+                    Touch("LeakMatch");
+                    var finding=_runtime.Session.GetFindings("OF-02").Single(f=>f.CriterionId=="leak-SIM-R00"+(i+1));
+                    Assert.That(finding.EvidenceIds,Is.EquivalentTo(new[]{"SIM-R00"+(i+1),"SIM-L00"+(i+1)}));
+                }
+                if(i<2)Touch("OpenDocuments");
+            }
+            if(!independent)Touch("CompleteLeakLearning");
+            _runtime.Session.TryGetTask("OF-02",out var task);
+            Assert.That(task.Status,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Assert.That(_runtime.Session.GetFindings("OF-01"),Is.Empty);
+            Assert.That(_runtime.OfficeFieldsViewed,Is.Empty);
+            Assert.That(_runtime.OfficeRowsViewed,Is.Empty);
+            if(independent)
+            {
+                Touch("FilterDate");
+                Assert.That(panel.transform.Find("LeakMatch").GetComponent<Button>().interactable,Is.False,"Changing filters requires a fresh explicit use selection");
+            }
+        }
+        [Test] public void SeatedOfficeOpensAtActualEyeHeightAndKeepsPagePose()
+        {
+            FinishOpening();_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R01_OFFICE");Frames();
+            Touch("NextTask");Frames();Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-01"));
+            Touch("OpenCurrentDocument");
+            var panel=_runtime.Visit.Panel;
+            Assert.That(panel.name,Is.EqualTo("OfficeRecordsExpanded"));
+            Assert.That(panel.transform.position.y,Is.LessThan(_rig.centerEyeAnchor.position.y));
+            var pose=panel.transform.position;
+            Touch("FilterDate");Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(pose));
+        }
+        [Test] public void WaitingUsesPublishedSourceMeshesAndAllowsUnobstructedObservation()
+        {
+            FinishOpening();
+            foreach(var room in new[]{"R01_OFFICE","R02_STORAGE","R03_WAITING"})
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Assert.That(_runtime.Visit.Map.roomResource,Is.EqualTo(FullScriptRoomCatalog.WaitingRoom));
+            var root=_runtime.Visit.Room.Root;
+            Assert.That(root.GetComponentsInChildren<Transform>().Count(t=>t.name.StartsWith("WaitingSeat")),Is.EqualTo(3));
+            Assert.That(AssetDatabase.GetDependencies("Assets/EndoscopyTheme/Resources/FullScriptRooms/Waiting/WaitingRoom.prefab",true).Any(p=>p.EndsWith(".fbx",StringComparison.OrdinalIgnoreCase)),Is.False);
+            Assert.That(root.GetComponentsInChildren<Transform>().Any(t=>t.name=="PhysicalPartitionGlass"),Is.True);
+            foreach(var mesh in root.GetComponentsInChildren<MeshFilter>())
+                Assert.That(AssetDatabase.GetAssetPath(mesh.sharedMesh),Does.StartWith("Assets/EndoscopyTheme/Resources/FullScriptRooms/"));
+            var pose=_runtime.Visit.Panel.transform.position;
+            var headPosition=_rig.centerEyeAnchor.position;
+            var rigPosition=_rig.transform.position;
+            ObserveTouch("InspectEnvironment");Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StationaryRoomObservation"));
+            var waitingPosition=root.transform.InverseTransformPoint(headPosition);
+            Assert.That(waitingPosition.z,Is.EqualTo(-1.05f).Within(.001f));
+            Assert.That(root.transform.InverseTransformDirection(_rig.centerEyeAnchor.forward).x,Is.LessThan(0),"The seated view must also face the chair/aisle side, not just the partition.");
+            var partition=root.GetComponentsInChildren<Transform>().Single(t=>t.name=="PhysicalPartitionBase").GetComponent<Renderer>();
+            Assert.That(Vector3.Dot(partition.bounds.center-headPosition,_rig.centerEyeAnchor.forward),Is.GreaterThan(0));
+            ObserveTouch("SwitchObservationSide");
+            var corridorPosition=root.transform.InverseTransformPoint(headPosition);
+            Assert.That(corridorPosition.z,Is.EqualTo(1.65f).Within(.001f));
+            Assert.That(root.transform.InverseTransformDirection(_rig.centerEyeAnchor.forward).x,Is.GreaterThan(0));
+            Assert.That(Vector3.Dot(partition.bounds.center-headPosition,_rig.centerEyeAnchor.forward),Is.GreaterThan(0));
+            Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(headPosition));
+            Assert.That(_rig.transform.position,Is.EqualTo(rigPosition));
+            Assert.That(root.transform.localScale,Is.EqualTo(Vector3.one));
+            var stablePosition=root.transform.position;var stableRotation=root.transform.rotation;Frames();
+            Assert.That(root.transform.position,Is.EqualTo(stablePosition));Assert.That(root.transform.rotation,Is.EqualTo(stableRotation));
+            ObserveTouch("SwitchObservationSide");
+            Assert.That(root.transform.InverseTransformPoint(headPosition).z,Is.EqualTo(-1.05f).Within(.001f));
+            Touch("ReturnToInspection");Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(pose));
+            Assert.That(_runtime.ScriptStepsViewed,Is.Empty,"Looking around is not automatic completion.");
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void StorageTeachingImageIsConsumedOnlyInGuidedModeAndCannotSignOff(bool independent)
+        {
+            FinishOpening();
+            if(independent)Touch("ModeIndependent");
+            foreach(var room in new[]{"R01_OFFICE","R02_STORAGE"})
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("ST-01"));
+            var picture=_runtime.Visit.Panel.transform.Find("ScriptReference");
+            Assert.That(picture!=null,Is.EqualTo(!independent));
+            if(!independent)
+            {
+                var texture=picture.GetComponent<RawImage>().texture;
+                Assert.That(AssetDatabase.GetAssetPath(texture),Does.EndWith("/storage-cabinet-teaching-v1.png"));
+                var pose=_runtime.Visit.Panel.transform.position;
+                Touch("ExpandReference");
+                Assert.That(_runtime.Visit.Panel.transform.Find("GeneratedReferenceOrigin").GetComponent<TMPro.TMP_Text>().text,Does.Contain("非实拍"));
+                Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(pose));
+                var imageRect=(RectTransform)_runtime.Visit.Panel.transform.Find("ScriptReference");
+                Assert.That(imageRect.anchoredPosition.y-imageRect.rect.height/2,Is.GreaterThan(-210),"Expanded photo must not cover the action buttons.");
+                Touch("ReadDetail");
+            }
+            else Assert.That(_runtime.Visit.Panel.transform.Find("ScriptBody").GetComponent<TMPro.TMP_Text>().text,Does.Not.Contain("三支"));
+            _runtime.Session.TryGetTask("ST-01",out var task);
+            Assert.That(task.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Assert.That(_runtime.Session.IsContentAvailable("ST-01"),Is.False);
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void StorageRecordsConsumeGeneratedPaperWithExplicitEvidenceAndFreezeAfterSubmission(bool independent)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            foreach(var room in new[]{"R01_OFFICE","R02_STORAGE"})
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Touch("NextTask");Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("ST-02"));
+            var pose=_runtime.Visit.Panel.transform.position;
+            Touch("OpenStorageRecords");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCleaningRecords"));
+            Assert.That(AssetDatabase.GetAssetPath(_runtime.Visit.Panel.transform.Find("StorageRegisterPaper").GetComponent<RawImage>().texture),Does.EndWith("/storage-cleaning-register-v1.png"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("RegisterScope").GetComponent<TMPro.TMP_Text>().text,Does.Contain("无另附登记"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("StorageCell2_1").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(independent?"":"2026/09/11"));
+            _runtime.Session.TryGetTask("ST-02",out var initial);
+            Assert.That(initial.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Assert.That(_runtime.Visit.Panel.transform.Find(independent?"StorageIssue":"CompleteStorageLearning").GetComponent<Button>().interactable,Is.False);
+            for(int week=0;week<4;week++)
+            {
+                Touch("StorageWeek"+week);
+                Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(pose));
+                if(independent)Touch(week==2?"StorageIssue":"StorageNoIssue");
+            }
+            if(!independent)
+            {
+                _runtime.Session.TryGetTask("ST-02",out var read);
+                Assert.That(read.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+                Touch("CompleteStorageLearning");
+            }
+            _runtime.Session.TryGetTask("ST-02",out var completed);
+            Assert.That(completed.Status,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            if(independent)
+            {
+                var findings=_runtime.Session.GetFindings("ST-02");Assert.That(findings,Has.Length.EqualTo(4));
+                Assert.That(findings.Single(f=>f.CriterionId=="storage-week-3").EvidenceIds,Is.EqualTo(new[]{"SIM-ST-W3"}));
+                Touch("StorageWeek2");Touch("StorageNoIssue");
+                Assert.That(_runtime.Session.GetFindings("ST-02").Single(f=>f.CriterionId=="storage-week-3").Judgement,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyJudgement.NoIssue));
+                Touch("StorageIssue");
+            }
+            Touch("ReturnToInspection");Touch("OpenStorageRecords");
+            Assert.That(_runtime.ScriptStepsViewed.Count(s=>s.StartsWith("ST-02:week:")),Is.EqualTo(4));
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(3))
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Touch("SubmitJourney");Touch("SubmitJourney");
+            Assert.That(_runtime.Session.IsFinished,Is.True);
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R02_STORAGE");Touch("NextTask");Touch("OpenStorageRecords");
+            var oldCount=_runtime.ScriptStepsViewed.Count;Touch("StorageWeek2");
+            Assert.That(_runtime.ScriptStepsViewed.Count,Is.EqualTo(oldCount));
+            Assert.That(_runtime.Visit.Panel.transform.Find(independent?"StorageIssue":"CompleteStorageLearning").GetComponent<Button>().interactable,Is.False);
+            Assert.That(_runtime.Visit.Panel.transform.Find("StorageRecordStatus").GetComponent<TMPro.TMP_Text>().text,Does.Contain("只读"));
+            AssertNoArchivedModules();
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CabinetSideRegisterSharesDataHasGatedTouchAndReleasesWithRoom(bool independent)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            foreach(var room in new[]{"R01_OFFICE","R02_STORAGE"})
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Touch("NextTask");
+            var root=_runtime.Visit.Room.Root;
+            var mount=root.GetComponentsInChildren<Transform>().Single(t=>t.name=="CabinetSideRegister").gameObject;
+            var content=mount.transform.Find("RegisterContent");
+            Assert.That(mount.transform.parent.name,Is.EqualTo("TrainingStorageCabinet"));
+            Assert.That(mount.transform.localPosition,Is.EqualTo(new Vector3(-.622f,1.2f,0)));
+            Assert.That(content.Find("StorageCell2_1").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(independent?"":"2026/09/11"));
+            var paper=content.Find("StorageRegisterPaper").GetComponent<RawImage>().texture;
+            var head=_rig.centerEyeAnchor.position;var handPose=_rig.leftHandAnchor.position;
+            var before=_runtime.Visit.Panel;
+            var mountedButton=mount.transform.Find("OpenMountedRegister").GetComponent<Button>();
+            var mountedTouch=mountedButton.GetComponent<BotanicalGardenQR.FrontendShell.Runtime.ClinicalNearTouch>();
+            Assert.That(typeof(BotanicalGardenQR.FrontendShell.Runtime.ClinicalNearTouch).GetProperty("CanPress",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(mountedTouch),Is.False);
+            mountedButton.onClick.Invoke();
+            Frames();Assert.That(_runtime.Visit.Panel,Is.SameAs(before),"Mounted paper cannot interrupt a different panel.");
+            Touch("InspectStorageRegister");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageRegisterObservation"));
+            Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(head));Assert.That(_rig.leftHandAnchor.position,Is.EqualTo(handPose));
+            Assert.That(Vector3.Dot(mount.transform.position-head,Vector3.ProjectOnPlane(_rig.centerEyeAnchor.forward,Vector3.up).normalized),Is.EqualTo(.6f).Within(.001f));
+            AssertStorageLineOfSight(root,head,mount.transform.position);
+            AssertStorageLineOfSight(root,head,_runtime.Visit.Panel.transform.Find("ReturnToInspection").position);
+            var fixedPosition=mount.transform.position;var headRotation=_rig.centerEyeAnchor.localRotation;
+            _rig.centerEyeAnchor.localRotation=Quaternion.Euler(0,20,0);Frames();
+            Assert.That(mount.transform.position,Is.EqualTo(fixedPosition));_rig.centerEyeAnchor.localRotation=headRotation;
+            using(var hand=new ClinicalHandFixture(mount,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(mountedButton);
+            Frames();Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCleaningRecords"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("StorageRegisterPaper").GetComponent<RawImage>().texture,Is.SameAs(paper));
+            AssertStorageLineOfSight(root,head,_runtime.Visit.Panel.transform.position);
+            for(int row=0;row<4;row++)for(int column=0;column<5;column++)
+                Assert.That(_runtime.Visit.Panel.transform.Find("StorageCell"+row+"_"+column).GetComponent<TMPro.TMP_Text>().text,
+                    Is.EqualTo(content.Find("StorageCell"+row+"_"+column).GetComponent<TMPro.TMP_Text>().text));
+            Assert.That(_runtime.ScriptStepsViewed.Any(s=>s.StartsWith("ST-02:week:")),Is.False);
+            Touch("ReturnToInspection");
+            Assert.That(root.transform.InverseTransformPoint(head).z,Is.EqualTo(0).Within(.001f));
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R03_WAITING");
+            Assert.That(mount==null,Is.True);Assert.That(GameObject.Find("CabinetSideRegister"),Is.Null);
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(4))
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Touch("SubmitJourney");Touch("SubmitJourney");
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R02_STORAGE");Touch("NextTask");Touch("InspectStorageRegister");
+            mount=GameObject.Find("CabinetSideRegister");mountedButton=mount.transform.Find("OpenMountedRegister").GetComponent<Button>();
+            using(var hand=new ClinicalHandFixture(mount,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(mountedButton);
+            Frames();Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCleaningRecords"));
+            Touch("StorageWeek2");
+            Assert.That(_runtime.Visit.Panel.transform.Find(independent?"StorageIssue":"CompleteStorageLearning").GetComponent<Button>().interactable,Is.False);
+            Assert.That(_runtime.Visit.Panel.transform.Find("StorageRecordStatus").GetComponent<TMPro.TMP_Text>().text,Does.Contain("只读"));
+        }
+        [Test] public void StorageUsesPublishedArchitectureAndActualHingedCabinetWithoutSigningOffMissingScopes()
+        {
+            FinishOpening();
+            foreach(var room in new[]{"R01_OFFICE","R02_STORAGE"})
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Assert.That(_runtime.Visit.Map.roomResource,Is.EqualTo(FullScriptRoomCatalog.StorageRoom));
+            var root=_runtime.Visit.Room.Root;
+            Assert.That(root.GetComponentsInChildren<Transform>().Any(t=>t.name=="StorageCabinet" || t.name.StartsWith("WaitingSeat")),Is.False);
+            foreach(var mesh in root.GetComponentsInChildren<MeshFilter>())
+                Assert.That(AssetDatabase.GetAssetPath(mesh.sharedMesh),Does.StartWith("Assets/EndoscopyTheme/Resources/FullScriptRooms/"));
+            var dependencies=AssetDatabase.GetDependencies("Assets/EndoscopyTheme/Resources/FullScriptRooms/Storage/StorageRoom.prefab",true);
+            Assert.That(dependencies.Any(p=>p.EndsWith("WaitingRoom.prefab")||p.EndsWith("Chair.prefab")||p.EndsWith(".fbx",StringComparison.OrdinalIgnoreCase)),Is.False);
+            Bounds LocalBounds(MeshFilter mesh)
+            {
+                var b=mesh.sharedMesh.bounds;var matrix=root.transform.worldToLocalMatrix*mesh.transform.localToWorldMatrix;
+                var result=new Bounds(matrix.MultiplyPoint3x4(b.center),Vector3.zero);
+                for(int corner=0;corner<8;corner++)result.Encapsulate(matrix.MultiplyPoint3x4(new Vector3((corner&1)==0?b.min.x:b.max.x,(corner&2)==0?b.min.y:b.max.y,(corner&4)==0?b.min.z:b.max.z)));
+                return result;
+            }
+            var cabinet=root.GetComponentsInChildren<Transform>().Single(t=>t.name=="TrainingStorageCabinet");
+            var cabinetParts=cabinet.GetComponentsInChildren<MeshFilter>();var cabinetBounds=LocalBounds(cabinetParts[0]);
+            foreach(var part in cabinetParts.Skip(1))cabinetBounds.Encapsulate(LocalBounds(part));
+            foreach(var wall in root.GetComponentsInChildren<MeshFilter>().Where(m=>m.GetComponent<MeshRenderer>().sharedMaterials.Any(material=>material.name=="PaintedWall")))
+                Assert.That(cabinetBounds.Intersects(LocalBounds(wall)),Is.False,"Cabinet intersects source wall: "+wall.name);
+            Touch("InspectStorageCabinet");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCabinetObservation"));
+            Assert.That(_runtime.ScriptActions.Contains("ST-01:cabinet-opened"),Is.False);
+            var leaves=root.GetComponentsInChildren<Transform>().Where(t=>t.name=="LeftDoor"||t.name=="RightDoor").ToArray();
+            Assert.That(leaves.Length,Is.EqualTo(2));
+            foreach(var leaf in leaves)Assert.That(leaf.GetComponent<Oculus.Interaction.HandGrab.HandGrabInteractable>().enabled,Is.False);
+            var head=_rig.centerEyeAnchor.position;
+            Assert.That(root.transform.InverseTransformPoint(head).z,Is.EqualTo(0).Within(.001f));
+            Touch("SwitchStorageDistance");Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(head));
+            Assert.That(root.transform.InverseTransformPoint(head).z,Is.EqualTo(1).Within(.001f));
+            foreach(var leaf in leaves)
+            {
+                var transformer=leaf.GetComponent<Oculus.Interaction.OneGrabRotateTransformer>();
+                Assert.That(leaf.GetComponent<Oculus.Interaction.HandGrab.HandGrabInteractable>().enabled,Is.True);
+                var pivot=transformer.ComputeWorldPivotPose();var handle=leaf.Find("HandleAnchor").position;
+                var fixture=new CabinetGrabFixture(leaf,handle);transformer.Initialize(fixture);transformer.BeginTransform();
+                float sign=leaf.name=="LeftDoor"?1:-1;
+                foreach(float angle in new[]{35f,80f,130f})
+                {
+                    fixture.GrabPoints[0]=new Pose(pivot.position+Quaternion.AngleAxis(sign*angle,Vector3.up)*(handle-pivot.position),Quaternion.identity);
+                    transformer.UpdateTransform();
+                    Assert.That(Quaternion.Angle(leaf.localRotation,Quaternion.identity),Is.EqualTo(Mathf.Min(angle,105)).Within(.05f));
+                    Assert.That(Vector3.Distance(leaf.position,pivot.position),Is.LessThan(.001f));
+                }
+                transformer.EndTransform();
+            }
+            Frames();Assert.That(_runtime.ScriptActions.Contains("ST-01:cabinet-opened"),Is.True);
+            _runtime.Session.TryGetTask("ST-01",out var task);
+            Assert.That(task.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Assert.That(_runtime.Session.IsContentAvailable("ST-01"),Is.False);
+            Touch("ReturnToInspection");
+            foreach(var leaf in leaves)Assert.That(leaf.GetComponent<Oculus.Interaction.HandGrab.HandGrabInteractable>().enabled,Is.False);
+            Assert.That(root.transform.InverseTransformPoint(head).z,Is.EqualTo(0).Within(.001f));
+        }
+        sealed class CabinetGrabFixture:Oculus.Interaction.IGrabbable
+        {
+            public List<Pose> GrabPoints { get; }=new List<Pose>();
+            public Transform Transform { get; }
+            public CabinetGrabFixture(Transform target,Vector3 position){Transform=target;GrabPoints.Add(new Pose(position,Quaternion.identity));}
+        }
+        void ObserveTouch(string name)
+        {
+            var panel=_runtime.Visit.Panel;
+            var button=panel.GetComponentsInChildren<Button>().Single(b=>b.name==name);
+            using(var hand=new ClinicalHandFixture(panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(button);
+            // The fixture deliberately looks toward the button before poking.
+            // Freeze that user pose, then verify every transition frame itself.
+            var position=_rig.centerEyeAnchor.position;var rotation=_rig.centerEyeAnchor.rotation;
+            var rootPosition=_runtime.Visit.Room.Root.transform.position;
+            _runtime.Tick(.05f);
+            Assert.That(_runtime.InputAllowed,Is.False,"Observation switches must enter the curtain state machine.");
+            Assert.That(_runtime.Visit.Room.Root.transform.position,Is.EqualTo(rootPosition),"No movement before fade-out.");
+            Assert.That(_runtime.RequestWaitingObservation(false,()=>{}),Is.False,"Duplicate requests are blocked during transition.");
+            for(int frame=0;frame<40;frame++)
+            {
+                _runtime.Tick(.05f);
+                Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(position));
+                Assert.That(_rig.centerEyeAnchor.rotation,Is.EqualTo(rotation));
+            }
+        }
+        [Test] public void MissingTaskReadDoesNotSignOffAndReleaseBarrierStillBlocksLoading()
+        {
+            FinishOpening();_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R01_OFFICE");Frames();
+            Touch("ReadDetail");
+            Assert.That(_runtime.ScriptStepsViewed.Contains("OF-00:0"),Is.True);
+            _runtime.Session.TryGetTask("OF-00",out var task);
+            Assert.That(task.Status,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Unstarted));
+            _release.Complete=false;_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R02_STORAGE");Frames();
+            Assert.That(_runtime.Visit,Is.Null);Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo("R01_OFFICE"));
+            _release.Complete=true;Frames();Assert.That(_runtime.Visit.RoomId,Is.EqualTo("R02_STORAGE"));
+        }
+        [Test] public void DoorCompletionUsesActualLeafAngleAndSummaryRequiresSecondConfirmation()
+        {
+            FinishOpening();
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1))
+            {
+                _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);
+                if(room==FullScriptRoomCatalog.Washing)
+                {
+                    var door=GameObject.Find("Door342041(Clone)");Assert.That(door,Is.Not.Null);
+                    Assert.That(_runtime.ScriptActions.Contains("RE-01:door-closed"),Is.False);
+                    var leaf=door.transform.Find("Leaf");
+                    Assert.That(leaf.GetComponent<Oculus.Interaction.OneGrabRotateTransformer>(),Is.Not.Null);
+                    leaf.localRotation=Quaternion.identity;Frames();
+                    Assert.That(_runtime.ScriptActions.Contains("RE-01:door-closed"),Is.True);
+                    _runtime.Session.TryGetTask("RE-01",out var task);
+                    Assert.That(task.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+                }
+            }
+            Touch("SubmitJourney");Assert.That(_runtime.Session.IsFinished,Is.False);
+            Touch("SubmitJourney");Assert.That(_runtime.Session.IsFinished,Is.True);
+        }
+        [Test] public void StationaryThemeKeepsHistoricalSourceAndRemovesStandingHeightClamp()
+        {
+            var source=_bindings.Configuration.PrologueTheme;
+            source.Copy.TryGetEncounterPage(3,out var original);
+            var clone=source.CreateStationaryVariant();
+            try
+            {
+                clone.Copy.TryGetEncounterPage(3,out var updated);
+                Assert.That(updated,Does.Contain("留在原位"));
+                Assert.That(clone.MinimumStandingPanelCenterHeight,Is.LessThan(.4f));
+                source.Copy.TryGetEncounterPage(3,out var unchanged);Assert.That(unchanged,Is.EqualTo(original));
+            }
+            finally{UnityEngine.Object.DestroyImmediate(clone);}
+        }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LatestBrushDetailConsumesExistingImageWithoutRestoringOldCourse(bool independent)
+        {
+            FinishOpening();if(independent)Touch("ModeIndependent");
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1))
+            {
+                _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);
+                if(room==FullScriptRoomCatalog.Washing)break;
+            }
+            Touch("NextTask");Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("RE-02"));
+            if(!independent)Assert.That(AssetDatabase.GetAssetPath(_runtime.Visit.Panel.GetComponentInChildren<RawImage>().texture),Does.EndWith("/script-equipment.png"));
+            Touch("NextDetail");Touch("NextDetail");
+            var pose=_runtime.Visit.Panel.transform.position;
+            var image=_runtime.Visit.Panel.GetComponentInChildren<RawImage>();
+            Assert.That(image!=null,Is.EqualTo(!independent));
+            Assert.That(_runtime.Visit.Panel.transform.Find("BrushFocus")!=null,Is.EqualTo(!independent));
+            if(!independent)
+            {
+                Assert.That(AssetDatabase.GetAssetPath(image.texture),Does.EndWith("/brush-inspection.png"));
+                Assert.That(_runtime.Visit.Panel.transform.Find("ScriptBody").GetComponent<TMPro.TMP_Text>().text,Does.Contain("非实拍"));
+                foreach(var expected in new[]{new Rect(.77f,.18f,.22f,.55f),new Rect(.43f,.20f,.40f,.53f),new Rect(0,0,1,1)})
+                {
+                    Touch("BrushFocus");image=_runtime.Visit.Panel.GetComponentInChildren<RawImage>();
+                    Assert.That(image.uvRect,Is.EqualTo(expected));
+                    Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(pose));
+                    Assert.That(image.rectTransform.rect.width/image.rectTransform.rect.height,
+                        Is.EqualTo(image.texture.width*expected.width/(image.texture.height*expected.height)).Within(.001f));
+                }
+                Touch("ExpandReference");
+                Assert.That(_runtime.Visit.Panel.transform.Find("GeneratedReferenceOrigin"),Is.Not.Null);
+                image=_runtime.Visit.Panel.GetComponentInChildren<RawImage>();
+                Assert.That(image.rectTransform.anchoredPosition.y-image.rectTransform.rect.height/2,Is.GreaterThan(-210));
+            }
+            Touch("ReadDetail");Assert.That(_runtime.ScriptStepsViewed.Contains("RE-02:2"),Is.True);
+            _runtime.Session.TryGetTask("RE-02",out var state);
+            Assert.That(state.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Touch("PreviousDetail");
+            Assert.That(_runtime.Visit.Panel.transform.Find("BrushFocus"),Is.Null);
+            if(!independent)
+            {
+                image=_runtime.Visit.Panel.GetComponentInChildren<RawImage>();
+                Assert.That(AssetDatabase.GetAssetPath(image.texture),Does.EndWith("/script-equipment.png"));
+                Assert.That(image.uvRect,Is.EqualTo(new Rect(0,0,1,1)));
+                Assert.That(_runtime.Visit.Panel.transform.Find("ScriptBody").GetComponent<TMPro.TMP_Text>().text,Is.Not.Empty);
+            }
+            AssertNoArchivedModules();
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_R01_OFFICE");
+            Assert.That(UnityEngine.Object.FindObjectsByType<RawImage>(FindObjectsSortMode.None)
+                .Any(r=>r.texture && AssetDatabase.GetAssetPath(r.texture).EndsWith("/brush-inspection.png")),Is.False);
+        }
+        [TestCase("ST-03","R02_STORAGE","FullScriptRooms/Stationary/Gastroscope")]
+        [TestCase("RE-04","R05_REPROCESSING","ClinicalCourse/Disinfectant/disinfectant-labeled")]
+        public void SourceObjectsHaveDedicatedInspectionAndExplicitRecovery(string taskId,string roomId,string resource)
+        {
+            FinishOpening();
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1))
+            {
+                _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);
+                if(room==roomId)break;
+            }
+            for(int step=0;_runtime.Visit.ScriptTaskId!=taskId && step<6;step++)Touch("NextTask");
+            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo(taskId));
+            Assert.That(GameObject.Find("ScriptInspectableModel"),Is.Null,"Do not hide the source object behind the reading panel.");
+            var panelPose=_runtime.Visit.Panel.transform.position;
+            Touch("InspectObject");var model=GameObject.Find("ScriptInspectableModel");
+            Assert.That(model,Is.Not.Null);
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("ScriptObjectObservation"));
+            // Match the seated preview's neutral viewing direction, not the hand
+            // fixture's deliberate LookAt toward a touched button.
+            var camera=_rig.centerEyeAnchor.GetComponent<Camera>();var rotation=camera.transform.rotation;
+            var fov=camera.fieldOfView;var aspect=camera.aspect;
+            try
+            {
+                camera.transform.rotation=_runtime.Visit.Panel.transform.rotation;camera.fieldOfView=78;camera.aspect=4f/3;
+                var corners=new Vector3[4];((RectTransform)_runtime.Visit.Panel.transform).GetWorldCorners(corners);
+                foreach(var corner in corners)
+                {
+                    var viewport=camera.WorldToViewportPoint(corner);
+                    Assert.That(viewport.z,Is.GreaterThan(0));
+                    Assert.That(viewport.y,Is.InRange(.01f,.99f),"Object inspection toolbar must fit the neutral seated view.");
+                }
+                float toolbarTop=corners.Max(c=>camera.WorldToViewportPoint(c).y);
+                float objectBottom=1;
+                foreach(var renderer in model.GetComponentsInChildren<Renderer>())
+                {
+                    var bounds=renderer.localBounds;
+                    for(int c=0;c<8;c++)objectBottom=Mathf.Min(objectBottom,camera.WorldToViewportPoint(renderer.transform.TransformPoint(new Vector3(
+                        (c&1)==0?bounds.min.x:bounds.max.x,(c&2)==0?bounds.min.y:bounds.max.y,(c&4)==0?bounds.min.z:bounds.max.z))).y);
+                }
+                Assert.That(objectBottom,Is.GreaterThan(toolbarTop+.01f),"Source model must not cover the observation caption.");
+            }
+            finally{camera.transform.rotation=rotation;camera.fieldOfView=fov;camera.aspect=aspect;}
+            Assert.That(_runtime.Visit.Panel.transform.position.y,Is.LessThan(model.transform.position.y-.25f));
+            Assert.That(model.GetComponent<Oculus.Interaction.HandGrab.HandGrabInteractable>().enabled,Is.True);
+            var source=Resources.Load<GameObject>(resource);
+            CollectionAssert.AreEquivalent(source.GetComponentsInChildren<MeshFilter>(true).Select(m=>m.sharedMesh),model.GetComponentsInChildren<MeshFilter>(true).Select(m=>m.sharedMesh));
+            CollectionAssert.AreEquivalent(source.GetComponentsInChildren<Renderer>(true).SelectMany(r=>r.sharedMaterials),model.GetComponentsInChildren<Renderer>(true).SelectMany(r=>r.sharedMaterials));
+            var collider=model.GetComponent<BoxCollider>();
+            Assert.That(Mathf.Max(collider.size.x,Mathf.Max(collider.size.y,collider.size.z)),Is.EqualTo(.38f).Within(.001f));
+            var home=new Pose(model.transform.position,model.transform.rotation);
+            model.transform.SetPositionAndRotation(home.position+Vector3.right*1.4f,Quaternion.Euler(20,50,80));
+            Frames();Assert.That(model.transform.position,Is.EqualTo(home.position+Vector3.right*1.4f),"Distance must not silently teleport a held object.");
+            Touch("RecoverObject");Assert.That(model.transform.position,Is.EqualTo(home.position));
+            Assert.That(Quaternion.Angle(model.transform.rotation,home.rotation),Is.LessThan(.01f));
+            _runtime.Session.TryGetTask(taskId,out var state);
+            Assert.That(state.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
+            Touch("ReturnToInspection");Assert.That(GameObject.Find("ScriptInspectableModel"),Is.Null);
+            Assert.That(_runtime.Visit.Panel.transform.position,Is.EqualTo(panelPose));
+            AssertNoArchivedModules();
+            foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(Array.IndexOf(_runtime.Definition.mainlineRoomIds,roomId)+1))
+            {_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+room);}
+            Touch("SubmitJourney");Touch("SubmitJourney");Assert.That(_runtime.Session.IsFinished,Is.True);
+            _runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);Touch("Travel_"+roomId);
+            for(int step=0;_runtime.Visit.ScriptTaskId!=taskId && step<6;step++)Touch("NextTask");
+            Touch("InspectObject");model=GameObject.Find("ScriptInspectableModel");
+            Assert.That(model,Is.Not.Null);
+            Assert.That(model.GetComponent<Oculus.Interaction.HandGrab.HandGrabInteractable>().enabled,Is.False);
+            Assert.That(model.GetComponent<Oculus.Interaction.Grabbable>().enabled,Is.False);
+            Assert.That(_runtime.Visit.Panel.transform.Find("RecoverObject").GetComponent<Button>().interactable,Is.False);
+            Assert.That(_runtime.Visit.Panel.transform.Find("ObjectObservationStatus").GetComponent<TMPro.TMP_Text>().text,Does.Contain("只读回看"));
+            Touch("ReturnToInspection");Assert.That(GameObject.Find("ScriptInspectableModel"),Is.Null);
+        }
+        static void AssertStorageLineOfSight(GameObject root,Vector3 eye,Vector3 target)
+        {
+            var delta=target-eye;var ray=new Ray(eye,delta.normalized);
+            bool backfaces=Physics.queriesHitBackfaces;Physics.queriesHitBackfaces=true;
+            try
+            {
+                foreach(var mesh in root.GetComponentsInChildren<MeshFilter>())
+                {
+                    var renderer=mesh.GetComponent<Renderer>();
+                    if(!renderer || renderer.sharedMaterials.All(m=>m && m.renderQueue>=3000))continue;
+                    var probe=new GameObject("VisibilityRegressionProbe");probe.transform.SetParent(mesh.transform,false);
+                    try
+                    {
+                        var collider=probe.AddComponent<MeshCollider>();collider.sharedMesh=mesh.sharedMesh;Physics.SyncTransforms();
+                        bool blocked=collider.Raycast(ray,out var hit,delta.magnitude-.001f);
+                        Assert.That(blocked,Is.False,"Opaque mesh blocks register/UI: "+mesh.name+" at "+hit.distance);
+                    }
+                    finally{UnityEngine.Object.DestroyImmediate(probe);}
+                }
+            }
+            finally{Physics.queriesHitBackfaces=backfaces;}
+        }
+        void Touch(string name)
+        {
+            var panel=_runtime.Visit.Panel;
+            var button=panel.GetComponentsInChildren<Button>().Single(b=>b.name==name);
+            using(var hand=new ClinicalHandFixture(panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(button);
+            Frames();
+        }
+        void FinishOpening()
+        {
+            Assert.That(_runtime.Prologue, Is.Null);
+            Assert.That(_runtime.Visit.Panel, Is.Not.Null);
+        }
+        void Frames(){for(int i=0;i<40;i++)_runtime.Tick(.05f);}
+        sealed class Timing:ITrackingOriginTiming
+        {public bool Tracked=true;public bool TryGetSampleTime(out double t){t=9;return Tracked;}public bool TryGetChangeTime(OVRManager.TrackingOrigin o,out double t){t=10;return true;}}
+        sealed class Release:IClinicalRoomAssetRelease
+        {public bool Complete;public void Begin(){}public bool IsComplete=>Complete;}
+    }
+}

@@ -38,6 +38,10 @@ namespace BotanicalGardenQR.Bootstrap.Editor
         [MenuItem("Tools/Botanical Garden/Application Mode/Publish Gateway To Build Scenes")]
         public static void Publish()
         {
+            var options = AssetDatabase.LoadAssetAtPath<RuntimeEnvironmentOptions>(
+                "Assets/BotanicalGardenQR/Content/Authoring/RuntimeEnvironmentOptions.asset");
+            if (options != null && options.VirtualRoomEnabled)
+                throw new InvalidOperationException("Archived MR gateway publication is disabled for the current VR script. It must not restore old Visitor dependencies.");
             RequireSafeScenePublishingContext();
             RemoveRetiredVisitorRuntimeComponents();
             ConfigurePhysicalAugmentationVisitorPrefab();

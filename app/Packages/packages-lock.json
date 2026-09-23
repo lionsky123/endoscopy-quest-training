@@ -1,16 +1,15 @@
 {
   "dependencies": {
     "com.meta.xr.mrutilitykit": {
-      "version": "205.0.0",
+      "version": "file:com.meta.xr.mrutilitykit",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
-        "com.meta.xr.sdk.core": "205.0.0",
-        "com.unity.textmeshpro": "3.0.6",
         "com.unity.ai.navigation": "1.1.4",
-        "com.unity.nuget.newtonsoft-json": "3.0.2"
-      },
-      "url": "https://packages.unity.com"
+        "com.unity.nuget.newtonsoft-json": "3.0.2",
+        "com.meta.xr.sdk.core": "205.0.0",
+        "com.unity.textmeshpro": "3.0.6"
+      }
     },
     "com.meta.xr.sdk.audio": {
       "version": "85.0.0",

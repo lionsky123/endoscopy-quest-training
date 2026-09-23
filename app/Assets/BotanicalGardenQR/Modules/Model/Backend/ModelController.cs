@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using BotanicalGardenQR.Experience.Contracts;
 using BotanicalGardenQR.Model.Contracts;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace BotanicalGardenQR.Model.Backend
         StateChannel<ModelState> _states;
 
         CancellationTokenSource _loadCancellation;
+        Task _activeLoadTask;
         ModelLoadResult _loaded;
         IModelDriver _driver;
         ModelSurfaceLease _surface;
@@ -62,7 +64,7 @@ namespace BotanicalGardenQR.Model.Backend
             _motionRoot = new GameObject("MotionRoot").transform;
             _motionRoot.SetParent(_runtimeRootObject.transform, false);
             Publish(ModelPhase.Loading);
-            CompleteOpenAsync(loader, definition.Source, _motionRoot, session, generation, _loadCancellation.Token);
+            _activeLoadTask = CompleteOpenAsync(loader, definition.Source, _motionRoot, session, generation, _loadCancellation.Token);
             return ModelResult.Success();
         }
 
@@ -113,6 +115,7 @@ namespace BotanicalGardenQR.Model.Backend
             _loadCancellation?.Cancel();
             _loadCancellation?.Dispose();
             _loadCancellation = null;
+            _activeLoadTask = null;
             StopDriver("close");
             DisposeQuietly(_driver, "MODEL_RELEASE_FAILED", "close");
             _driver = null;
@@ -165,6 +168,7 @@ namespace BotanicalGardenQR.Model.Backend
             ++_generation;
             var loadCancellation = _loadCancellation;
             _loadCancellation = null;
+            _activeLoadTask = null;
             loadCancellation?.Cancel();
             loadCancellation?.Dispose();
             StopDriver("destroy");
@@ -201,7 +205,7 @@ namespace BotanicalGardenQR.Model.Backend
             Destroy(ownedObject);
         }
 
-        async void CompleteOpenAsync(
+        async Task CompleteOpenAsync(
             IModelLoader loader,
             ModelSource source,
             Transform parent,

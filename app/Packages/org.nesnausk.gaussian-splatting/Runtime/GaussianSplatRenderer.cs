@@ -105,7 +105,8 @@ namespace GaussianSplatting.Runtime
         }
 
         // ReSharper disable once MemberCanBePrivate.Global - used by HDRP/URP features that are not always compiled
-        public Material SortAndRenderSplats(Camera cam, CommandBuffer cmb)
+        public Material SortAndRenderSplats(Camera cam, CommandBuffer cmb, Matrix4x4? view = null,
+            Matrix4x4? projection = null, Vector2Int? viewport = null)
         {
             Material matComposite = null;
             foreach (var kvp in m_ActiveSplats)
@@ -118,7 +119,7 @@ namespace GaussianSplatting.Runtime
                 // sort
                 var matrix = gs.transform.localToWorldMatrix;
                 if (gs.m_FrameCounter % gs.m_SortNthFrame == 0)
-                    gs.SortPoints(cmb, cam, matrix);
+                    gs.SortPoints(cmb, cam, matrix, view);
                 ++gs.m_FrameCounter;
 
                 // cache view
@@ -149,7 +150,7 @@ namespace GaussianSplatting.Runtime
                 mpb.SetInteger(GaussianSplatRenderer.Props.DisplayChunks, gs.m_RenderMode == GaussianSplatRenderer.RenderMode.DebugChunkBounds ? 1 : 0);
 
                 cmb.BeginSample(s_ProfCalcView);
-                gs.CalcViewData(cmb, cam);
+                gs.CalcViewData(cmb, cam, view, projection, viewport);
                 cmb.EndSample(s_ProfCalcView);
 
                 // draw
@@ -475,6 +476,9 @@ namespace GaussianSplatting.Runtime
         public void OnEnable()
         {
             m_FrameCounter = 0;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            Debug.Log($"[LobbyGaussian] enable api={SystemInfo.graphicsDeviceType} gpu={SystemInfo.graphicsDeviceName} compute={SystemInfo.supportsComputeShaders} asset={HasValidAsset} resources={resourcesAreSetUp} splats={(m_Asset?m_Asset.splatCount:0)}");
+#endif
             if (!resourcesAreSetUp)
                 return;
 
@@ -482,6 +486,9 @@ namespace GaussianSplatting.Runtime
             EnsureSorterAndRegister();
 
             CreateResourcesForAsset();
+#if UNITY_ANDROID && !UNITY_EDITOR
+            Debug.Log($"[LobbyGaussian] gpuReady={HasValidRenderSetup} sorter={m_Sorter?.Valid} drawShader={m_ShaderSplats.isSupported} compositeShader={m_ShaderComposite.isSupported}");
+#endif
         }
 
         void SetAssetDataOnCS(CommandBuffer cmb, KernelIndices kernel)
@@ -576,20 +583,25 @@ namespace GaussianSplatting.Runtime
             DestroyImmediate(m_MatDebugBoxes);
         }
 
-        internal void CalcViewData(CommandBuffer cmb, Camera cam)
+        internal void CalcViewData(CommandBuffer cmb, Camera cam, Matrix4x4? view = null,
+            Matrix4x4? projection = null, Vector2Int? viewport = null)
         {
             if (cam.cameraType == CameraType.Preview)
                 return;
 
             var tr = transform;
 
-            Matrix4x4 matView = cam.worldToCameraMatrix;
+            Matrix4x4 matView = view ?? cam.worldToCameraMatrix;
             Matrix4x4 matO2W = tr.localToWorldMatrix;
             Matrix4x4 matW2O = tr.worldToLocalMatrix;
             int screenW = cam.pixelWidth, screenH = cam.pixelHeight;
             int eyeW = XRSettings.eyeTextureWidth, eyeH = XRSettings.eyeTextureHeight;
             Vector4 screenPar = new Vector4(eyeW != 0 ? eyeW : screenW, eyeH != 0 ? eyeH : screenH, 0, 0);
-            Vector4 camPos = cam.transform.position;
+            if (viewport.HasValue) screenPar = new Vector4(viewport.Value.x, viewport.Value.y, 0, 0);
+            Vector4 camPos = matView.inverse.GetColumn(3);
+            var matProjection = projection ?? GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
+            cmb.SetComputeMatrixParam(m_CSSplatUtilities, "_SplatProjection", matProjection);
+            cmb.SetComputeMatrixParam(m_CSSplatUtilities, "_SplatViewProjection", matProjection * matView);
 
             // calculate view dependent data for each splat
             SetAssetDataOnCS(cmb, KernelIndices.CalcViewData);
@@ -609,12 +621,12 @@ namespace GaussianSplatting.Runtime
             cmb.DispatchCompute(m_CSSplatUtilities, (int)KernelIndices.CalcViewData, (m_GpuView.count + (int)gsX - 1)/(int)gsX, 1, 1);
         }
 
-        internal void SortPoints(CommandBuffer cmd, Camera cam, Matrix4x4 matrix)
+        internal void SortPoints(CommandBuffer cmd, Camera cam, Matrix4x4 matrix, Matrix4x4? view = null)
         {
             if (cam.cameraType == CameraType.Preview)
                 return;
 
-            Matrix4x4 worldToCamMatrix = cam.worldToCameraMatrix;
+            Matrix4x4 worldToCamMatrix = view ?? cam.worldToCameraMatrix;
             worldToCamMatrix.m20 *= -1;
             worldToCamMatrix.m21 *= -1;
             worldToCamMatrix.m22 *= -1;

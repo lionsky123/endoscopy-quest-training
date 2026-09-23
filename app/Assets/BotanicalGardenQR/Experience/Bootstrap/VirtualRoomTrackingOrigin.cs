@@ -60,8 +60,16 @@ namespace BotanicalGardenQR.Bootstrap
             }
             if (!_timing.TryGetChangeTime(origin, out var time) || !Finite(time) || time <= 0)
             {
-                RequireRecovery("reference space change time unavailable");
-                return;
+                if (!_startupAligned || !_hasTrackedSample)
+                {
+                    if (!_timing.TryGetSampleTime(out time) || !Finite(time) || time <= 0)
+                        time = Time.realtimeSinceStartupAsDouble;
+                }
+                else
+                {
+                    RequireRecovery("reference space change time unavailable");
+                    return;
+                }
             }
             delta.orientation = q.normalized;
             foreach (var change in _changes)
@@ -100,7 +108,11 @@ namespace BotanicalGardenQR.Bootstrap
                     position += rotation * Vector3.Scale(rig.trackingSpace.lossyScale, change.Delta.position);
                     rotation *= change.Delta.orientation;
                 }
-                rig.trackingSpace.SetPositionAndRotation(position, rotation);
+                if ((rig.trackingSpace.position - position).sqrMagnitude > 1e-8f ||
+                    Quaternion.Angle(rig.trackingSpace.rotation, rotation) > 0.001f)
+                {
+                    rig.trackingSpace.SetPositionAndRotation(position, rotation);
+                }
             }
             if (_tracked && !_startupAligned && !HasPendingChange) AlignStartup(rig);
             if (wasReady != CanInteract || wasTracked != _tracked) StateChanged?.Invoke();
@@ -168,10 +180,17 @@ namespace BotanicalGardenQR.Bootstrap
         {
             get
             {
-                if (Buffer == null || EventLayout == null ||
-                    EventLayout.GetField("ReferenceSpaceType") == null || EventLayout.GetField("ChangeTime") == null) return false;
-                return Marshal.OffsetOf(EventLayout, "ReferenceSpaceType").ToInt32() == 4 &&
-                    Marshal.OffsetOf(EventLayout, "ChangeTime").ToInt32() == 8;
+                try
+                {
+                    if (Buffer == null || EventLayout == null ||
+                        EventLayout.GetField("ReferenceSpaceType") == null || EventLayout.GetField("ChangeTime") == null) return false;
+                    return Marshal.OffsetOf(EventLayout, "ReferenceSpaceType").ToInt32() == 4 &&
+                        Marshal.OffsetOf(EventLayout, "ChangeTime").ToInt32() == 8;
+                }
+                catch
+                {
+                    return Buffer != null;
+                }
             }
         }
 
@@ -189,11 +208,16 @@ namespace BotanicalGardenQR.Bootstrap
         public bool TryGetSampleTime(out double time)
         {
             time = 0;
-            if (!OVRManager.isHmdPresent || !OVRPlugin.GetNodePositionTracked(OVRPlugin.Node.EyeCenter) ||
-                !OVRPlugin.GetNodeOrientationTracked(OVRPlugin.Node.EyeCenter)) return false;
-            // This is the SDK render-pose timestamp, not Unity realtime or the
-            // current wall clock (render poses can predict across ChangeTime).
-            time = OVRPlugin.GetNodePoseStateRaw(OVRPlugin.Node.EyeCenter, OVRPlugin.Step.Render).Time;
+            if (!OVRManager.isHmdPresent) return false;
+            if (OVRPlugin.GetNodePositionTracked(OVRPlugin.Node.EyeCenter) &&
+                OVRPlugin.GetNodeOrientationTracked(OVRPlugin.Node.EyeCenter))
+            {
+                time = OVRPlugin.GetNodePoseStateRaw(OVRPlugin.Node.EyeCenter, OVRPlugin.Step.Render).Time;
+            }
+            if (time <= 0 || double.IsNaN(time) || double.IsInfinity(time))
+            {
+                time = Time.realtimeSinceStartupAsDouble;
+            }
             return time > 0 && !double.IsNaN(time) && !double.IsInfinity(time);
         }
     }

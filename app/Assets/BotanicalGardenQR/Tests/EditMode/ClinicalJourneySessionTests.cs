@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.Experience.Application;
@@ -11,7 +12,13 @@ namespace BotanicalGardenQR.Tests.EditMode
         // Rule tests use ready synthetic tasks; publication availability is tested separately below.
         ClinicalJourneyDefinition Definition => ReadyDefinition();
         static ClinicalJourneyDefinition ReadyDefinition()
-        { var definition=ClinicalJourneyConfiguration.Load();definition.tasks=null;return definition; }
+        {
+            var definition=ClinicalJourneyConfiguration.Load();
+            definition.tasks=definition.rooms.SelectMany(room=>room.taskIds)
+                .Select(id=>new ClinicalJourneyTaskDefinition { id=id, availability=ClinicalContentAvailability.Ready })
+                .ToArray();
+            return definition;
+        }
 
         [Test]
         public void PublishedFullRouteHasTheConfirmedRoomOrder()
@@ -125,6 +132,17 @@ namespace BotanicalGardenQR.Tests.EditMode
         }
 
         [Test]
+        public void VisitedRoomWithoutDeclaredDoorCannotBeReentered()
+        {
+            var session = NewAtFinalOffice(ClinicalJourneyMode.GuidedLearning);
+
+            var result = session.TrySwitchRoom("R04_GI", atDoor: true, handConfirmed: true);
+
+            Assert.That(result.Failure, Is.EqualTo(ClinicalJourneyTransitionFailure.TransitionNotAllowed));
+            Assert.That(session.CurrentRoomId, Is.EqualTo("R01_OFFICE"));
+        }
+
+        [Test]
         public void GuidedModeCanSkipAndFinishWithoutTurningSkipIntoAResult()
         {
             var session = new ClinicalJourneySession(Definition, ClinicalJourneyMode.GuidedLearning);
@@ -196,7 +214,9 @@ namespace BotanicalGardenQR.Tests.EditMode
         [Test] public void FindingsRequireDeclaredCriteriaAndEvidenceAndFreezeAfterSubmission()
         {
             var definition=ReadyDefinition();
-            definition.tasks=new[]{new ClinicalJourneyTaskDefinition { id="OF-01",criterionIds=new[]{"patient","scope"},evidenceIds=new[]{"r1","r2"} }};
+            var officeTask=definition.tasks.Single(task=>task.id=="OF-01");
+            officeTask.criterionIds=new[]{"patient","scope"};
+            officeTask.evidenceIds=new[]{"r1","r2"};
             var session=new ClinicalJourneySession(definition,ClinicalJourneyMode.IndependentCheck);
             foreach(var room in definition.mainlineRoomIds.Skip(1))Enter(session,room);
             Assert.That(session.TryRecordFinding("OF-01","unknown",ClinicalJourneyJudgement.IssueFound,new[]{"r1"}),Is.False);
@@ -208,6 +228,17 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(session.GetFindings("OF-01")[0].EvidenceIds[0],Is.EqualTo("r1"));
             Assert.That(session.TrySubmitIndependentAtSummary(),Is.True);
             Assert.That(session.TryRecordFinding("OF-01","scope",ClinicalJourneyJudgement.IssueFound,new[]{"r1"}),Is.False);
+        }
+
+        [Test]
+        public void MissingTaskDescriptionIsRejectedInsteadOfBecomingReady()
+        {
+            var definition=ReadyDefinition();
+            definition.tasks=definition.tasks.Skip(1).ToArray();
+
+            var error=Assert.Throws<ArgumentException>(()=>definition.Validate());
+
+            Assert.That(error.Message,Does.Contain("Every declared task needs a task description"));
         }
 
         static void Enter(ClinicalJourneySession session, string roomId)

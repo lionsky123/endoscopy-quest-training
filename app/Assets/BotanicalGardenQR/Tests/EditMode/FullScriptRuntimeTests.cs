@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using BotanicalGardenQR.Bootstrap;
+using BotanicalGardenQR.Experience.Application;
 using BotanicalGardenQR.Experience.Contracts;
 using BotanicalGardenQR.MapNavigation.Contracts;
 using BotanicalGardenQR.VisitorPrologue.Contracts;
@@ -27,12 +28,13 @@ namespace BotanicalGardenQR.Tests.EditMode
             var installer=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<VisitorInstaller>(true)).Single();
             var prefab=PrefabUtility.GetOutermostPrefabInstanceRoot(installer.gameObject);
             if(prefab) PrefabUtility.UnpackPrefabInstance(prefab,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction);
+            installer.ConfigureArchivedBindingsForEditor();
             _bindings=installer.CreateValidatedBindings();
             _rig=_bindings.Platform.XrRigRoot.GetComponentInChildren<OVRCameraRig>(true);
             _rig.EnsureGameObjectIntegrity();
             _rig.centerEyeAnchor.localPosition=new Vector3(0,1.65f,0);
             _release.Complete=true;_release.Begun=0;
-            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release);
+            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release,stationary:false);
             _runtime.StartExperience();Samples();Frames(15);
         }
         [TearDown] public void Cleanup()
@@ -110,7 +112,7 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(_runtime.RequestRoom("R02_STORAGE"),Is.True,"Submitted rooms remain available for read-only review.");Frames(35);
             Assert.That(_runtime.Session.TrySkipGuidedTask("ST-01"),Is.False);
         }
-        [Test] public void RecordReviewIsHiddenUntilUnifiedSubmissionAndCyclesThroughSixFields()
+        [Test] public void RecordReviewIsHiddenUntilUnifiedSubmissionAndCyclesThroughOfficeFieldsAndStorageWeeks()
         {
             _runtime.SelectMode(ClinicalJourneyMode.IndependentCheck);
             foreach(var id in _runtime.Definition.mainlineRoomIds.Skip(1))
@@ -125,14 +127,15 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(_runtime.Session.IsSubmitted,Is.True);
             var stablePanel=_runtime.Visit.Panel;
             var pose=stablePanel.transform.position;
-            for(int i=0;i<7;i++)
+            int reviewCount=ClinicalRecordReview.AfterSubmission(_runtime.Session).Length;
+            for(int i=0;i<reviewCount+1;i++)
             {
                 var review=_runtime.Visit.Panel.GetComponentsInChildren<Button>().Single(b=>b.name=="RecordReview");
                 using(var hand=new ClinicalHandFixture(_runtime.Visit.Panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze)) hand.Touch(review);
                 var body=_runtime.Visit.Panel.GetComponentsInChildren<TMPro.TMP_Text>().Single(t=>t.name=="RoomBrief");
-                Assert.That(body.text,Does.Contain(((i%6)+1)+"/6"));
+                Assert.That(body.text,Does.Contain(((i%reviewCount)+1)+"/"+reviewCount));
                 Assert.That(body.text,Does.Contain("未答"));
-                body.ForceMeshUpdate();Assert.That(body.isTextOverflowing,Is.False);
+                body.ForceMeshUpdate();Assert.That(body.isTextOverflowing,Is.False,"Review page "+(i%reviewCount+1));
                 Assert.That(_runtime.Visit.Panel,Is.SameAs(stablePanel));
                 Assert.That(stablePanel.transform.position,Is.EqualTo(pose));
             }
@@ -170,7 +173,7 @@ namespace BotanicalGardenQR.Tests.EditMode
                 Assert.That(sessions[i].CorrectCount,Is.Zero);
             }
             _runtime.Dispose();
-            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release);
+            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release,stationary:false);
             Assert.That(_runtime.ObservationProgress.Started,Is.False);
             Assert.That(_runtime.ObservationProgress.NextTopic,Is.Zero);
             foreach(var lesson in lessons)
@@ -214,8 +217,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(panel,Is.Not.Null);
             var position=panel.transform.position;var rotation=panel.transform.rotation;
             using(var hand=new ClinicalHandFixture(panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
-                for(var i=0;i<6;i++)hand.Touch(panel.transform.Find("RecordField"+i).GetComponent<Button>());
-            Assert.That(_runtime.OfficeFieldsViewed,Is.EqualTo(63));
+                for(var i=0;i<ClinicalTrainingRecords.FieldCount;i++)hand.Touch(panel.transform.Find("RecordField"+i).GetComponent<Button>());
+            Assert.That(_runtime.OfficeFieldsViewed.Count,Is.EqualTo(ClinicalTrainingRecords.FieldCount));
             Canvas.ForceUpdateCanvases();
             foreach(var text in panel.GetComponentsInChildren<TMPro.TMP_Text>())
             {text.ForceMeshUpdate();Assert.That(text.isTextOverflowing,Is.False,text.transform.parent.name+"/"+text.name+": "+text.text);}
@@ -224,16 +227,18 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(panel.transform.position,Is.EqualTo(position));Assert.That(panel.transform.rotation,Is.EqualTo(rotation));
             MoveToDoor();_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);_runtime.RequestRoom("R02_STORAGE");Frames(35);
             MoveToDoor();_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);_runtime.RequestRoom("R01_OFFICE");Frames(35);
-            Assert.That(_runtime.OfficeFieldsViewed,Is.EqualTo(63),"Revisit keeps reading marks within the same process.");
+            Assert.That(_runtime.OfficeFieldsViewed.Count,Is.EqualTo(ClinicalTrainingRecords.FieldCount),"Revisit keeps reading marks within the same process.");
         }
         [Test] public void NewRuntimeAlwaysStartsFreshWithoutResume()
         {
-            _runtime.Session.TrySkipGuidedTask("N00");_runtime.OfficeFieldsViewed=15;
+            _runtime.Session.TrySkipGuidedTask("N00");_runtime.OfficeFieldsViewed.Add("date");
+            _runtime.OfficeFieldsViewed.Add("patient");_runtime.OfficeFieldsViewed.Add("scope");
+            _runtime.OfficeFieldsViewed.Add("start");
             _runtime.Dispose();
-            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release);
+            _runtime=new FullScriptJourneyRuntime(_bindings,null,_timing,_release,stationary:false);
             _runtime.StartExperience();Samples();Frames(15);
             Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo("R00_LOBBY"));
-            Assert.That(_runtime.OfficeFieldsViewed,Is.Zero);
+            Assert.That(_runtime.OfficeFieldsViewed,Is.Empty);
             Assert.That(_runtime.Session.VisitedRooms.Count,Is.EqualTo(1));
             _runtime.Session.TryGetTask("N00",out var task);
             Assert.That(task.Status,Is.EqualTo(ClinicalJourneyTaskStatus.Unstarted));

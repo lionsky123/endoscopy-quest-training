@@ -9,7 +9,7 @@ namespace BotanicalGardenQR.Experience.Application
     /// the Unity room adapter has established that the visitor is at a door and
     /// a hand has confirmed the door control.
     /// </summary>
-    public sealed class ClinicalJourneySession
+    public sealed partial class ClinicalJourneySession
     {
         sealed class TaskRecord
         {
@@ -21,6 +21,7 @@ namespace BotanicalGardenQR.Experience.Application
         readonly ClinicalJourneyDefinition _definition;
         readonly Dictionary<string, TaskRecord> _tasks = new Dictionary<string, TaskRecord>(StringComparer.Ordinal);
         readonly HashSet<string> _visitedRooms = new HashSet<string>(StringComparer.Ordinal);
+        readonly Dictionary<string, int> _roomVisitCounts = new Dictionary<string, int>(StringComparer.Ordinal);
         int _mainlineIndex;
         int _transitionSequence;
         ClinicalJourneyTransitionTicket _pendingTransition;
@@ -32,6 +33,7 @@ namespace BotanicalGardenQR.Experience.Application
             Mode = mode;
             CurrentRoomId = _definition.startRoomId;
             _visitedRooms.Add(CurrentRoomId);
+            _roomVisitCounts.Add(CurrentRoomId, 1);
             foreach (var room in _definition.rooms)
                 foreach (var taskId in room.taskIds ?? new string[0])
                     _tasks.Add(taskId, new TaskRecord());
@@ -45,8 +47,12 @@ namespace BotanicalGardenQR.Experience.Application
         public IReadOnlyCollection<string> VisitedRooms => _visitedRooms;
         public bool HasPendingTransition => _pendingTransition.IsValid;
         public bool CanEdit => !IsSubmitted && !IsFinished && !HasPendingTransition;
+        public bool IsAtFinalSummary => CurrentRoomId == _definition.summaryRoomId &&
+            _mainlineIndex == _definition.mainlineRoomIds.Length - 1;
 
         public bool HasVisited(string roomId) => _visitedRooms.Contains(roomId);
+        public int RoomVisitCount(string roomId)
+            => _roomVisitCounts.TryGetValue(roomId, out var count) ? count : 0;
 
         public bool TryBeginTask(string taskId)
         {
@@ -61,6 +67,7 @@ namespace BotanicalGardenQR.Experience.Application
         public bool TryCompleteGuidedTask(string taskId)
         {
             if (Mode != ClinicalJourneyMode.GuidedLearning || !CanEdit || !TaskIsInCurrentRoom(taskId) || !IsContentAvailable(taskId)) return false;
+            if(!LearningCriteriaComplete(taskId))return false;
             var record = _tasks[taskId];
             record.Status = ClinicalJourneyTaskStatus.Completed;
             record.Judgement = ClinicalJourneyJudgement.None;
@@ -69,7 +76,7 @@ namespace BotanicalGardenQR.Experience.Application
 
         public bool TrySkipGuidedTask(string taskId)
         {
-            if (Mode != ClinicalJourneyMode.GuidedLearning || !CanEdit || !TaskIsInCurrentRoom(taskId) || !IsContentAvailable(taskId)) return false;
+            if (!CanLearnHere(taskId) || !IsContentAvailable(taskId)) return false;
             var record = _tasks[taskId];
             record.Status = ClinicalJourneyTaskStatus.Skipped;
             record.Judgement = ClinicalJourneyJudgement.None;
@@ -104,7 +111,7 @@ namespace BotanicalGardenQR.Experience.Application
         }
 
         public ClinicalContentAvailability AvailabilityOf(string taskId)
-            => _definition.FindTask(taskId)?.availability ?? ClinicalContentAvailability.Ready;
+            => _definition.FindTask(taskId)?.availability ?? ClinicalContentAvailability.RuntimeUnavailable;
         public bool IsContentAvailable(string taskId) => _tasks.ContainsKey(taskId) && AvailabilityOf(taskId)==ClinicalContentAvailability.Ready;
         public bool TryCompleteInstruction(string taskId)
         {
@@ -186,13 +193,17 @@ namespace BotanicalGardenQR.Experience.Application
                 failure = ClinicalJourneyTransitionFailure.HandConfirmationRequired;
                 return false;
             }
-
             // The cursor records the last mainline room completed, not the room
             // currently occupied after a permitted revisit.
             var next = _definition.IsMainlineNext(_mainlineIndex, targetRoomId);
             if (!next && !_visitedRooms.Contains(targetRoomId))
             {
                 failure = ClinicalJourneyTransitionFailure.FutureRoomLocked;
+                return false;
+            }
+            if (!_definition.CanTransfer(CurrentRoomId, targetRoomId))
+            {
+                failure = ClinicalJourneyTransitionFailure.TransitionNotAllowed;
                 return false;
             }
             // Door destinations include all visited rooms and the mainline continuation.
@@ -211,6 +222,8 @@ namespace BotanicalGardenQR.Experience.Application
             if (!MatchesPending(ticket)) return false;
             CurrentRoomId = ticket.TargetRoomId;
             _visitedRooms.Add(ticket.TargetRoomId);
+            _roomVisitCounts.TryGetValue(ticket.TargetRoomId, out var visits);
+            _roomVisitCounts[ticket.TargetRoomId] = visits + 1;
             if (ticket.AdvancesMainline) _mainlineIndex++;
             _pendingTransition = default;
             return true;
@@ -224,12 +237,13 @@ namespace BotanicalGardenQR.Experience.Application
         }
 
         public bool CanSubmitAtSummary => Mode == ClinicalJourneyMode.IndependentCheck && !IsSubmitted &&
-            !IsFinished && !HasPendingTransition && CurrentRoomId == _definition.summaryRoomId && HasVisitedAllMainlineRooms;
+            !IsFinished && !HasPendingTransition && IsAtFinalSummary && HasVisitedAllMainlineRooms;
 
         public bool HasVisitedAllMainlineRooms
         {
             get
             {
+                if (_mainlineIndex < _definition.mainlineRoomIds.Length - 1) return false;
                 foreach (var roomId in _definition.mainlineRoomIds)
                     if (!_visitedRooms.Contains(roomId)) return false;
                 return true;
@@ -248,8 +262,9 @@ namespace BotanicalGardenQR.Experience.Application
         {
             if (Mode != ClinicalJourneyMode.GuidedLearning || IsSubmitted || IsFinished ||
                 HasPendingTransition ||
-                CurrentRoomId != _definition.summaryRoomId || !HasVisitedAllMainlineRooms)
+                !IsAtFinalSummary || !HasVisitedAllMainlineRooms)
                 return false;
+            IsSubmitted = true;
             IsFinished = true;
             return true;
         }

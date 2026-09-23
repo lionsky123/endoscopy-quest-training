@@ -2,6 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BotanicalGardenQR.Experience.Application;
+using BotanicalGardenQR.FrontendShell.Contracts;
+using BotanicalGardenQR.VisitorCoach.Frontend;
 using BotanicalGardenQR.VisitorPrologue.Contracts;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -26,12 +29,13 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                 var installer=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<VisitorInstaller>(true)).Single();
                 var prefab=PrefabUtility.GetOutermostPrefabInstanceRoot(installer.gameObject);
                 if(prefab)PrefabUtility.UnpackPrefabInstance(prefab,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction);
+                installer.ConfigureArchivedBindingsForEditor();
                 var bindings=installer.CreateValidatedBindings();
                 var rig=bindings.Platform.XrRigRoot.GetComponentInChildren<OVRCameraRig>(true);
                 rig.EnsureGameObjectIntegrity();rig.centerEyeAnchor.localPosition=new Vector3(0,1.65f,0);
                 var camera=bindings.Platform.Viewer.GetComponent<Camera>();camera.fieldOfView=75;
                 foreach(var other in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))other.enabled=false;
-                using(var runtime=new FullScriptJourneyRuntime(bindings,null,new Timing(),new PreviewRelease()))
+                using(var runtime=new FullScriptJourneyRuntime(bindings,null,new Timing(),new PreviewRelease(),stationary:false))
                 {
                     runtime.StartExperience();
                     var changed=typeof(OVRCameraRig).GetField("UpdatedAnchors",BindingFlags.Instance|BindingFlags.NonPublic);
@@ -82,7 +86,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                         var panel=runtime.Visit.Panel;
                         panel.transform.Find("SubmitJourney").GetComponent<Button>().onClick.Invoke();
                         FacePanel(camera,panel);Save(camera,output,"20-submitted-summary");
-                        for(int field=0;field<6;field++)
+                        for(int field=0;field<ClinicalTrainingRecords.FieldCount;field++)
                         {
                             panel.transform.Find("RecordReview").GetComponent<Button>().onClick.Invoke();
                             Save(camera,output,$"{21+field:00}-field-review");
@@ -101,7 +105,139 @@ namespace BotanicalGardenQR.Bootstrap.Editor
             catch(Exception error){Debug.LogException(error);}
             EditorApplication.Exit(code);
         }
+        public static void CaptureStationary()
+        {
+            int code=1;
+            try
+            {
+                var args=Environment.GetCommandLineArgs();var output=Path.GetFullPath(args[Array.IndexOf(args,"-bgqrCaptureOutput")+1]);Directory.CreateDirectory(output);
+                var scene=EditorSceneManager.OpenScene("Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity",OpenSceneMode.Single);
+                var installer=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<VisitorInstaller>(true)).Single();
+                var prefab=PrefabUtility.GetOutermostPrefabInstanceRoot(installer.gameObject);
+                if(prefab)PrefabUtility.UnpackPrefabInstance(prefab,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction);
+                var bindings=installer.CreateValidatedBindings();var rig=bindings.Platform.XrRigRoot.GetComponentInChildren<OVRCameraRig>(true);
+                rig.EnsureGameObjectIntegrity();rig.centerEyeAnchor.localPosition=new Vector3(0,1.2f,0);
+                var camera=bindings.Platform.Viewer.GetComponent<Camera>();camera.fieldOfView=78;
+                foreach(var c in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))c.enabled=false;
+                using(var runtime=new FullScriptJourneyRuntime(bindings,null,new Timing(),new PreviewRelease()))
+                {
+                    runtime.StartExperience();
+                    (typeof(OVRCameraRig).GetField("UpdatedAnchors",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(rig) as Action<OVRCameraRig>)?.Invoke(rig);
+                    Tick(runtime);Save(camera,output,"01-entry-guide");
+                    ContinueEntryGuide(runtime);Tick(runtime);Save(camera,output,"02-lobby-choices");
+                    int index=3;
+                    foreach(var id in runtime.Definition.mainlineRoomIds.Skip(1))
+                    {
+                        runtime.Visit.TryOpen(FullScriptRoomCatalog.Door);runtime.RequestRoom(id);Tick(runtime);
+                        if(runtime.Visit?.RoomId!=id)throw new InvalidOperationException("Wrong room: "+id);
+                        Save(camera,output,$"{index++:00}-{id}-entry-guide");
+                        ContinueEntryGuide(runtime);Tick(runtime);
+                        Save(camera,output,$"{index++:00}-{id}-current-task");
+                        if(id=="R02_STORAGE")
+                        {
+                            runtime.Visit.Panel.transform.Find("StorageSample_ST-01").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cabinet-task");
+                            runtime.Visit.Panel.transform.Find("ExpandReference").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-teaching-expanded");
+                            runtime.Visit.Panel.transform.Find("ExpandReference").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("InspectStorageCabinet").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cabinet-overview");
+                            runtime.Visit.Panel.transform.Find("SwitchStorageDistance").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cabinet-closed");
+                            foreach(var leaf in runtime.Visit.Room.Root.GetComponentsInChildren<Transform>().Where(t=>t.name=="LeftDoor"||t.name=="RightDoor"))
+                                leaf.localRotation=Quaternion.Euler(0,leaf.name=="LeftDoor"?85:-85,0);
+                            Tick(runtime);Save(camera,output,"storage-cabinet-open");
+                            runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("NextTask").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("OpenStorageRecords").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cleaning-register");
+                            runtime.Visit.Panel.transform.Find("StorageWeek2").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cleaning-register-selected");
+                            runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("InspectStorageRegister").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cabinet-side-register");
+                            var mounted=runtime.Visit.Room.Root.GetComponentsInChildren<Transform>().Single(t=>t.name=="CabinetSideRegister");
+                            mounted.Find("OpenMountedRegister").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"storage-cabinet-register-expanded");
+                            runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("NextTask").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("InspectObject").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"gastroscope-object-inspection");
+                            runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                        }
+                        if(id=="R03_WAITING")
+                        {
+                            runtime.Visit.Panel.transform.Find("InspectEnvironment").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"waiting-observation");
+                            runtime.Visit.Panel.transform.Find("SwitchObservationSide").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"waiting-corridor-observation");
+                            runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                        }
+                        if(id=="R01_OFFICE" && !runtime.Session.HasVisitedAllMainlineRooms)
+                        {
+                            runtime.Visit.Panel.transform.Find("NextTask").GetComponent<Button>().onClick.Invoke();
+                            Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("OpenCurrentDocument").GetComponent<Button>().onClick.Invoke();
+                            Tick(runtime);
+                            Save(camera,output,"office-seated-records");
+                            runtime.Visit.Panel.transform.Find("OpenDocuments").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            runtime.Visit.Panel.transform.Find("Doc1").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"office-leak-register-paper");
+                            runtime.Visit.Panel.transform.Find("LeakUseLink1").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                            Save(camera,output,"office-leak-assessment-guided");
+                            runtime.Visit.Panel.transform.Find("ReturnToTerminal").GetComponent<Button>().onClick.Invoke();
+                            Tick(runtime);
+                        }
+                        if(id==FullScriptRoomCatalog.Washing)
+                            for(int n=0;n<5;n++)
+                            {
+                                runtime.Visit.Panel.transform.Find("NextTask").GetComponent<Button>().onClick.Invoke();
+                                Tick(runtime);
+                                Save(camera,output,"washing-"+runtime.Visit.ScriptTaskId);
+                                if(runtime.Visit.ScriptTaskId=="RE-05")
+                                {
+                                    runtime.Visit.Panel.transform.Find("NextDetail").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    runtime.Visit.Panel.transform.Find("OpenLinkedLeakRecords").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    Save(camera,output,"washing-linked-leak-ledger");
+                                    runtime.Visit.Panel.transform.Find("BackToRows").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    Save(camera,output,"washing-linked-use-records");
+                                    runtime.Visit.Panel.transform.Find("ReturnToTerminal").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                }
+                                if(runtime.Visit.ScriptTaskId=="RE-04")
+                                {
+                                    runtime.Visit.Panel.transform.Find("InspectObject").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    Save(camera,output,"disinfectant-object-inspection");
+                                    runtime.Visit.Panel.transform.Find("ReturnToInspection").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                }
+                                if(runtime.Visit.ScriptTaskId=="RE-02")
+                                {
+                                    for(int detail=0;detail<2;detail++)
+                                    {runtime.Visit.Panel.transform.Find("NextDetail").GetComponent<Button>().onClick.Invoke();Tick(runtime);}
+                                    Save(camera,output,"washing-brush-overview");
+                                    runtime.Visit.Panel.transform.Find("ExpandReference").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    runtime.Visit.Panel.transform.Find("BrushFocus").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    Save(camera,output,"washing-brush-bristles");
+                                    runtime.Visit.Panel.transform.Find("BrushFocus").GetComponent<Button>().onClick.Invoke();Tick(runtime);
+                                    Save(camera,output,"washing-brush-wire");
+                                }
+                            }
+                    }
+                    File.WriteAllText(Path.Combine(output,"stationary-capture.txt"),"Production runtime / Android target / Vulkan editor / fixed 1.2m viewer; callbacks driven by preview, not headset proof. No APK. Source scale remains provisional.\n");
+                }
+                code=0;
+            }
+            catch(Exception e){Debug.LogException(e);}
+            EditorApplication.Exit(code);
+        }
         static void Tick(FullScriptJourneyRuntime runtime){for(int i=0;i<35;i++)runtime.Tick(.05f);}
+        static void ContinueEntryGuide(FullScriptJourneyRuntime runtime)
+        {
+            var presenter=Object.FindObjectsByType<VisitorCoachPresenter>(FindObjectsInactive.Include,FindObjectsSortMode.None).SingleOrDefault();
+            var state=presenter?.CurrentState;
+            if(state?.Owner!=VisitorDialogueOwner.Guidance)return;
+            presenter.Hide(state.Context);
+            runtime.Visit.BeginFromEntryGuide();
+        }
         static void FacePanel(Camera camera,GameObject panel)
         {
             if(!panel)throw new InvalidOperationException("Expected panel missing");

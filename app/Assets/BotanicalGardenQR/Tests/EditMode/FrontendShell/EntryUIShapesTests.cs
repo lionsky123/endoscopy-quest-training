@@ -107,6 +107,24 @@ namespace BotanicalGardenQR.Tests.EditMode.FrontendShell
             }
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExhaustedCacheFallbackKeepsCornersWithinButtonHeight(bool outline)
+        {
+            var image=CreateImage("FallbackButton");
+            try
+            {
+                for(int i=1;i<=EntryUIShapes.MaxSizedRoundedSpriteCount;i++)
+                    EntryUIShapes.ApplySizedRoundedFill(image,new Vector2(512,256),i);
+                if(outline)EntryUIShapes.ApplySizedRoundedOutline(image,new Vector2(380,54),33,3);
+                else EntryUIShapes.ApplySizedRoundedFill(image,new Vector2(380,54),26.5f);
+                Assert.That(image.sprite.name,Is.EqualTo(outline?"XREALRoundedOutline":"XREALRoundedFill"));
+                Assert.That(image.type,Is.EqualTo(Image.Type.Sliced));
+                float border=image.sprite.border.x*100f/image.sprite.pixelsPerUnit;
+                Assert.That(border,Is.LessThanOrEqualTo(27),"Fallback must not stretch a 54px button into an ellipse.");
+            }
+            finally{Object.DestroyImmediate(image.gameObject);}
+        }
         static Image CreateImage(string name)
         {
             var root = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));

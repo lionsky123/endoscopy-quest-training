@@ -49,7 +49,7 @@ using UnityEngine.EventSystems;
 
 namespace BotanicalGardenQR.Bootstrap
 {
-    public sealed class VisitorRuntimeComposition : IDisposable
+    public sealed partial class VisitorRuntimeComposition : IDisposable
     {
         readonly BootstrapOwnershipScope _ownership;
         readonly SpatialDataPermissionStartupBinding _permissionStartupBinding;
@@ -78,6 +78,12 @@ namespace BotanicalGardenQR.Bootstrap
             Action<DiagnosticEvent> diagnostics, FullScriptRoomVisit visit = null)
         {
             if (bindings == null) throw new ArgumentNullException(nameof(bindings));
+            // Production is composed independently. Historical C09 factories below
+            // must never be initialized merely to leave them hidden or unticked.
+            if (visit?.Stationary == true) return CreateStationary(bindings, diagnostics, visit);
+            if (bindings.Configuration.Library == null || bindings.Configuration.Routes == null ||
+                bindings.Configuration.CollectionCatalog == null || bindings.Configuration.PhysicalAugmentationDefinitions == null)
+                throw new InvalidOperationException("Archived composition requires explicit archived configuration; production does not load it.");
             var configuration = bindings.Configuration;
             var platform = bindings.Platform;
             var presentation = bindings.Presentation;
@@ -119,6 +125,16 @@ namespace BotanicalGardenQR.Bootstrap
             var ownership = new BootstrapOwnershipScope();
             try
             {
+                if(visit?.Stationary==true)
+                {
+                    prologueTheme=prologueTheme.CreateStationaryVariant();
+                    var ownedTheme=prologueTheme;
+                    ownership.Register(()=>
+                    {
+                        if(UnityEngine.Application.isPlaying)UnityEngine.Object.Destroy(ownedTheme);
+                        else UnityEngine.Object.DestroyImmediate(ownedTheme);
+                    });
+                }
                 if(visit!=null)
                 {
                     featurePages.PanoramaFrontend.ClinicalProgress=visit.ObservationProgress;
@@ -496,7 +512,8 @@ namespace BotanicalGardenQR.Bootstrap
                 void BeginGuidedLearning()
                 {
                     toolPreparation.CompleteWithoutTools();
-                    guidance.Begin();
+                    if(visit?.Stationary == true) visit.BeginStationary();
+                    else guidance.Begin();
                 }
                 var prologueStartupBinding = new VisitorPrologueStartupBinding(
                     prologue,
@@ -519,7 +536,8 @@ namespace BotanicalGardenQR.Bootstrap
                         var alignmentValid = (room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract) && (visit == null || visit.InputAllowed);
                         // Still tick with tracked=false so navigation sends Hold to
                         // the Fairy instead of leaving its last movement running.
-                        guidanceBinding.Tick(deltaSeconds, alignmentValid);
+                        if(visit?.Stationary != true) guidanceBinding.Tick(deltaSeconds, alignmentValid);
+                        else visit.TickStationary(deltaSeconds);
                         if (!alignmentValid || visit?.ContentOpen == true) return;
                         visitorCoachRuntime.Tick(deltaSeconds);
                     }, () => (room?.TrackingOrigin == null || room.TrackingOrigin.CanInteract) && (visit == null || visit.InputAllowed));
@@ -527,7 +545,7 @@ namespace BotanicalGardenQR.Bootstrap
                 {
                     if (visit != null && prologue.CurrentState.IsExplorationReady)
                     {
-                        fairyBinding?.Show(room.GuidePath.StartPosition);
+                        fairyBinding?.Show(visit.Stationary ? viewer.position+Vector3.ProjectOnPlane(viewer.forward,Vector3.up).normalized*.85f-Vector3.up*.4f : room.GuidePath.StartPosition);
                         BeginGuidedLearning();
                     }
                     else prologueStartupBinding.Begin();
