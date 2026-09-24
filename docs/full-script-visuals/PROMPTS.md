@@ -44,6 +44,7 @@ Use case: ui-mockup. Asset type: photorealistic hospital workstation application
 2026-09-20 | SIM-005 | DEMO-GI-001 | 13:10 | 13:45 | 训练人员A
 ```
 
+
 Faint grey row dividers, subtle alternate pale-blue rows, generous legibility. Footer left exact '共5条记录', bottom right exact '示例时长不作为处理标准'. No completed/disinfected/checkmark/compliant status, no correctness answers, no patient photo or clinical imagery, no personal real data. Important exact transcription all requested Chinese and alphanumeric text; no extra paragraphs, no website mockup, no decorative cards. Output one polished realistic application screen texture.
 
 ## 水磨石地面纹理
@@ -75,4 +76,38 @@ Use case: photorealistic-natural. Asset type: hospital endoscopy administrative 
 
 ```text
 Use case: product-mockup. Asset type: photorealistic blank paper register background for an in-world Chinese hospital VR training document, landscape 1536x1024. A straight-on orthographic close-up of one clean white paper record sheet held in a thin muted grey plastic document sleeve on a pale neutral surface. Paper nearly fills frame, all edges visible, flat and square to camera, no perspective skew. Quiet realistic paper fibres, tiny edge shadow, no decorative UI cards. There is NO printed text, handwriting, numbers, signatures, hospital logo, seals, checkmarks or symbols anywhere: software will overlay all exact training data and source labels. Keep a blank title space centered above the table. Draw only the thin dark grey rules of a compact traditional medical log table: table outer bounds at x=8% and x=92%, y=28% and y=83% of the image. Exactly FIVE equal-width columns and FIVE equal-height rows (one header row plus four data rows), perfectly straight fine rules. Thus vertical rules x=8%,24.8%,41.6%,58.4%,75.2%,92%; horizontal rules y=28%,39%,50%,61%,72%,83%. Leave all cells completely empty, no extra lines. Top margin y=8%-25% empty for runtime title and record-range text; bottom margin y=85%-94% empty for provenance. Very soft neutral daylight, matte non-glare paper; subtle believable physical document appearance, not a web dashboard, not an illustration, not a spreadsheet screenshot. Do not invent any medical content.
+```
+
+## 房间选择画廊示意图（2026-09-23）
+
+方式：Codex内置ImageGen，未使用输入图。输出为一个3×3格的插画图集；运行时按UV区域裁出七张小图。它只表达房间类别，不对应实际布置、设备清单或现场状态，不能作为真实场景照片、模型或运行画面证据。
+
+工具原文件：`C:/Users/i1204/.codex/generated_images/01a0cda1-2e74-7b10-ba93-b969623f9585/exec-d786a9f2-5054-4938-bcf2-9c384b97c0b5.png`。
+
+运行资产：`app/Assets/EndoscopyTheme/Resources/FullScriptRooms/RoomGallery/room-preview-atlas-v1.png`。
+
+完整提示词：
+
+```text
+Use case: VR room-selection gallery imagery
+Asset type: one square atlas for seven room-preview thumbnails in a clinical training application
+Primary request: create a single square contact sheet with a precise 3-by-3 grid. The first seven cells contain separate, clearly distinguishable room illustrations in this exact order: top row left hospital lobby/reception; top middle small staff office with desk and computer; top right endoscope storage room with clean cabinets and storage racks but no visible endoscopes; middle row left patient waiting area with chairs and a glass divider; middle center gastrointestinal endoscopy treatment room with examination bed and monitor; middle right respiratory endoscopy treatment room with examination bed and monitor, distinct from the previous room; bottom left instrument washing and disinfection room with stainless work surfaces and a sink. Bottom middle and bottom right cells are blank warm-white, no scene.
+Style/medium: polished, clearly illustrative architectural editorial painting, soft dimensional brushwork, modern healthcare interiors, calm warm-white and pale gray base with restrained teal accents; visibly an illustration, never a real photograph, real hospital capture, or rendered 3D scene.
+Composition/framing: each occupied cell is a square, independent straight-on eye-level room vignette with clear room-defining furniture, composed inside its own equal cell. Exactly aligned 3x3 grid, generous uniform warm-white gutters between cells and around the outside for clean UV cropping. No overlap across cells.
+Lighting/mood: bright, diffused, low-glare interior light, calm and welcoming.
+Constraints: no text, no letters, no numerals, no labels, no logos, no watermarks, no people, no patient data, no visible hanging or coiled endoscope, no medical procedure, no product labels, no UI panels or buttons. Do not depict these as authentic facility photos.
+```
+
+## C01.E08 画廊带练手势图集（2026-09-23）
+
+方式：Codex内置ImageGen，未使用输入图。资源用于带教当前操作，不代表真实手部追踪姿态或已触发的输入；运行时仍必须收到真正跟踪到的手部动作才会推进步骤。
+
+工具原文件：`C:/Users/i1204/.codex/generated_images/01a0cda1-2e74-7b10-ba93-b969623f9585/exec-a2ce0a01-d832-45f6-8eda-c17942d51340.png`。
+
+运行资产：`app/Assets/EndoscopyTheme/Resources/FullScriptRooms/RoomGallery/gallery-gesture-tutorial-v2.png`。
+
+完整提示词：
+
+```text
+Use case: infographic-diagram. Asset type: final production hand-gesture instruction sprite atlas for a Unity VR room-selector. Primary request: a 3-column by 2-row transparent sprite sheet, landscape 3:2, with five separate consistent hand-action diagrams and one fully empty transparent cell. Use six equal square cells. In every occupied cell, confine the complete hand and its tiny interaction target to the centered inner 68% of that cell, leaving a clear transparent safety margin on all four sides; nothing may touch or cross a cell boundary. Cell order, left to right then top to bottom: 1) same right hand with index finger extended, thumb apart, moving toward a short rounded horizontal handle; 2) same right hand gently pinching the short horizontal handle between thumb and index; 3) same pinch holding the handle while a small thin deep-teal double-ended horizontal arrow indicates left-right movement, fully inside the cell; 4) same hand opening thumb and index away from the handle with two small outward motion marks; 5) same right index finger gently poking a separate small room-picture card; 6) completely transparent and empty. Style: polished simple flat vector-like game illustration, anatomically plausible fingers, warm ivory fill, crisp dark teal outline, minimal details, no printed shadows; all five drawings must read clearly at small icon size and look like the same hand. Background: genuinely transparent across every cell and gutter, no white or colored tile. Keep a wide transparent gutter between all adjacent cells. No text, no labels, no numbers, no logo, no watermark, no interface panels, no medical objects, no additional hands, no busy room background. The image will be cropped into square gesture icons at runtime.
 ```

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BotanicalGardenQR.FrontendShell.Runtime;
 using BotanicalGardenQR.VisitorCoach.Frontend;
@@ -46,6 +47,7 @@ namespace BotanicalGardenQR.Tests.EditMode
                 if (touch.Button.isActiveAndEnabled && touch.Button.IsInteractable()) surface.Enable(); else surface.Disable();
             }
             var target = button.GetComponent<ClinicalNearTouch>(); Assert.That(target, Is.Not.Null, button.name);
+            target.SetTimeProvider(() => _time);
             Lifecycle(target, "LateUpdate");
             typeof(ClinicalNearTouch).GetField("readyAt", Flags).SetValue(target, float.NegativeInfinity);
             typeof(ClinicalNearTouch).GetField("lastCommit", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, float.NegativeInfinity);
@@ -57,19 +59,45 @@ namespace BotanicalGardenQR.Tests.EditMode
             button.onClick.AddListener(count);
             try
             {
+                var touchSurfaces = _root.GetComponentsInChildren<ClinicalNearTouch>(true)
+                    .Select(touch => touch.GetComponent<PokeInteractable>()).Where(surface => surface).ToArray();
+                var readySurfaces = touchSurfaces.Where(surface =>
+                {
+                    var candidate = surface.GetComponent<Button>();
+                    return surface.isActiveAndEnabled && candidate && candidate.isActiveAndEnabled && candidate.IsInteractable();
+                }).ToArray();
+                foreach (var surface in touchSurfaces) surface.Disable();
                 Drive(_viewer.position - _viewer.forward);
                 _viewer.LookAt(button.transform.position); Canvas.ForceUpdateCanvases();
+                var approach = button.transform.position - button.transform.forward * .06f;
+                // Treat this as a newly tracked fingertip sample. Do not let the synthetic
+                // teleport from the viewer spawn sweep across unrelated gallery surfaces.
+                Drive(approach);
+                foreach (var surface in readySurfaces) surface.Enable();
+                Drive(approach);
                 _gaze.TickInput(2); Assert.That(commits, Is.Zero, "Gaze alone cannot submit in hand-only VR.");
-                Drive(button.transform.position - button.transform.forward * .06f);
                 Assert.That(_poke.State, Is.EqualTo(InteractorState.Hover), button.name);
-                Assert.That(_poke.Interactable, Is.SameAs(target.GetComponent<PokeInteractable>()), button.name);
+                var selectedAtApproach = _poke.Interactable;
+                Assert.That(selectedAtApproach, Is.SameAs(target.GetComponent<PokeInteractable>()),
+                    button.name + "; finger=" + _finger.transform.position + "; target=" + button.transform.position +
+                    "; selected=" + (selectedAtApproach ? selectedAtApproach.name : "<none>") +
+                    "; selectedPosition=" + (selectedAtApproach ? selectedAtApproach.transform.position.ToString() : "<none>"));
                 for (int step = -10; step <= 2 && commits == 0; step++)
+                {
                     Drive(button.transform.position + button.transform.forward * (step * .005f));
+                    Lifecycle(target, "LateUpdate");
+                }
+                for (int hold = 0; hold < 4 && commits == 0; hold++)
+                {
+                    Drive(button.transform.position + button.transform.forward * .01f);
+                    Lifecycle(target, "LateUpdate");
+                }
                 _gaze.TickInput(2); Assert.That(commits, Is.EqualTo(1), buttonName + " must commit exactly once through actual poke. Events=" + string.Join(",", trace) + " state=" + _poke.State);
                 Drive(_viewer.position - _viewer.forward);
             }
             finally
             {
+                if(target) target.SetTimeProvider(null);
                 if(button) button.onClick.RemoveListener(count);
                 if(target) target.GetComponent<PokeInteractable>().WhenPointerEventRaised -= Track;
             }

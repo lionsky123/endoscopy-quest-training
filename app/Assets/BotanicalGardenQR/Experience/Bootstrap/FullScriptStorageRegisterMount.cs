@@ -33,7 +33,9 @@ namespace BotanicalGardenQR.Bootstrap
         void ChangeStorageRegisterObservation()
         {
             EnsureStorageRegister();
-            if(_storageRegister && _owner.RequestStorageRegisterObservation(_storageRegister.transform,ShowStorageRegisterObservation))ClosePanel();
+            if(_storageRegister && _owner.RequestStorageRegisterObservation(_storageRegister.transform,ShowStorageRegisterObservation))
+            {ClosePanel();return;}
+            if(InputAllowed)ShowStorageRecords();
         }
         void ShowStorageRegisterObservation()
         {
@@ -43,17 +45,17 @@ namespace BotanicalGardenQR.Bootstrap
             var board=(RectTransform)_panel.transform;board.sizeDelta=new Vector2(760,150);board.localScale=Vector3.one*.00065f;
             board.SetPositionAndRotation(_scriptPose.position-Vector3.up*.20f,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();
-            Fill(board,new Color(.96f,.98f,1),2);
+            Frame(board);
             var text=Label(board,_font,"RegisterObservationHint",0,42,720,45,22);text.fontSharedMaterial=_scriptTextMaterial;text.color=new Color(.015f,.025f,.035f);
             text.text="柜侧模拟登记 · 近触纸面放大阅读";
-            var back=Button(board,_font,"ReturnToInspection","返回检查说明",0,-25,700,60,()=>QueueStationaryAction(ReturnFromStorageRegister),true);
+            var back=Button(board,_font,"ReturnToInspection","返回储存库",0,-25,700,60,()=>QueueStationaryAction(ReturnFromStorageRegister));
             back.GetComponentInChildren<TMP_Text>().fontSharedMaterial=_scriptTextMaterial;EmphasizeButton(back,false,false);
             ClinicalNearTouch.Bind(board,()=>InputAllowed);
         }
         void ReturnFromStorageRegister()
         {
-            if(!_storageRegisterAtSide){ShowScriptTask();return;}
-            if(_owner.RequestStorageObservation(false,()=>{_storageRegisterAtSide=false;ShowScriptTask();}))ClosePanel();
+            if(!_storageRegisterAtSide){ShowStorageSampleSelector();return;}
+            if(_owner.RequestStorageObservation(false,()=>{_storageRegisterAtSide=false;ShowStorageSampleSelector();}))ClosePanel();
         }
         void DisposeStorageRegister()
         {

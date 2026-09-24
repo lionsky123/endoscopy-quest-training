@@ -132,6 +132,29 @@ namespace BotanicalGardenQR.Tests.EditMode
         }
 
         [Test]
+        public void StationaryGalleryCanVisitAnyRoomWithoutAdvancingOrCompletingOtherRooms()
+        {
+            var session = new ClinicalJourneySession(Definition, ClinicalJourneyMode.GuidedLearning);
+            var coordinator = new ClinicalRoomTransitionCoordinator(session);
+
+            var selectedFutureRoom = coordinator.TryBeginStationary("R04_GI", handConfirmed: true);
+
+            Assert.That(selectedFutureRoom.Accepted, Is.True, selectedFutureRoom.JourneyFailure.ToString());
+            Assert.That(coordinator.Complete(selectedFutureRoom.Request, roomLoaded: true).Succeeded, Is.True);
+            Assert.That(session.CurrentRoomId, Is.EqualTo("R04_GI"));
+            Assert.That(session.MainlineIndex, Is.Zero, "Choosing a room is not completion of the recommended route.");
+            Assert.That(session.HasVisited("R04_GI"), Is.True);
+            Assert.That(session.TryGetTask("CL-01.GI", out var task), Is.True);
+            Assert.That(task.Status, Is.EqualTo(ClinicalJourneyTaskStatus.Unstarted),
+                "Arriving in a room does not complete or skip its tasks.");
+
+            var recommended = coordinator.TryBeginStationary("R01_OFFICE", handConfirmed: true);
+            Assert.That(recommended.Accepted, Is.True, recommended.JourneyFailure.ToString());
+            Assert.That(coordinator.Complete(recommended.Request, roomLoaded: true).Succeeded, Is.True);
+            Assert.That(session.MainlineIndex, Is.EqualTo(1), "Only selecting the recommended next room advances the route.");
+        }
+
+        [Test]
         public void VisitedRoomWithoutDeclaredDoorCannotBeReentered()
         {
             var session = NewAtFinalOffice(ClinicalJourneyMode.GuidedLearning);

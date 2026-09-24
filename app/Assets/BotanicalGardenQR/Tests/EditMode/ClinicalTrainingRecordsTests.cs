@@ -39,6 +39,9 @@ namespace BotanicalGardenQR.Tests.EditMode
             {
                 ClinicalTrainingRecords.Configure("routing-test",new[]{new ClinicalTrainingRecords.FieldDefinition("date","日期")},
                     new ClinicalTrainingRecords.Row[0],ids.Select(id=>new ClinicalTrainingRecords.DocumentDefinition(id,id,id+" body")).ToArray());
+                Assert.That(Enumerable.Range(0,ids.Length).Select(ClinicalTrainingRecords.DocumentId),Is.EqualTo(ids),
+                    "Image resources must resolve by the stable document identity, independent of the task mapping.");
+                Assert.Throws<System.ArgumentOutOfRangeException>(()=>ClinicalTrainingRecords.DocumentId(-1));
                 foreach(var pair in new[]{new[]{"OF-00","disinfection"},new[]{"OF-02","leak"},new[]{"OF-03","biological"},new[]{"OF-04","disinfectant"},new[]{"OF-05","training"}})
                     Assert.That(ClinicalTrainingRecords.DocumentTitle(ClinicalTrainingRecords.DocumentIndexForTask(pair[0])),Is.EqualTo(pair[1]));
                 Assert.That(ClinicalTrainingRecords.DocumentIndexForTask("OF-01"),Is.EqualTo(-1));

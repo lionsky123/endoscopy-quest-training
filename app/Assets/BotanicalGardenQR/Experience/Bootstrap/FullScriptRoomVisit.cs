@@ -38,6 +38,8 @@ namespace BotanicalGardenQR.Bootstrap
         internal string StartRoomId => _owner.Definition.startRoomId;
         internal int MainlineIndex => _owner.Session.MainlineIndex;
         internal bool InputAllowed => !_disposed && _owner.InputAllowed;
+        internal void PlayConfirmationSound(AudioClip clip) => _owner.Audio?.PlayConfirmation(clip);
+        internal void SetSinkVideoAudioActive(bool active) => _owner.Audio?.SetSinkVideoPlaying(active);
         internal ClinicalCourseSession ResumeWashingLesson(ClinicalCourseLesson lesson) => _owner.ResumeWashingLesson(lesson);
         internal bool TeachingReadOnly => _owner.Session.IsFinished;
         internal BotanicalGardenQR.FrontendShell.Contracts.ClinicalObservationProgress ObservationProgress => _owner.ObservationProgress;
@@ -66,7 +68,7 @@ namespace BotanicalGardenQR.Bootstrap
                 sign.transform.SetParent(room.Root.transform,false);sign.transform.localPosition=new Vector3(-1.866f,2.4f,-1.82f);
                 sign.transform.localRotation=Quaternion.Euler(0,180,0);sign.transform.localScale=Vector3.one*.0007f;
                 var rect=(RectTransform)sign.transform;rect.sizeDelta=new Vector2(800,110);sign.GetComponent<Canvas>().renderMode=RenderMode.WorldSpace;
-                Fill(rect,Color.white,3);var label=Label(rect,font,"Identity",0,0,760,85,32);label.color=new Color(.08f,.23f,.37f);
+                Fill(rect,ClinicalPanelStyle.SurfaceRaised,3);var label=Label(rect,font,"Identity",0,0,760,85,32);label.color=ClinicalPanelStyle.TextPrimary;
                 label.text=owner.Definition.FindRoom(id).displayName;label.alignment=TextAlignmentOptions.Center;
             }
             if(map.roomResource==FullScriptRoomCatalog.DevelopmentResource)
@@ -105,6 +107,11 @@ namespace BotanicalGardenQR.Bootstrap
         void Show(bool door)
         {
             ClosePanel(); _door=door;
+            if(door && Stationary)
+            {
+                ShowRoomGallery();
+                return;
+            }
             _panel = new GameObject("FullScriptRoomPanel",typeof(RectTransform),typeof(Canvas));
             var board=(RectTransform)_panel.transform;
             var coachTheme=_owner.CoachTheme;
@@ -122,6 +129,7 @@ namespace BotanicalGardenQR.Bootstrap
             Frame(board);
             var title=Label(board,_font,"RoomTitle",0,275,770,55,32);
             title.text=door?(RoomId=="R00_LOBBY"&&MainlineIndex==0?"下一步":"选择下一步"):_owner.Definition.FindRoom(RoomId).displayName;
+            if(!door)title.color=TextPrimary;
             if(door)
             {
                 board.GetComponent<Image>().color=coachTheme.PanelColor;
@@ -132,6 +140,7 @@ namespace BotanicalGardenQR.Bootstrap
                 Fill(Rect(board,"NavigationAccent",0,board.sizeDelta.y*.5f-12,board.sizeDelta.x-48,5),coachTheme.AccentColor,2);
             }
             var body=Label(board,_font,"RoomBrief",0,120,770,235,25);
+            body.color=TextPrimary;
             if(door)
             {
                 body.color=coachTheme.DetailTextColor;
@@ -167,7 +176,7 @@ namespace BotanicalGardenQR.Bootstrap
             }
             else if(ClinicalActSelection.OfficeVisitStage(_owner.Definition,_owner.Session)==ClinicalOfficeVisitStage.FinalSummary)
             {
-                body.fontSize=22;
+                body.fontSize=26;
                 Button details=null,recordReview=null,submit=null;
                 void RefreshSummary()
                 {
@@ -176,13 +185,13 @@ namespace BotanicalGardenQR.Bootstrap
                         ? "模拟记录逐字段复盘 · "+(_recordReviewPage+1)+"/"+review.Length+"\n\n"+review[_recordReviewPage]+"\n\n仅核对模拟记录完整性，不代表医疗合规结论。"
                         : _summaryPage<0?Summary():SummaryRoom(_summaryPage);
                     recordReview.gameObject.SetActive(review.Length>0);
-                    submit.interactable=!_owner.Session.IsFinished;
+                    submit.gameObject.SetActive(!_owner.Session.IsFinished);
                     if(_confirmSubmission && !_owner.Session.IsFinished)body.text="请核对以下未完成与待补项，再次近触确认提交。\n"+Summary();
-                    submit.GetComponentInChildren<TMP_Text>().text=_owner.Session.IsFinished?"已提交 · 只读":_confirmSubmission?"再次确认 · 提交并锁定":"确认结束本次检查";
+                    submit.GetComponentInChildren<TMP_Text>().text=_confirmSubmission?"再次确认 · 提交并锁定":"确认结束本次检查";
                 }
-                details=Button(board,_font,"ResultDetails","逐项查看记录 →",-195,-35,370,60,()=>
+                details=Button(board,_font,"ResultDetails","逐项查看记录 →",0,-35,600,60,()=>
                 {if(InputAllowed){_recordReviewPage=-1;_summaryPage++;if(_summaryPage>=_owner.Definition.rooms.Sum(r=>r.taskIds.Length)+(Stationary?0:6))_summaryPage=-1;RefreshSummary();}});
-                recordReview=Button(board,_font,"RecordReview","逐字段复盘 →",195,-35,370,60,()=>
+                recordReview=Button(board,_font,"RecordReview","逐字段复盘 →",0,-110,600,65,()=>
                 {
                     if(!InputAllowed)return;
                     var review=ClinicalRecordReview.AfterSubmission(_owner.Session);
@@ -217,6 +226,7 @@ namespace BotanicalGardenQR.Bootstrap
                 Button(board,_font,"ContinueRoom","保留未完成项，前往房门",0,-100,690,75,LeaveIncompleteTasks,true);
             }
             var hint=Label(board,_font,"WalkingHint",0,-282,770,48,20);
+            hint.color=Muted;
             hint.text=Stationary?(door?"伸手轻触要前往的房间。":RoomId=="R00_LOBBY"?"伸手轻触“开始学习”。":"伸手轻触按钮继续。"):door?"走到门口，轻触按钮选择房间。":"跟随安小卫前往房门。";
             if(door)hint.color=coachTheme.DetailTextColor;
             ClinicalNearTouch.Bind(board,()=>InputAllowed && (Stationary || !_door || AtDoor));
@@ -258,11 +268,13 @@ namespace BotanicalGardenQR.Bootstrap
                     else unanswered++;
                 }
             var learning=_owner.Session.LearningAttempts();
-            return $"完成 {completed} 项 · 主动跳过 {skipped} 项 · 未答 {unanswered} 项\n暂不可用 {unavailable} 项，不计作答错。\n"+
-                (Stationary?$"打开 {_owner.Session.LearningActionCount(ClinicalLearningAction.Opened)} 项；有效查阅 {_owner.Session.LearningActionCount(ClinicalLearningAction.Observed)} 处；操作 {_owner.Session.LearningActionCount(ClinicalLearningAction.Operated)} 项。\n"+
-                $"已判断 {learning.Count(item=>item.Attempts>0)} 项；曾需重试 {learning.Count(item=>item.IncorrectAttempts>0)} 项；修改 {learning.Sum(item=>item.Revisions)} 次。\n"+
-                $"使用提示 {_owner.Session.LearningActionCount(ClinicalLearningAction.Hint)} 项；查看讲解 {_owner.Session.LearningActionCount(ClinicalLearningAction.Explanation)} 项。\n":"")+
-                (_owner.Session.IsFinished?"已提交，只读回看；以上不作为合规成绩。":"可回查修改；确认提交后只读。");
+            var unresolved=learning.Count(item=>item.Attempts>0 && !item.Correct);
+            var hints=_owner.Session.LearningActionCount(ClinicalLearningAction.Hint);
+            var explanations=_owner.Session.LearningActionCount(ClinicalLearningAction.Explanation);
+            return $"完成 {completed} 项 · 未答 {unanswered} 项 · 主动跳过 {skipped} 项\n"+
+                $"暂不可用 {unavailable} 项，不计作答错。\n"+
+                $"待修正判断 {unresolved} 项 · 使用提示 {hints} 项 · 查看讲解 {explanations} 项\n"+
+                (_owner.Session.IsFinished?"已提交，记录只读。":"提交前可回查修改；提交后只读。");
         }
         string SummaryRoom(int index)
         {
@@ -281,7 +293,7 @@ namespace BotanicalGardenQR.Bootstrap
                     task.Status==ClinicalJourneyTaskStatus.InProgress?"进行中 / 未完成":"未开始";
                 return heading+state+
                     (id=="OF-01"?"\n电脑字段："+CountOfficeFields()+"/"+ClinicalTrainingRecords.FieldCount+" 已查看，非任务通过":"")+
-                    "\n判断 "+_owner.Session.LearningAttempts(id).Count(item=>item.Attempts>0)+" 项；修改 "+_owner.Session.LearningAttempts(id).Sum(item=>item.Revisions)+" 次；曾需重试 "+_owner.Session.LearningAttempts(id).Count(item=>item.IncorrectAttempts>0)+" 项。"+
+                    "\n判断 "+_owner.Session.LearningAttempts(id).Count(item=>item.Attempts>0)+" 项；尚待修正 "+_owner.Session.LearningAttempts(id).Count(item=>item.Attempts>0 && !item.Correct)+" 项；修改 "+_owner.Session.LearningAttempts(id).Sum(item=>item.Revisions)+" 次；曾需重试 "+_owner.Session.LearningAttempts(id).Count(item=>item.IncorrectAttempts>0)+" 项。"+
                     "\n不以到访或查阅代替合规成绩。";
             }
             return Stationary ? Summary() : _owner.WashingLearningSummary(index);

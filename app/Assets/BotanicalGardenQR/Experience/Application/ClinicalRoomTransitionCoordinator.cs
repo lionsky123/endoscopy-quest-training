@@ -110,6 +110,10 @@ namespace BotanicalGardenQR.Experience.Application
         public bool HasPendingRequest => Phase == ClinicalRoomTransitionPhase.Loading;
 
         public ClinicalRoomTransitionStartResult TryBeginAtDoor(string targetRoomId, bool atDoor, bool handConfirmed)
+            => TryBegin(targetRoomId, atDoor, handConfirmed, roomGallerySelection: false);
+
+        ClinicalRoomTransitionStartResult TryBegin(string targetRoomId, bool atDoor, bool handConfirmed,
+            bool roomGallerySelection)
         {
             if (Phase == ClinicalRoomTransitionPhase.Loading)
                 return ClinicalRoomTransitionStartResult.Reject(ClinicalRoomTransitionFailure.AlreadyLoading,
@@ -118,7 +122,7 @@ namespace BotanicalGardenQR.Experience.Application
                 return ClinicalRoomTransitionStartResult.Reject(ClinicalRoomTransitionFailure.RecoveryRequired);
 
             if (!_session.TryPrepareRoomTransition(targetRoomId, atDoor, handConfirmed,
-                    out var ticket, out var journeyFailure))
+                    out var ticket, out var journeyFailure, roomGallerySelection))
                 return ClinicalRoomTransitionStartResult.Reject(ClinicalRoomTransitionFailure.JourneyRejected,
                     journeyFailure);
 
@@ -128,10 +132,10 @@ namespace BotanicalGardenQR.Experience.Application
             return ClinicalRoomTransitionStartResult.Accept(_pendingRequest);
         }
 
-        // The stationary control surface replaces the physical door prerequisite.
-        // Hand confirmation, route locks, transaction identity and recovery still apply.
+        // The stationary room gallery replaces the physical door and direct-route
+        // prerequisites. Only selecting the next mainline room advances progress.
         public ClinicalRoomTransitionStartResult TryBeginStationary(string targetRoomId, bool handConfirmed)
-            => TryBeginAtDoor(targetRoomId, true, handConfirmed);
+            => TryBegin(targetRoomId, true, handConfirmed, roomGallerySelection: true);
 
         public ClinicalRoomTransitionCompletion Complete(ClinicalRoomTransitionRequest request, bool roomLoaded)
         {

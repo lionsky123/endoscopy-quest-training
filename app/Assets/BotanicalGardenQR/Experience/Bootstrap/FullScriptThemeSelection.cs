@@ -42,26 +42,30 @@ namespace BotanicalGardenQR.Bootstrap
             board.SetPositionAndRotation(_scriptPose.position,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;
             canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;
-            var title=Rect(board,"ThemeHeading",0,137,800,62);
-            Fill(title,new Color(.04f,.12f,.18f,.95f),3);
-            var text=Label(title,_font,"Title",0,0,760,52,28);
-            text.fontSharedMaterial=_scriptTextMaterial;text.text=heading;text.color=Color.white;
+            ShellFrame(board);
+            var text=Label(board,_font,"ThemeHeading",0,119,740,72,30);
+            text.fontSharedMaterial=_scriptTextMaterial;text.text=heading;text.color=ClinicalPanelStyle.ShellText;
             text.alignment=TextAlignmentOptions.Center;
+            Fill(Rect(board,"ThemeDivider",0,76,690,2),new Color(1f,1f,1f,.16f),1);
             return board;
         }
         void ThemeChoice(RectTransform board,string name,string text,int index,int count,Action action)
         {
             float x=count==1?0:count==2?(index==0?-200:200):(index-1)*275;
-            float y=count==3 && index!=1?-6:14;
-            var button=Button(board,_font,name,text,x,y,count==2?350:250,100,()=>QueueStationaryAction(action),index==0);
+            float y=6;
+            var button=Button(board,_font,name,text,x,y,count==2?350:250,100,()=>QueueStationaryAction(action));
             button.GetComponentInChildren<TMP_Text>().fontSharedMaterial=_scriptTextMaterial;
-            EmphasizeButton(button,false,index==0);
+            EmphasizeButton(button);
         }
         void FinishThemeBoard(RectTransform board,Action back,string backLabel)
         {
-            var backButton=Button(board,_font,"ThemeBack",backLabel,-205,-126,360,58,()=>QueueStationaryAction(back));
-            var leave=Button(board,_font,"ThemeLeave","选择房间",205,-126,360,58,()=>QueueStationaryAction(ContinueToDoor));
-            foreach(var button in new[]{backButton,leave})button.GetComponentInChildren<TMP_Text>().fontSharedMaterial=_scriptTextMaterial;
+            if(back!=null)
+            {
+                var backButton=Button(board,_font,"ThemeBack",backLabel,-205,-121,360,58,()=>QueueStationaryAction(back));
+                backButton.GetComponentInChildren<TMP_Text>().fontSharedMaterial=_scriptTextMaterial;
+            }
+            var leave=Button(board,_font,"ThemeLeave","选择房间",back==null?0:205,-121,360,58,()=>QueueStationaryAction(ContinueToDoor));
+            leave.GetComponentInChildren<TMP_Text>().fontSharedMaterial=_scriptTextMaterial;
             ClinicalNearTouch.Bind(board,()=>InputAllowed);
         }
         void ShowRoomThemeSelector(int group=-1)
@@ -79,11 +83,14 @@ namespace BotanicalGardenQR.Bootstrap
                     int selected=i;
                     ThemeChoice(board,"Theme_"+i,themes[i].Title,i,themes.Length,()=>
                     {
-                        if(themes[selected].Tasks.Length==1)SelectThemeTask(themes[selected].Tasks[0]);
-                        else ShowRoomThemeSelector(selected);
+                        if(RoomId=="R01_OFFICE" && selected==1)
+                        {SelectThemeTask("OF-01");return;}
+                        if(RoomId=="R01_OFFICE" && selected==2)
+                        {SelectThemeTask("OF-05");return;}
+                        SelectThemeTask(themes[selected].Tasks[0]);
                     });
                 }
-                FinishThemeBoard(board,()=>{_themeChosen=true;ShowScriptTask();},_themeChosen?"返回当前检查":"从现场开始");
+                FinishThemeBoard(board,_themeChosen?()=>{_themeChosen=true;ShowScriptTask();}:null,"返回当前检查");
             }
             else
             {

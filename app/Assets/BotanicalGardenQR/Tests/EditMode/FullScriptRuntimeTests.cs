@@ -14,15 +14,22 @@ using UnityEngine.UI;
 
 namespace BotanicalGardenQR.Tests.EditMode
 {
+    // Historical non-stationary VisitorPrologue and mode-selection path. The formal scene now
+    // loads the stationary guided route; current behavior is covered by StationaryScriptTests.
+    [Explicit("Archived compatibility tests for the removed non-stationary prologue flow.")]
     public sealed class FullScriptRuntimeTests
     {
         FullScriptJourneyRuntime _runtime;
         VisitorRuntimeBindings _bindings;
         OVRCameraRig _rig;
+        float _listenerVolumeBefore;
+        bool _listenerPausedBefore;
         readonly Timing _timing = new Timing();
         readonly ControlledRelease _release = new ControlledRelease();
         [SetUp] public void Setup()
         {
+            _listenerVolumeBefore=AudioListener.volume;
+            _listenerPausedBefore=AudioListener.pause;
             _timing.Tracked=true;
             var scene=EditorSceneManager.OpenScene("Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity",OpenSceneMode.Single);
             var installer=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<VisitorInstaller>(true)).Single();
@@ -65,8 +72,57 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(type.GetProperty("splatCount").GetValue(asset),Is.EqualTo(793729));
             Resources.UnloadAsset(asset);
         }
+        [Test] public void SoundSettingsAreNearTouchAdjustableAndRemainWorldFixed()
+        {
+            var controls=GameObject.Find("FullScriptSoundControls");
+            Assert.That(controls,Is.Not.Null);
+            var initialPosition=controls.transform.position;
+            var initialRotation=controls.transform.rotation;
+            var buttons=controls.GetComponentsInChildren<Button>(true);
+            using(var hand=new ClinicalHandFixture(controls,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
+            {
+                hand.Touch(buttons.Single(button=>button.name=="OpenSoundSettings"));
+                Assert.That(controls.transform.Find("SoundSettingsPanel").gameObject.activeSelf,Is.True);
+                var musicBefore=_runtime.Audio.Settings.MusicVolume;
+                hand.Touch(buttons.Single(button=>button.name=="MusicUp"));
+                Assert.That(_runtime.Audio.Settings.MusicVolume,Is.GreaterThan(musicBefore));
+                var effectsBefore=_runtime.Audio.Settings.EffectsVolume;
+                hand.Touch(buttons.Single(button=>button.name=="EffectsDown"));
+                Assert.That(_runtime.Audio.Settings.EffectsVolume,Is.LessThan(effectsBefore));
+                hand.Touch(buttons.Single(button=>button.name=="ToggleSoundMute"));
+                Assert.That(_runtime.Audio.Settings.Muted,Is.True);
+                Assert.That(_runtime.Audio.Settings.MusicVolume,Is.GreaterThan(musicBefore));
+            }
+            _rig.centerEyeAnchor.localPosition+=Vector3.right*.3f;
+            _rig.centerEyeAnchor.localRotation=Quaternion.Euler(0,60,0);
+            Samples();Frames(10);
+            Assert.That(controls.transform.position,Is.EqualTo(initialPosition));
+            Assert.That(controls.transform.rotation,Is.EqualTo(initialRotation));
+        }
+        [Test] public void AudioRemainsPausedUntilApplicationAndFocusHaveBothResumed()
+        {
+            var audio=_runtime.Audio;
+            Assert.That(audio.ApplicationAudioSuspended,Is.False);
+            audio.SetApplicationFocused(false);
+            Assert.That(audio.ApplicationAudioSuspended,Is.True);
+            audio.SetApplicationPaused(true);
+            audio.SetApplicationFocused(true);
+            Assert.That(audio.ApplicationAudioSuspended,Is.True);
+            audio.SetApplicationPaused(false);
+            Assert.That(audio.ApplicationAudioSuspended,Is.False);
+        }
+        [Test] public void DisposingJourneyStopsAndRemovesItsAudioServiceAndRestoresListenerState()
+        {
+            _runtime.Dispose();
+            _runtime=null;
+            Assert.That(GameObject.Find("FullScriptAudioRuntime"),Is.Null);
+            Assert.That(GameObject.Find("FullScriptSoundControls"),Is.Null);
+            Assert.That(AudioListener.volume,Is.EqualTo(_listenerVolumeBefore));
+            Assert.That(AudioListener.pause,Is.EqualTo(_listenerPausedBefore));
+        }
         [Test] public void DoorRequiresArrivalAndSdkPokeThenLoadsOfficeWithoutMovingHeadOrHands()
         {
+            var audioService=_runtime.Audio;
             _bindings.Platform.Viewer.position+=Vector3.forward*2;
             Assert.That(_runtime.Visit.TryOpen(FullScriptRoomCatalog.Door),Is.False);
             Assert.That(_runtime.RequestRoom("R01_OFFICE"),Is.False);
@@ -87,6 +143,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(Vector3.Distance(head,_rig.centerEyeAnchor.position),Is.LessThan(.0001f));
             Assert.That(Vector3.Distance(left,_rig.leftHandAnchor.position),Is.LessThan(.0001f));
             Assert.That(Vector3.Distance(right,_rig.rightHandAnchor.position),Is.LessThan(.0001f));
+            Assert.That(_runtime.Audio,Is.SameAs(audioService),"Room changes reuse the session audio service.");
+            Assert.That(GameObject.Find("FullScriptSoundControls"),Is.Not.Null);
         }
         [Test] public void FullRouteLoadsEveryRoomAndRetainsSixWashingStations()
         {
@@ -144,8 +202,11 @@ namespace BotanicalGardenQR.Tests.EditMode
                 var next=stablePanel.GetComponentsInChildren<Button>().Single(b=>b.name=="ResultDetails");
                 using(var hand=new ClinicalHandFixture(stablePanel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze)) hand.Touch(next);
                 var body=stablePanel.GetComponentsInChildren<TMPro.TMP_Text>().Single(t=>t.name=="RoomBrief");
-                Assert.That(body.text,Does.Contain(task));
-                body.ForceMeshUpdate();Assert.That(body.isTextOverflowing,Is.False,task);
+                var title=_runtime.Definition.FindTask(task)?.title;
+                Assert.That(string.IsNullOrWhiteSpace(title),Is.False,"Each summary entry must resolve its task title.");
+                Assert.That(body.text,Does.Contain(title));
+                Assert.That(body.text,Does.Not.Contain(task),"Learner facing summaries do not expose internal task ids.");
+                body.ForceMeshUpdate();Assert.That(body.isTextOverflowing,Is.False,title);
             }
             for(int station=1;station<=6;station++)
             {

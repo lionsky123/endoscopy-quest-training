@@ -40,6 +40,24 @@ namespace BotanicalGardenQR.FrontendShell.Contracts
                 Quaternion.LookRotation(-towardViewer.normalized, Vector3.up));
         }
 
+        public static Pose CreateViewerReadingPose(
+            Transform viewer,
+            float distance,
+            float verticalOffset,
+            float upwardTiltDegrees)
+        {
+            if (!IsFinite(upwardTiltDegrees) || Mathf.Abs(upwardTiltDegrees) > 30f)
+                throw new ArgumentOutOfRangeException(nameof(upwardTiltDegrees));
+
+            var pose = CreateViewerFrontPose(viewer, distance, verticalOffset);
+            var awayFromViewer = pose.position - viewer.position;
+            if (awayFromViewer.sqrMagnitude < 0.000001f)
+                throw new ArgumentOutOfRangeException(nameof(distance));
+            pose.rotation = Quaternion.LookRotation(awayFromViewer.normalized, Vector3.up) *
+                            Quaternion.Euler(upwardTiltDegrees, 0f, 0f);
+            return pose;
+        }
+
         public static void PlaceViewerFront(
             Transform surface,
             Transform viewer,

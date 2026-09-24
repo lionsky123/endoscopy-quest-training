@@ -28,6 +28,7 @@ namespace BotanicalGardenQR.Bootstrap
         Transform _doorLeaf;
         float _doorStable;
         System.Action _pendingScriptAction;
+        internal bool HasPendingStationaryAction => _pendingScriptAction != null;
         bool _imageExpanded;
         bool _showScriptSource;
         int _brushView;
@@ -68,6 +69,7 @@ namespace BotanicalGardenQR.Bootstrap
         internal void TickStationary(float dt)
         {
             if(!_stationaryStarted || !InputAllowed)return;
+            TickRoomGalleryDrag();
             if(_pendingScriptAction!=null)
             {
                 var action=_pendingScriptAction;_pendingScriptAction=null;action();
@@ -104,22 +106,24 @@ namespace BotanicalGardenQR.Bootstrap
             var task=_owner.Definition.FindTask(id);
             var details=Details(id,_owner.Session.Mode==ClinicalJourneyMode.GuidedLearning);
             _detailIndex=Mathf.Clamp(_detailIndex,0,details.Length-1);
+            bool compact=RoomId=="R01_OFFICE" ||
+                (RoomId=="R04_GI" || RoomId=="R04_RESP") && !id.StartsWith("CL-03",StringComparison.Ordinal);
             _owner.ScriptPositions[RoomId]=new Vector2Int(_scriptIndex,_detailIndex);
             _panel=new GameObject("StationaryScriptPanel",typeof(RectTransform),typeof(Canvas));
             var board=(RectTransform)_panel.transform;
-            board.sizeDelta=new Vector2(860,760);board.localScale=Vector3.one*.00065f;
+            board.sizeDelta=new Vector2(860,compact?540:760);board.localScale=Vector3.one*.00065f;
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;
             EnsureScriptPose();
             board.SetPositionAndRotation(_scriptPose.position,_scriptPose.rotation);
-            Fill(board,new Color(.96f,.98f,1),3);
+            Frame(board);
             TMP_Text Text(string name,string copy,float y,float height,int size)
             {
                 var t=Label(board,_font,name,0,y,800,height,size);t.fontSharedMaterial=_scriptTextMaterial;t.text=copy;t.color=new Color(.015f,.025f,.035f);return t;
             }
-            Text("ScriptTitle",$"{_owner.Definition.FindRoom(RoomId).displayName}  {_scriptIndex+1}/{ScriptTasks.Length}\n{task.title}",304,100,29);
+            Text("ScriptTitle",$"{_owner.Definition.FindRoom(RoomId).displayName}  {_scriptIndex+1}/{ScriptTasks.Length}\n{task.title}",compact?210:304,100,29);
             var selectionAction=id=="OF-01"?"选择字段查看":id=="OF-02"?"选择使用记录查看":id=="ST-02"?"选择周记录查看":null;
             var status=selectionAction??(_owner.ScriptStepsViewed.Contains(id+":"+_detailIndex)?"已查阅":"待查阅");
-            Text("ScriptStep",$"细项 {_detailIndex+1}/{details.Length} · {status}",225,42,21);
+            Text("ScriptStep",$"细项 {_detailIndex+1}/{details.Length} · {status}",compact?128:225,42,21);
             var image=ImageFor(id,_detailIndex,_showScriptSource);
             if(id=="RE-03" && _detailIndex==2)
                 Button(board,_font,"WatchSinkVideo","观看水槽示范 · 20秒",0,-80,500,70,()=>QueueStationaryAction(ShowSinkVideo),true);
@@ -148,7 +152,8 @@ namespace BotanicalGardenQR.Bootstrap
             var model=ModelFor(id);
             bool door=id=="RE-01" && _detailIndex==0;
             if(door){useImage=false;model=null;}
-            Text("ScriptBody",_imageExpanded&&useImage?"":details[_detailIndex],useImage||model!=null||door?145:105,useImage||model!=null||door?105:270,24);
+            Text("ScriptBody",_imageExpanded&&useImage?"":details[_detailIndex],compact?25:useImage||model!=null||door?145:105,
+                compact?160:useImage||model!=null||door?105:270,24);
             if(useImage)
             {
                 var texture=Resources.Load<Texture2D>(image);
@@ -189,7 +194,7 @@ namespace BotanicalGardenQR.Bootstrap
                         var step=(RectTransform)board.Find("ScriptStep");step.anchoredPosition=new Vector2(0,225);step.sizeDelta=new Vector2(380,42);
                     }
                     if(id=="RE-02" && _detailIndex==0 && !_imageExpanded)
-                        Button(board,_font,"InspectEquipmentImage","逐件查看图中设备",0,-180,500,52,
+                        Button(board,_font,"InspectEquipmentImage","逐件查看图中设备",260,-70,260,64,
                             ()=>QueueStationaryAction(ShowEquipmentTeaching),true);
                 }
                 else Text("MissingReference","参考图暂不可用；可继续其余检查。",-20,170,24);
@@ -208,7 +213,8 @@ namespace BotanicalGardenQR.Bootstrap
                 Text("SameSourceHistory",string.Join("\n",rows.Select(r=>$"{r.Id}  {r.Date}  {r.Scope}\n{r.Start}—{r.End}  {r.Patient}")),15,180,23);
             }
             var reason=_owner.Session.IsContentAvailable(id)?"":"本项资料尚不齐全，可先查看已有内容。";
-            Text("Availability",((id=="ST-01" || brushReference) && useImage && _imageExpanded) || id=="RE-02" && _detailIndex==0?"":reason,-173,75,19);
+            Text("Availability",((id=="ST-01" || brushReference) && useImage && _imageExpanded) || id=="RE-02" && _detailIndex==0?"":reason,
+                compact?-103:-173,compact?48:75,19);
             if(id=="ST-02" || useImage && (id=="ST-01" || brushReference))
             {
                 var step=(RectTransform)board.Find("ScriptStep");step.anchoredPosition=new Vector2(-150,225);step.sizeDelta=new Vector2(480,42);
@@ -218,17 +224,21 @@ namespace BotanicalGardenQR.Bootstrap
             bool selectionTracksView=id=="OF-01" || id=="OF-02" || id=="ST-02";
             float detailActionX=selectionTracksView?185f:275f;
             float detailActionWidth=selectionTracksView?340f:240f;
-            Action("PreviousDetail","上一细项",-detailActionX,-239,detailActionWidth,()=>{_detailIndex=Mathf.Max(0,_detailIndex-1);_brushView=0;_imageExpanded=false;ShowScriptTask();});
+            float detailActionY=compact?-162:-239;
+            float taskActionY=compact?-231:-310;
+            if(_detailIndex>0)
+                Action("PreviousDetail","上一细项",-detailActionX,detailActionY,detailActionWidth,()=>{_detailIndex--;_brushView=0;_imageExpanded=false;ShowScriptTask();});
             if(!selectionTracksView)
-                Action("ReadDetail","请安小卫提示",0,-239,240,()=>
+                Action("ReadDetail","请安小卫提示",0,detailActionY,240,()=>
                 {
                     _owner.Session.TryRecordLearningAction(id,ClinicalLearningAction.Hint,"detail:"+_detailIndex);
                     ShowTeaching(new FullScriptGuideCopy(task.title,details[_detailIndex],"返回检查"),ShowScriptTask);
                 });
-            Action("NextDetail","下一细项",detailActionX,-239,detailActionWidth,()=>{_detailIndex=Mathf.Min(details.Length-1,_detailIndex+1);_brushView=0;_imageExpanded=false;ShowScriptTask();});
-            if(RoomId=="R02_STORAGE")Action("PreviousTask","上一检查点",-275,-310,240,()=>ChangeScriptTask(Mathf.Max(0,_scriptIndex-1)));
-            else Action("ChooseRoomTheme","选择检查内容",-275,-310,240,()=>ShowRoomThemeSelector());
-            Action("NextTask",_scriptIndex==ScriptTasks.Length-1?"本室小结 / 切房":"下一检查点",275,-310,240,()=>
+            if(_detailIndex<details.Length-1)
+                Action("NextDetail","下一细项",detailActionX,detailActionY,detailActionWidth,()=>{_detailIndex++;_brushView=0;_imageExpanded=false;ShowScriptTask();});
+            if(RoomId!="R02_STORAGE")
+                Action("ChooseRoomTheme","选择检查内容",-275,taskActionY,240,()=>ShowRoomThemeSelector());
+            Action("NextTask",_scriptIndex==ScriptTasks.Length-1?"本室小结 / 切房":"下一检查点",275,taskActionY,240,()=>
             {
                 if(_scriptIndex==ScriptTasks.Length-1)ContinueToDoor();
                 else ChangeScriptTask(_scriptIndex+1);
@@ -237,13 +247,14 @@ namespace BotanicalGardenQR.Bootstrap
             {
                 var document=ClinicalTrainingRecords.DocumentIndexForTask(id);
                 bool available=id=="OF-01" || document>=0;
-                Action("OpenCurrentDocument",id=="OF-01"?"打开电脑记录":available?"打开对应资料":"对应资料待补",0,-310,240,()=>
-                {if(!available)return;ClosePanel();_office.BeginStationary(id=="OF-01"?-1:document);});
-                board.Find("OpenCurrentDocument").GetComponent<Button>().interactable=available;
+                if(available)
+                    Action("OpenCurrentDocument",id=="OF-01"?"打开电脑记录":"打开对应资料",0,taskActionY,240,()=>
+                    {ClosePanel();_office.BeginStationary(id=="OF-01"?-1:document);});
             }
             else if(RoomId=="R02_STORAGE")
-                Action("ChooseStorageSample","选择检查内容",0,-310,240,ShowStorageSampleSelector);
-            else Action("SwitchRoom","暂留 / 选择房间",0,-310,240,ContinueToDoor);
+                Action("ChooseStorageSample","选择检查内容",0,taskActionY,240,ShowStorageSampleSelector);
+            else if(_scriptIndex<ScriptTasks.Length-1)
+                Action("SwitchRoom","暂留 / 选择房间",0,taskActionY,240,ContinueToDoor);
             ClinicalNearTouch.Bind(board,()=>InputAllowed);
             var documentButton=board.Find("OpenCurrentDocument")?.GetComponent<Button>();
             var primaryActionName=documentButton!=null && documentButton.interactable?documentButton.name:"NextTask";
@@ -260,28 +271,28 @@ namespace BotanicalGardenQR.Bootstrap
             EnsureScriptTextMaterial();EnsureScriptPose();
             _panel=new GameObject("StorageSampleSelector",typeof(RectTransform),typeof(Canvas));
             var board=(RectTransform)_panel.transform;
-            board.sizeDelta=new Vector2(860,760);board.localScale=Vector3.one*.00065f;
+            board.sizeDelta=new Vector2(860,410);board.localScale=Vector3.one*.00065f;
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;
             board.SetPositionAndRotation(_scriptPose.position,_scriptPose.rotation);
-            Fill(board,new Color(.96f,.98f,1),3);
+            ShellFrame(board);
             TMP_Text Copy(string name,string copy,float x,float y,float width,float height,int size)
             {
                 var t=Label(board,_font,name,x,y,width,height,size);t.fontSharedMaterial=_scriptTextMaterial;
-                t.text=copy;t.color=new Color(.015f,.025f,.035f);return t;
+                t.text=copy;t.color=ClinicalPanelStyle.ShellText;return t;
             }
-            Copy("StorageSampleTitle","储存库 · 选择检查内容",0,290,780,76,31);
-            Copy("StorageSampleIntro","可以先从柜体开始，也可以直接查看登记表或胃镜副本。",0,198,760,62,23);
-            Button(board,_font,"StorageSample_ST-01","检查柜体",0,78,240,90,
+            var selectorTitle=Copy("StorageSampleTitle","储存库 · 选择检查内容",0,147,780,58,30);
+            selectorTitle.alignment=TextAlignmentOptions.Center;
+            Copy("StorageSampleIntro","直接进入要查看的对象",0,88,760,40,21).alignment=TextAlignmentOptions.Center;
+            Button(board,_font,"StorageSample_ST-01","检查柜体",0,5,240,86,
                 ()=>QueueStationaryAction(()=>SelectStorageSample("ST-01")),true);
-            Button(board,_font,"StorageSample_ST-02","查看登记表",-278,48,240,90,
+            Button(board,_font,"StorageSample_ST-02","查看登记表",-278,5,240,86,
                 ()=>QueueStationaryAction(()=>SelectStorageSample("ST-02")));
-            Button(board,_font,"StorageSample_ST-03","观察胃镜副本",278,48,240,90,
+            Button(board,_font,"StorageSample_ST-03","观察胃镜副本",278,5,240,86,
                 ()=>QueueStationaryAction(()=>SelectStorageSample("ST-03")));
-            Copy("StorageSampleCabinetCopy","打开柜门，观察现有柜体",0,-5,250,54,19);
-            Copy("StorageSampleRegisterCopy","逐周查看模拟清洁登记",-278,-38,250,62,19);
-            Copy("StorageSampleGastroscopeCopy","胃镜为平放副本；悬挂检查暂不可用。",278,-48,250,78,18);
-            Copy("StorageSampleAvailability","选项只打开相应内容；查看不会自动完成检查。",0,-134,760,44,20);
-            Button(board,_font,"StorageSampleReturn","暂留 / 选择房间",0,-310,260,60,
+            Copy("StorageSampleCabinetCopy","打开柜门观察",0,-65,250,40,18).alignment=TextAlignmentOptions.Center;
+            Copy("StorageSampleRegisterCopy","查看柜侧原表",-278,-65,250,40,18).alignment=TextAlignmentOptions.Center;
+            Copy("StorageSampleGastroscopeCopy","平放副本；悬挂检查暂不可用",278,-67,250,45,17).alignment=TextAlignmentOptions.Center;
+            Button(board,_font,"StorageSampleReturn","选择房间",0,-158,260,56,
                 ()=>QueueStationaryAction(ContinueToDoor));
             ClinicalNearTouch.Bind(board,()=>InputAllowed);
             foreach(var button in board.GetComponentsInChildren<Button>())
@@ -296,6 +307,14 @@ namespace BotanicalGardenQR.Bootstrap
             int index=Array.IndexOf(ScriptTasks,taskId);
             if(index<0)return;
             _storageSampleChosen=true;
+            if(taskId=="ST-02")
+            {
+                _scriptIndex=index;_detailIndex=0;
+                _owner.ScriptPositions[RoomId]=new Vector2Int(index,0);
+                _owner.Session.TryRecordLearningAction(taskId,ClinicalLearningAction.Opened,"task");
+                ChangeStorageRegisterObservation();
+                return;
+            }
             ChangeScriptTask(index);
         }
         void EnsureScriptTextMaterial()
@@ -316,7 +335,17 @@ namespace BotanicalGardenQR.Bootstrap
         void ChangeScriptTask(int index)
         {
             var id=ScriptTasks[index];
-            if(_owner.RequestInspectionPoint(id,()=>{_scriptIndex=index;_detailIndex=0;_imageExpanded=false;_brushView=0;ShowScriptTask();}))ClosePanel();
+            if(_owner.RequestInspectionPoint(id,()=>
+            {
+                _scriptIndex=index;_detailIndex=0;_imageExpanded=false;_brushView=0;
+                if(RoomId=="R01_OFFICE" && id!="OF-00")
+                {
+                    _themeChosen=false;
+                    _owner.ScriptPositions[RoomId]=new Vector2Int(index,0);
+                    _office.BeginStationary(id=="OF-01"?-1:ClinicalTrainingRecords.DocumentIndexForTask(id));
+                }
+                else ShowScriptTask();
+            }))ClosePanel();
         }
         void ShowEnvironmentView()
         {
@@ -327,7 +356,7 @@ namespace BotanicalGardenQR.Bootstrap
             board.sizeDelta=new Vector2(800,150);board.localScale=Vector3.one*.00065f;
             board.SetPositionAndRotation(_scriptPose.position-Vector3.up*.22f,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();
-            Fill(board,new Color(.96f,.98f,1),2);
+            Frame(board);
             var caption=Label(board,_font,"ObservationSide",0,47,760,36,23);
             caption.fontSharedMaterial=_scriptTextMaterial;caption.color=new Color(.015f,.025f,.035f);
             caption.text=_waitingCorridor?"诊疗通道侧 · 原位转头观察":"候诊侧 · 原位转头观察";
@@ -353,7 +382,7 @@ namespace BotanicalGardenQR.Bootstrap
             var board=(RectTransform)_panel.transform;board.sizeDelta=new Vector2(760,180);board.localScale=Vector3.one*.00065f;
             board.SetPositionAndRotation(_scriptPose.position-Vector3.up*.17f,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();
-            Fill(board,new Color(.96f,.98f,1),2);
+            Frame(board);
             var caption=Label(board,_font,"ObjectObservationStatus",0,40,720,75,22);caption.fontSharedMaterial=_scriptTextMaterial;caption.color=new Color(.015f,.025f,.035f);
             caption.text=!_scriptObject?"模型暂不可用，请返回继续其他检查":
                 (_owner.Session.IsFinished?"只读回看 · ":"可用手拿起转看 · ")+
@@ -462,7 +491,7 @@ namespace BotanicalGardenQR.Bootstrap
                 case "OF-04":return new[]{"打开消毒剂监测和产品档案，与洗消室同一产品的瓶体、说明书核对。身份、用途、有效期、监测资料分别查；参数未核验时不下合规结论。"};
                 case "OF-05":return new[]{"检查培训档案及六类资料目录，逐类打开正文。区分资料存在、内容完整、对象匹配及依据有效；未提供的正文保留为待补内容。"};
                 case "ST-01":return guided
-                    ?new[]{"生成教学图（非实拍）：观察柜门、密封边与通风开孔。近触“检查柜体”可握住三维柜门把手展开，查看内壁；外观不证明通风性能或管腔干燥。","生成教学情境图（非实拍）：观察三支内镜分别悬挂、插入管向下且末端离开柜底。三维悬挂镜体仍待补，盘绕模型不作为竖直悬挂示范。"}
+                    ?new[]{"看柜门、密封边和通风孔；轻触“检查柜体”，握把手开门查看内壁。教学图不能证明通风或干燥性能。","看三支内镜是否分别竖直悬挂、末端离开柜底。悬挂模型仍待补，盘绕模型不能替代。"}
                     :new[]{"近触“检查柜体”，握住把手展开柜门，观察内壁和通风构造。悬挂镜体尚未齐备，不以开柜动作代替完整判断。","核对内镜的悬挂状态。现有盘绕胃镜只用于表面特写，不作为竖直悬挂示范。"};
                 case "ST-02":return new[]{"打开模拟柜体清洁登记，逐周核对完整范围、日期、对象、登记内容和操作人。登记缺项不等于已证实未清洁；本训练的每周要求来自剧本情境，不作为临床标准。"};
                 case "ST-03":return new[]{"近触“检查实物”收起说明，可用手拿起原胃镜观察副本，转看表面和连接部；移远时主动取回。展示比例不是实物尺寸，不代表悬挂状态，也没有已核验的污渍情境。"};

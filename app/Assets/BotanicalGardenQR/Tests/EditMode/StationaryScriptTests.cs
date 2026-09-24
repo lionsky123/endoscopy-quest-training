@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BotanicalGardenQR.Bootstrap;
 using BotanicalGardenQR.FrontendShell.Contracts;
+using BotanicalGardenQR.FrontendShell.Runtime;
 using BotanicalGardenQR.VisitorCoach.Frontend;
 using BotanicalGardenQR.VisitorPrologue.Contracts;
 using BotanicalGardenQR.Video.Contracts;
@@ -13,6 +15,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.TestTools;
 using UnityEngine.UI;
 
 namespace BotanicalGardenQR.Tests.EditMode
@@ -44,6 +47,32 @@ namespace BotanicalGardenQR.Tests.EditMode
             Frames();
         }
         [TearDown] public void Cleanup(){_runtime?.Dispose();EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);}
+        [Test] public void SoundSettingsUseNearTouchAndRemainWorldFixed()
+        {
+            var controls=GameObject.Find("FullScriptSoundControls");
+            Assert.That(controls,Is.Not.Null);
+            var initialPosition=controls.transform.position;
+            var initialRotation=controls.transform.rotation;
+            var buttons=controls.GetComponentsInChildren<Button>(true);
+            using(var hand=new ClinicalHandFixture(controls,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
+            {
+                hand.Touch(buttons.Single(button=>button.name=="OpenSoundSettings"));
+                Assert.That(controls.transform.Find("SoundSettingsPanel").gameObject.activeSelf,Is.True);
+                var musicBefore=_runtime.Audio.Settings.MusicVolume;
+                hand.Touch(buttons.Single(button=>button.name=="MusicUp"));
+                Assert.That(_runtime.Audio.Settings.MusicVolume,Is.GreaterThan(musicBefore));
+                var effectsBefore=_runtime.Audio.Settings.EffectsVolume;
+                hand.Touch(buttons.Single(button=>button.name=="EffectsDown"));
+                Assert.That(_runtime.Audio.Settings.EffectsVolume,Is.LessThan(effectsBefore));
+                hand.Touch(buttons.Single(button=>button.name=="ToggleSoundMute"));
+                Assert.That(_runtime.Audio.Settings.Muted,Is.True);
+            }
+            _rig.centerEyeAnchor.localPosition+=Vector3.right*.3f;
+            _rig.centerEyeAnchor.localRotation=Quaternion.Euler(0,60,0);
+            Samples();Frames();
+            Assert.That(controls.transform.position,Is.EqualTo(initialPosition));
+            Assert.That(controls.transform.rotation,Is.EqualTo(initialRotation));
+        }
         [Test] public void GuidedLearningDoesNotTreatReadAcknowledgementAsJudgement()
         {
             FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");
@@ -85,20 +114,32 @@ namespace BotanicalGardenQR.Tests.EditMode
             FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("RoomThemeSelector"));
             var root=_runtime.Visit.Room.Root;
-            Touch("Theme_1");Touch("ThemeTask_OF-02");
-            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-02"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("ThemeBack"),Is.Null,
+                "The initial office menu must not repeat its first choice as a back action.");
+            Touch("Theme_1");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("OfficeRecordsExpanded"),
+                "The electronic record category opens the computer content directly.");
+            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-01"));
             Assert.That(_runtime.Visit.Room.Root,Is.SameAs(root));
-            Touch("ChooseRoomTheme");Touch("Theme_2");Touch("ThemeTask_OF-05");
+            Touch("ReturnToTerminal");Touch("Theme_2");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("OfficeRecordsExpanded"),
+                "The paper category opens a readable document rather than another task menu.");
+            Assert.That(_runtime.Visit.Panel.transform.Find("DocumentGalleryControls"),Is.Not.Null);
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-05"));
+            Touch("BackToRows");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("RoomThemeSelector"),
+                "A paper document returns to its room categories in one near touch.");
             foreach(var room in new[]{"R02_STORAGE","R03_WAITING"}){OpenDoor();Touch("Travel_"+room);}
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("WaitingObservationSelector"));
             Touch("WaitingCorridor");
             Assert.That(_runtime.Visit.Panel.transform.Find("ObservationSide").GetComponent<TMPro.TMP_Text>().text,Does.Contain("诊疗通道侧"));
-            OpenDoor();Touch("Travel_R04_GI");Touch("Theme_1");Touch("ThemeTask_CL-03.GI");
+            OpenDoor();Touch("Travel_R04_GI");Touch("Theme_1");
+            Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("CL-02.GI"),"The category opens its first object directly.");
+            Touch("NextTask");
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("CL-03.GI"));
-            OpenDoor();Touch("Travel_R04_RESP");Touch("Theme_1");Touch("ThemeTask_CL-03.RESP");
+            OpenDoor();Touch("Travel_R04_RESP");Touch("Theme_1");Touch("NextTask");
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("CL-03.RESP"));
-            OpenDoor();Touch("Travel_R05_REPROCESSING");Touch("Theme_1");Touch("ThemeTask_RE-04");
+            OpenDoor();Touch("Travel_R05_REPROCESSING");Touch("Theme_1");Touch("NextTask");
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("RE-04"));
             Assert.That(_runtime.Visit.Panel.transform.Find("InspectObject"),Is.Not.Null);
             foreach(var id in new[]{"OF-02","OF-05","CL-03.GI","CL-03.RESP","RE-04"})
@@ -177,6 +218,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(state.Speaker,Is.EqualTo("安小卫"));
             Assert.That(state.PrimaryActionLabel,Is.EqualTo("开始学习"));
             Assert.That(state.Body.Length,Is.LessThanOrEqualTo(75));
+            Assert.That(guide.GetComponentsInChildren<Button>().Count(button=>button.isActiveAndEnabled&&button.IsInteractable()),Is.EqualTo(1),
+                "The welcome dialogue exposes one active action.");
             Assert.That(_runtime.Prologue,Is.Null);
             Assert.That(_runtime.Visit.Panel,Is.Null,"Entry guidance is the only opening surface.");
 
@@ -185,15 +228,190 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(guide.CurrentState,Is.Null);
             Assert.That(_runtime.Session.Mode,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyMode.GuidedLearning));
             Assert.That(_runtime.Visit.DoorOpen,Is.True);
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("FullScriptRoomGallery"));
             var buttons=_runtime.Visit.Panel.GetComponentsInChildren<Button>();
             Assert.That(buttons.Any(button=>button.name=="Travel_R01_OFFICE"),Is.True);
             Assert.That(buttons.Any(button=>button.name=="ModeGuided" || button.name=="ModeIndependent"),Is.False);
-            Assert.That(_runtime.Visit.Panel.transform.Find("RoomTitle").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo("下一步"));
-            Assert.That(_runtime.Visit.Panel.transform.Find("RoomBrief").GetComponent<TMPro.TMP_Text>().text,Does.Contain("办公室"));
-            Assert.That(_runtime.Visit.Panel.transform.Find("NavigationAccent"),Is.Not.Null);
-            Assert.That(_runtime.Visit.Panel.GetComponent<Image>().color,Is.EqualTo(_bindings.Configuration.VisitorCoachTheme.PanelColor));
+            Assert.That(_runtime.Visit.Panel.transform.Find("RoomGalleryHeader/RoomGalleryTitle").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo("选择房间"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("RoomGalleryHeader/RoomGallerySummary").GetComponent<TMPro.TMP_Text>().text,
+                Does.Contain("当前房间：医院大厅").And.Contain("推荐下一站：办公室").And.Contain("训练场景示意"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("RoomGalleryDragHandle"),Is.Not.Null);
             var officeChoice=buttons.Single(button=>button.name=="Travel_R01_OFFICE");
-            Assert.That(((RectTransform)officeChoice.transform).rect.height,Is.GreaterThanOrEqualTo(82));
+            Assert.That(((RectTransform)officeChoice.transform).rect.height,Is.GreaterThanOrEqualTo(500));
+            Assert.That(officeChoice.GetComponentInChildren<TMPro.TMP_Text>().text,Is.EqualTo("办公室"));
+        }
+        [Test] public void RoomGalleryShowsSevenIllustrativeRoomImagesAndStaysWorldFixed()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            var panel=_runtime.Visit.Panel;
+            var pose=new Pose(panel.transform.position,panel.transform.rotation);
+            var cards=panel.GetComponentsInChildren<Button>().Where(button=>button.name.StartsWith("Travel_",StringComparison.Ordinal)).ToArray();
+            Assert.That(cards,Has.Length.EqualTo(_runtime.Definition.rooms.Length-1));
+            Assert.That(panel.GetComponentsInChildren<Button>(),Has.Length.EqualTo(cards.Length+3),
+                "The room images, two near-touch browse arrows and one tutorial control are the gallery's buttons.");
+            Assert.That(panel.transform.Find("RoomGalleryHandleRail/GalleryPrevious"),Is.Not.Null);
+            Assert.That(panel.transform.Find("RoomGalleryHandleRail/GalleryNext"),Is.Not.Null);
+            Assert.That(panel.transform.Find("RoomGalleryHandleRail/GalleryPrevious").GetComponentInChildren<TMPro.TMP_Text>().text,
+                Is.EqualTo("上一张"));
+            Assert.That(panel.transform.Find("RoomGalleryHandleRail/GalleryNext").GetComponentInChildren<TMPro.TMP_Text>().text,
+                Is.EqualTo("下一张"));
+            var atlas=Resources.Load<Texture2D>("FullScriptRooms/RoomGallery/room-preview-atlas-v1");
+            Assert.That(atlas,Is.Not.Null);
+            var uvRects=new HashSet<Rect>();
+            foreach(var card in cards)
+            {
+                var towardViewer=_bindings.Platform.Viewer.position-card.transform.position;
+                Assert.That(Vector3.Dot(-card.transform.forward,towardViewer.normalized),Is.GreaterThan(.9f),
+                    card.name+" canvas content must face the viewer, not its back side.");
+                var image=card.transform.Find("RoomPreviewImage").GetComponent<RawImage>();
+                Assert.That(image.texture,Is.SameAs(atlas));
+                Assert.That(image.uvRect.width,Is.GreaterThan(.29f));
+                Assert.That(image.uvRect.height,Is.GreaterThan(.29f));
+                uvRects.Add(image.uvRect);
+            }
+            Assert.That(uvRects,Has.Count.EqualTo(cards.Length),"Each room card must use its own illustration cell.");
+            var office=cards.Single(button=>button.name=="Travel_R01_OFFICE");
+            Assert.That(office.transform.Find("RoomCardStatus").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo("推荐下一站"));
+            _rig.centerEyeAnchor.localRotation=Quaternion.Euler(0,35,0);
+            Frames();
+            Assert.That(panel.transform.position,Is.EqualTo(pose.position));
+            Assert.That(panel.transform.rotation,Is.EqualTo(pose.rotation),"Turning the viewer must not rotate the gallery.");
+        }
+        [Test] public void RoomGalleryMakesTheRecommendedRoomAndPinchHandleEasyToSee()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            var panel=_runtime.Visit.Panel;
+            var headerTitle=panel.transform.Find("RoomGalleryHeader/RoomGalleryTitle").GetComponent<TMPro.TMP_Text>();
+            Assert.That(headerTitle.fontSize,Is.GreaterThanOrEqualTo(54),"The page heading needs a clear reading hierarchy.");
+            var routeSummary=panel.transform.Find("RoomGalleryHeader/RoomGallerySummary").GetComponent<TMPro.TMP_Text>();
+            Assert.That(routeSummary.fontSize,Is.GreaterThanOrEqualTo(32));
+            Assert.That(routeSummary.text,Does.Contain("\n"),"Current location and recommended destination need separate readable lines.");
+
+            var office=panel.GetComponentsInChildren<Button>().Single(button=>button.name=="Travel_R01_OFFICE");
+            var officeTitle=office.transform.Find("Label").GetComponent<TMPro.TMP_Text>();
+            Assert.That(officeTitle.color,Is.EqualTo(ClinicalPanelStyle.ShellText),"The recommended room name must contrast with its violet card.");
+            var cards=panel.GetComponentsInChildren<Button>().Where(button=>button.name.StartsWith("Travel_",StringComparison.Ordinal)).ToArray();
+            Assert.That(cards.Count(card=>card.GetComponent<CanvasGroup>().alpha>.95f),Is.GreaterThanOrEqualTo(3),
+                "The selected card and adjacent choices must remain clear rather than fading behind each other.");
+
+            var handle=panel.transform.Find("RoomGalleryDragHandle");
+            Assert.That(handle.GetComponent<UnityEngine.UI.Image>().color,Is.EqualTo(ClinicalPanelStyle.SurfaceSubtle),
+                "The optional pinch affordance should remain distinct without competing with the selected room.");
+            Assert.That(((RectTransform)handle).localPosition.z,
+                Is.EqualTo(-.72f/.00072f).Within(.1f),
+                "The short handle must sit in front of the room card within natural seated reach.");
+            Assert.That(Vector3.Distance(_bindings.Platform.Viewer.position,handle.position),
+                Is.LessThan(.7f),"The seated user should not need to stretch toward the room gallery.");
+            Assert.That(((RectTransform)handle).rect.width*.00072f,
+                Is.LessThanOrEqualTo(FullScriptRoomGalleryDragState.HandleRadius*2f),
+                "The whole visible handle must fit inside the gesture's horizontal capture distance.");
+            var instruction=handle.Find("RoomGalleryDragInstruction").GetComponent<TMPro.TMP_Text>();
+            Assert.That(instruction.color,Is.EqualTo(ClinicalPanelStyle.TextPrimary));
+            Assert.That(instruction.text,Does.Contain("滑动"));
+        }
+        [Test] public void GalleryArrowBrowseMovesTheRoomCardsWithoutLeavingTheGallery()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            var panel=_runtime.Visit.Panel;
+            var office=panel.GetComponentsInChildren<Button>().Single(button=>button.name=="Travel_R01_OFFICE");
+            var before=office.transform.position;
+            Touch("GalleryNext");
+            Assert.That(_runtime.Visit.Panel,Is.SameAs(panel));
+            Assert.That(office.transform.position,Is.Not.EqualTo(before));
+            Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo("R00_LOBBY"));
+        }
+        [Test] public void RoomGalleryTutorialCanBeSkippedAndReplayedWithoutChangingLearningTasks()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            var taskStates=_runtime.Definition.rooms.SelectMany(room=>room.taskIds).ToDictionary(taskId=>taskId,taskId=>
+            {
+                Assert.That(_runtime.Session.TryGetTask(taskId,out var snapshot),Is.True);
+                return snapshot.Status;
+            });
+            var roomId=_runtime.Session.CurrentRoomId;
+            var mainlineIndex=_runtime.Session.MainlineIndex;
+            var action=_runtime.Visit.Panel.GetComponentsInChildren<Button>().Single(button=>button.name=="GalleryTutorialAction");
+            var handleInstruction=_runtime.Visit.Panel.transform.Find("WalkingHint").GetComponent<TMPro.TMP_Text>();
+            Assert.That(handleInstruction.text,Is.EqualTo("轻触两侧换图，轻触图片进入。"));
+            Assert.That(action.GetComponentInChildren<TMPro.TMP_Text>().text,Is.EqualTo("拖动演示"));
+
+            using(var hand=new ClinicalHandFixture(_runtime.Visit.Panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
+                hand.Touch(action);
+            _runtime.Tick(.05f);
+
+            Assert.That(_runtime.GalleryTutorial.Step,Is.EqualTo(FullScriptGalleryTutorialStep.MoveToHandle));
+            Assert.That(action.GetComponentInChildren<TMPro.TMP_Text>().text,Is.EqualTo("退出演示"));
+            Assert.That(handleInstruction.text,Is.EqualTo("把手移到下方亮起的短把手处。"));
+            Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo(roomId));
+            Assert.That(_runtime.Session.MainlineIndex,Is.EqualTo(mainlineIndex));
+            foreach(var taskId in taskStates.Keys)
+            {
+                Assert.That(_runtime.Session.TryGetTask(taskId,out var snapshot),Is.True);
+                Assert.That(snapshot.Status,Is.EqualTo(taskStates[taskId]),taskId);
+            }
+
+            using(var hand=new ClinicalHandFixture(_runtime.Visit.Panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
+                hand.Touch(action);
+            _runtime.Tick(.05f);
+
+            Assert.That(_runtime.GalleryTutorial.Step,Is.EqualTo(FullScriptGalleryTutorialStep.Skipped));
+            Assert.That(action.GetComponentInChildren<TMPro.TMP_Text>().text,Is.EqualTo("拖动演示"));
+            Assert.That(handleInstruction.text,Is.EqualTo("轻触两侧换图，轻触图片进入。"));
+        }
+        [Test] public void RoomGalleryTutorialShowsTheCurrentGestureDiagramAndRestoresItOnReplay()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            var panel=_runtime.Visit.Panel;
+            var diagram=panel.transform.Find("RoomGalleryDragHandle/TutorialGesture");
+            Assert.That(diagram,Is.Not.Null,"The current hand action needs a repeatable visual demonstration.");
+            var image=diagram.GetComponent<RawImage>();
+            Assert.That(image,Is.Not.Null);
+            Assert.That(image.texture,Is.SameAs(Resources.Load<Texture2D>("FullScriptRooms/RoomGallery/gallery-gesture-tutorial-v2")));
+            Assert.That(((Texture2D)image.texture).width,Is.EqualTo(1536));
+            Assert.That(((Texture2D)image.texture).height,Is.EqualTo(1024));
+            var importer=(TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(image.texture));
+            Assert.That(importer.npotScale.ToString(),Is.EqualTo("None"));
+            Assert.That(importer.alphaIsTransparency,Is.True);
+            Assert.That(diagram.gameObject.activeSelf,Is.False);
+
+            Touch("GalleryTutorialAction");
+            Assert.That(diagram.gameObject.activeSelf,Is.True);
+            Assert.That(_runtime.GalleryTutorial.Step,Is.EqualTo(FullScriptGalleryTutorialStep.MoveToHandle));
+            Assert.That(image.uvRect,Is.EqualTo(new Rect(0,.5f,1f/3f,.5f)));
+            Touch("GalleryTutorialAction");
+            Assert.That(diagram.gameObject.activeSelf,Is.False);
+        }
+        [Test] public void RoomTransitionKeepsItsIllustrationAndNonBlackCurtainThroughRelease()
+        {
+            FinishOpening();
+            Assert.That(OpenDoor(),Is.True);
+            _release.Complete=false;
+            var gallery=_runtime.Visit.Panel;
+            var office=gallery.GetComponentsInChildren<Button>().Single(button=>button.name=="Travel_R01_OFFICE");
+            using(var hand=new ClinicalHandFixture(gallery,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(office);
+            for(var i=0;i<10;i++)_runtime.Tick(.05f);
+
+            var curtain=(GameObject)typeof(FullScriptJourneyRuntime).GetField("_curtain",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(_runtime);
+            var shade=(Image)typeof(FullScriptJourneyRuntime).GetField("_shade",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(_runtime);
+            var preview=curtain.transform.Find("TransitionStatus/TransitionPreviewFrame/TransitionPreview").GetComponent<RawImage>();
+            var message=curtain.transform.Find("TransitionStatus/Message").GetComponent<TMPro.TMP_Text>();
+            Assert.That(_runtime.LoadingStage,Is.EqualTo("WaitRelease"));
+            Assert.That(_runtime.Visit,Is.Null,"The previous room has been released while the light transition remains.");
+            Assert.That(curtain.activeSelf,Is.True);
+            Assert.That(shade.color,Is.Not.EqualTo(Color.black));
+            Assert.That(preview.texture,Is.SameAs(Resources.Load<Texture2D>("FullScriptRooms/RoomGallery/room-preview-atlas-v1")));
+            Assert.That(preview.uvRect.x,Is.GreaterThan(.34f),"The destination card must show the office illustration.");
+            Assert.That(message.text,Does.Contain("办公室"));
+
+            _release.Complete=true;
+            Frames();
+            Assert.That(_runtime.Visit.RoomId,Is.EqualTo("R01_OFFICE"));
+            Assert.That(curtain.activeSelf,Is.False);
         }
         [Test] public void DefaultLobbyBindsPanoramaWithoutGaussianOrPipelineOverride()
         {
@@ -245,27 +463,30 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageSampleSelector"));
             Assert.That(_runtime.Visit.Panel.transform.Find("StorageSampleTitle").GetComponent<TMPro.TMP_Text>().text,
                 Does.Contain("选择检查内容"));
-            Assert.That(_runtime.Visit.Panel.transform.Find("StorageSampleAvailability").GetComponent<TMPro.TMP_Text>().text,
-                Does.Contain("不会自动完成检查"));
+            Assert.That(_runtime.Visit.Panel.transform.Find("StorageSampleAvailability"),Is.Null,
+                "The category screen should not repeat workflow rules beneath the choices.");
+            Assert.That(((RectTransform)_runtime.Visit.Panel.transform).rect.height,Is.LessThanOrEqualTo(560),
+                "The selector should leave the storage cabinet visible behind it.");
             var choices=_runtime.Visit.Panel.GetComponentsInChildren<Button>().Where(button=>button.name.StartsWith("StorageSample_ST-",StringComparison.Ordinal)).ToArray();
             Assert.That(choices.Select(button=>button.name),Is.EquivalentTo(new[]{"StorageSample_ST-01","StorageSample_ST-02","StorageSample_ST-03"}));
             var cabinetChoice=choices.Single(button=>button.name=="StorageSample_ST-01");
             var registerChoice=choices.Single(button=>button.name=="StorageSample_ST-02");
             var scopeChoice=choices.Single(button=>button.name=="StorageSample_ST-03");
             Assert.That(cabinetChoice.targetGraphic.color,
-                Is.EqualTo(new Color(.06f,.39f,.31f,1f)),"The cabinet is the recommended starting choice.");
+                Is.EqualTo(ClinicalPanelStyle.Accent),"The cabinet is the recommended starting choice.");
             Assert.That(((RectTransform)cabinetChoice.transform).anchoredPosition.y,
-                Is.GreaterThan(((RectTransform)registerChoice.transform).anchoredPosition.y),"The recommended option sits at the crest of the shallow arc.");
+                Is.EqualTo(((RectTransform)registerChoice.transform).anchoredPosition.y),"The direct objects share one row.");
             Assert.That(((RectTransform)cabinetChoice.transform).anchoredPosition.y,
-                Is.GreaterThan(((RectTransform)scopeChoice.transform).anchoredPosition.y));
+                Is.EqualTo(((RectTransform)scopeChoice.transform).anchoredPosition.y));
             Assert.That(_runtime.Visit.Panel.transform.Find("StorageSampleGastroscopeCopy").GetComponent<TMPro.TMP_Text>().text,
                 Does.Contain("悬挂检查暂不可用"));
 
             Touch("StorageSample_ST-02");
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("ST-02"));
-            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StationaryScriptPanel"));
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageRegisterObservation"),
+                "The register choice goes straight to the paper mounted on the cabinet.");
             Assert.That(_runtime.Visit.Room.Root,Is.SameAs(root));
-            Touch("ChooseStorageSample");
+            Touch("ReturnToInspection");
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageSampleSelector"));
             Touch("StorageSample_ST-03");
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("ST-03"));
@@ -323,7 +544,9 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(buttons.Any(button=>button.name=="Travel_R00_LOBBY"),Is.False);
             var officeChoice=buttons.Single(button=>button.name=="Travel_R01_OFFICE");
             Assert.That(officeChoice.GetComponentInChildren<TMPro.TMP_Text>().text,
-                Is.EqualTo("回查"+_runtime.Definition.FindRoom("R01_OFFICE").displayName));
+                Is.EqualTo(_runtime.Definition.FindRoom("R01_OFFICE").displayName));
+            Assert.That(officeChoice.transform.Find("RoomCardStatus").GetComponent<TMPro.TMP_Text>().text,
+                Is.EqualTo("已到访 · 可回看"));
         }
         [Test] public void ProductionPrefabDoesNotReferenceArchivedCourseAssets()
         {
@@ -382,7 +605,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             var buttons=_runtime.Visit.Panel.GetComponentsInChildren<Button>();
             Assert.That(buttons.Any(button=>button.name=="ModeGuided" || button.name=="ModeIndependent"),Is.False);
             Assert.That(_runtime.Visit.Panel.transform.Find("WalkingHint").GetComponent<TMPro.TMP_Text>().text,
-                Does.Contain("伸手轻触按钮"));
+                Does.Contain("轻触两侧换图，轻触图片进入"),
+                "The first gallery visit should explain the direct arrow and image actions.");
         }
         [TestCase(0)]
         [TestCase(3)]
@@ -442,10 +666,15 @@ namespace BotanicalGardenQR.Tests.EditMode
                 Assert.That(_runtime.InputAllowed,Is.False);
                 Assert.That(GameObject.Find("RetryRoom"),Is.Not.Null);
                 Assert.That(GameObject.Find("FullScriptTransitionCurtain"),Is.Not.Null);
+                var curtain=GameObject.Find("FullScriptTransitionCurtain");
+                var message=curtain.GetComponentsInChildren<TMPro.TMP_Text>(true).Single(text=>text.name=="Message");
+                var retryButton=GameObject.Find("RetryRoom").GetComponent<Button>();
+                Assert.That(message.color,Is.EqualTo(ClinicalPanelStyle.TextPrimary),"Failure instructions must be readable on the light transition panel.");
+                Assert.That(retryButton.targetGraphic.color,Is.EqualTo(ClinicalPanelStyle.Accent),"The retry action must retain a full-contrast primary surface.");
+                Assert.That(retryButton.GetComponentInChildren<TMPro.TMP_Text>().color,Is.EqualTo(ClinicalPanelStyle.ShellText),"The primary retry label must contrast with its dark surface.");
                 Assert.That(AssetDatabase.MoveAsset(unavailable,original),Is.Empty);
                 _release.Complete=false;
-                var retry=GameObject.Find("RetryRoom").GetComponent<Button>();
-                using(var hand=new ClinicalHandFixture(retry.gameObject,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(retry);
+                using(var hand=new ClinicalHandFixture(retryButton.gameObject,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(retryButton);
                 Frames();Assert.That(_runtime.Visit,Is.Null,"Retry must honor the asset release barrier.");
                 _release.Complete=true;Frames();
                 Assert.That(_runtime.InputAllowed,Is.True);
@@ -485,6 +714,41 @@ namespace BotanicalGardenQR.Tests.EditMode
             }
             finally{UnityEngine.Object.DestroyImmediate(window);}
             Assert.That(EditorSceneManager.previewSceneCount,Is.EqualTo(sceneCount));
+        }
+        [UnityTest] public IEnumerator WorkspaceAutomaticallyRefreshesAfterAnAssetIsImported()
+        {
+            var probePath="Assets/EndoscopyTheme/Resources/ClinicalCourse/InspectionWorkspaceRefreshProbe_"+Guid.NewGuid().ToString("N")+".txt";
+            var probeFile=System.IO.Path.GetFullPath(probePath);
+            Assert.That(System.IO.File.Exists(probeFile),Is.False,"The refresh probe must not overwrite a workspace asset.");
+            _runtime.Dispose();
+            var type=Type.GetType("BotanicalGardenQR.Bootstrap.Editor.InspectionWorkspace, BotanicalGardenQR.Bootstrap.Editor",true);
+            var window=(EditorWindow)ScriptableObject.CreateInstance(type);
+            var refresh=type.GetMethod("RefreshRoom",BindingFlags.Instance|BindingFlags.NonPublic);
+            var update=type.GetMethod("OnInspectorUpdate",BindingFlags.Instance|BindingFlags.NonPublic);
+            var roomField=type.GetField("_room",BindingFlags.Instance|BindingFlags.NonPublic);
+            try
+            {
+                refresh.Invoke(window,null);
+                update.Invoke(window,null); // Drain the initial queued refresh before importing anything.
+                var first=((VirtualRoomEnvironment)roomField.GetValue(window)).Root;
+                Assert.That(first,Is.Not.Null);
+                System.IO.File.WriteAllText(probeFile,Guid.NewGuid().ToString("N"));
+                AssetDatabase.ImportAsset(probePath,ImportAssetOptions.ForceSynchronousImport);
+                for(int i=0;i<10 && first;i++)
+                {
+                    yield return null;
+                    update.Invoke(window,null);
+                }
+                Assert.That(first==null,Is.True,"An imported asset must trigger disposal and automatic workspace rebuild.");
+                var refreshed=((VirtualRoomEnvironment)roomField.GetValue(window)).Root;
+                Assert.That(refreshed,Is.Not.Null);
+                Assert.That(EditorSceneManager.IsPreviewScene(refreshed.scene),Is.True);
+            }
+            finally
+            {
+                AssetDatabase.DeleteAsset(probePath);
+                if(window)UnityEngine.Object.DestroyImmediate(window);
+            }
         }
         [Test] public void SharedEditedViewpointsDriveWorkspaceAndRuntimeWithoutMovingHead()
         {
@@ -580,25 +844,27 @@ namespace BotanicalGardenQR.Tests.EditMode
         public void OfficeTaskOpensMatchingDocumentWithoutStartingRecordTask(int index,string title,string body)
         {
             FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");Frames();
-            for(int i=0;i<index;i++)Touch("NextTask");
-            if(_runtime.Visit.ScriptTaskId=="OF-02")
-                Assert.That(_runtime.Visit.Panel.transform.Find("ReadDetail"),Is.Null,
-                    "Selecting a use record is the effective view action for the leak document.");
+            Touch("NextTask");
             _runtime.Session.TryGetTask("OF-01",out var before);
             var previousStatus=before.Status;
-            Touch("OpenCurrentDocument");
+            Touch("OpenDocuments");
+            Touch("Doc"+ClinicalTrainingRecords.DocumentIndexForTask("OF-"+index.ToString("D2")));
             Assert.That(_runtime.Visit.Panel.transform.Find("Title").GetComponent<TMPro.TMP_Text>().text,Does.EndWith(title));
-            Assert.That(_runtime.Visit.Panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Does.Contain(body));
+            if(index==5)
+            {
+                var image=_runtime.Visit.Panel.transform.Find("DocumentImage").GetComponent<RawImage>();
+                Assert.That(AssetDatabase.GetAssetPath(image.texture),Does.EndWith("/office-staff-training-record-v1.png"));
+            }
+            else Assert.That(_runtime.Visit.Panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Does.Contain(body));
             Assert.That(_runtime.Visit.Panel.transform.Find("Footer"),Is.Null,"Office records must not repeat a fixed page footer.");
             if(index==2)
             {
                 AssertLeakPaper(_runtime.Visit.Panel);
                 Touch("Doc0");
-                var disinfectionCopy=_runtime.Visit.Panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text;
-                Assert.That(disinfectionCopy,Does.Contain("模拟训练记录"));
-                Assert.That(disinfectionCopy,Does.Not.Contain("SIM-REC"));
-                Assert.That(disinfectionCopy,Does.Not.Contain("无隐藏分页"));
-                Assert.That(disinfectionCopy,Does.Not.Contain("同源显示"));
+                var disinfectionImage=_runtime.Visit.Panel.transform.Find("DocumentImage").GetComponent<RawImage>();
+                Assert.That(AssetDatabase.GetAssetPath(disinfectionImage.texture),Does.EndWith("/office-disinfection-training-record-v1.png"));
+                Assert.That(_runtime.Visit.Panel.transform.Find("DocumentBody"),Is.Null,
+                    "The reviewed simulation record is read from its image, not duplicated as a large text page.");
             }
             if(index==3)
             {
@@ -613,9 +879,7 @@ namespace BotanicalGardenQR.Tests.EditMode
             }
             if(index==5)
             {
-                var trainingCopy=_runtime.Visit.Panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text;
-                Assert.That(trainingCopy,Does.Contain("模拟培训记录"));
-                Assert.That(trainingCopy,Does.Not.Contain("SIM-TRAIN"));
+                Assert.That(_runtime.Visit.Panel.transform.Find("DocumentBody"),Is.Null);
             }
             _runtime.Session.TryGetTask("OF-01",out var after);
             Assert.That(after.Status,Is.EqualTo(previousStatus),"Reading a different document must not begin OF-01");
@@ -644,13 +908,17 @@ namespace BotanicalGardenQR.Tests.EditMode
             Touch("BackToRows");
             Assert.That(panel.transform.Find("FindingNoIssue"),Is.Null);
             Assert.That(panel.transform.Find("CompleteOfficeLearning"),Is.Null);
-            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,Does.Contain("SIM-L001"));
+            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,
+                Does.Contain("SIM-R001").And.Contain("请从原表选择对应登记").And.Not.Contain("SIM-L001"));
             Assert.That(panel.transform.Find("ReadStatus").GetComponent<TMPro.TMP_Text>().text,Does.Not.Contain("版本"));
             Assert.That(panel.transform.Find("ReadStatus").GetComponent<TMPro.TMP_Text>().text,
                 Does.Not.Contain(BotanicalGardenQR.Experience.Application.ClinicalTrainingRecords.Version));
             Assert.That(panel.transform.Find("LinkedRecordScope").GetComponent<TMPro.TMP_Text>().text,Does.Contain("同一份模拟资料"));
-            Touch("NextRow");
-            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,Does.Contain("SIM-L002"));
+            Touch("Row1Field0");
+            Assert.That(panel.transform.Find("RowInfo").GetComponent<TMPro.TMP_Text>().text,
+                Does.Contain("SIM-R002").And.Contain("请从原表选择对应登记").And.Not.Contain("SIM-L002"));
+            Assert.That(panel.transform.Find("PracticeLinkedLeak").GetComponent<Button>().interactable,Is.False,
+                "选择另一条记录不等于从测漏原表定位本次使用。");
             Touch("RecordField0");Touch("FilterDate");Touch("OpenDocuments");
             Assert.That(panel.transform.position,Is.EqualTo(position));
             Assert.That(panel.transform.Find("DocumentBody").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(BotanicalGardenQR.Experience.Application.ClinicalTrainingRecords.DocumentBody(document)));
@@ -696,9 +964,10 @@ namespace BotanicalGardenQR.Tests.EditMode
             FinishOpening();if(independent)Touch("ModeIndependent");
             foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(1).Take(washing?6:1))
             {OpenDoor();Touch("Travel_"+room);}
-            for(int i=0;i<(washing?5:2);i++)Touch("NextTask");
+            for(int i=0;i<(washing?5:1);i++)Touch("NextTask");
             if(washing)Touch("NextDetail");
-            Touch(washing?"OpenLinkedLeakRecords":"OpenCurrentDocument");
+            if(washing)Touch("OpenLinkedLeakRecords");
+            else {Touch("OpenDocuments");Touch("Doc1");}
             var panel=_runtime.Visit.Panel;var position=panel.transform.position;var rotation=panel.transform.rotation;
             _runtime.Session.TryGetTask("OF-01",out var task);var initial=task.Status;
             int fields=_runtime.OfficeFieldsViewed.Count,rows=_runtime.OfficeRowsViewed.Count;
@@ -726,7 +995,7 @@ namespace BotanicalGardenQR.Tests.EditMode
         {
             FinishOpening();if(independent)Touch("ModeIndependent");
             OpenDoor();Touch("Travel_R01_OFFICE");
-            Touch("NextTask");Touch("NextTask");Touch("OpenCurrentDocument");
+            Touch("NextTask");Touch("OpenDocuments");Touch("Doc1");
             Touch("BackToRows");
             var panel=_runtime.Visit.Panel;
             Assert.That(panel.transform.Find("FindingNoIssue"),Is.Null);
@@ -761,7 +1030,6 @@ namespace BotanicalGardenQR.Tests.EditMode
         {
             FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");Frames();
             Touch("NextTask");Frames();Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-01"));
-            Touch("OpenCurrentDocument");
             var panel=_runtime.Visit.Panel;
             Assert.That(panel.name,Is.EqualTo("OfficeRecordsExpanded"));
             Assert.That(panel.transform.position.y,Is.LessThan(_rig.centerEyeAnchor.position.y));
@@ -778,7 +1046,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(step.text,Does.Not.Contain("独立核查"));
             Touch("NextDetail");Assert.That(_runtime.Visit.Panel.transform.Find("ScriptStep").GetComponent<TMPro.TMP_Text>().text,Does.Contain("细项 2/2"));
             var lastCopy=_runtime.Visit.Panel.transform.Find("ScriptBody").GetComponent<TMPro.TMP_Text>().text;
-            Touch("NextDetail");
+            Assert.That(_runtime.Visit.Panel.transform.Find("NextDetail"),Is.Null,
+                "The last detail does not show a button that cannot move forward.");
             Assert.That(_runtime.Visit.Panel.transform.Find("ScriptStep").GetComponent<TMPro.TMP_Text>().text,Does.Contain("细项 2/2"));
             Assert.That(_runtime.Visit.Panel.transform.Find("ScriptBody").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(lastCopy));
         }
@@ -786,18 +1055,13 @@ namespace BotanicalGardenQR.Tests.EditMode
         {
             FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");Frames();Touch("NextTask");Frames();
             Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("OF-01"));
-            var taskPanel=_runtime.Visit.Panel;
-            var primaryColor=new Color(.06f,.39f,.31f,1f);
-            var primaryButtons=taskPanel.GetComponentsInChildren<Button>()
-                .Where(button=>button.targetGraphic && button.targetGraphic.color==primaryColor).ToArray();
-            Assert.That(primaryButtons,Has.Length.EqualTo(1),"The panel should have one clear primary action.");
-            Assert.That(primaryButtons[0].name,Is.EqualTo("OpenCurrentDocument"));
-            Assert.That(taskPanel.transform.Find("ReadDetail"),Is.Null,
-                "Field selection is the effective view action; a duplicate manual read button should not be shown.");
-
-            Touch("OpenCurrentDocument");
             var panel=_runtime.Visit.Panel;
             Assert.That(panel.name,Is.EqualTo("OfficeRecordsExpanded"));
+            Assert.That(panel.transform.Find("ReadDetail"),Is.Null,
+                "Field selection is the effective view action; a duplicate manual read button should not be shown.");
+            Assert.That(panel.transform.Find("PreviousRow"),Is.Null);
+            Assert.That(panel.transform.Find("NextRow"),Is.Null,
+                "Each visible table row can be selected directly without paging buttons.");
             var position=panel.transform.position;var rotation=panel.transform.rotation;
             _runtime.Session.TryGetTask("OF-01",out var before);
             Touch("RecordField0");
@@ -822,6 +1086,60 @@ namespace BotanicalGardenQR.Tests.EditMode
             _runtime.Session.TryGetTask("OF-01",out var after);
             Assert.That(after.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
             Assert.That(after.Status,Is.EqualTo(before.Status));
+        }
+        [Test] public void OfficeDocumentGalleryShowsTheSelectedImageBesideAnUnobstructedControlSidebar()
+        {
+            FinishOpening();OpenDoor();Touch("Travel_R01_OFFICE");Frames();Touch("NextTask");Frames();
+            var panel=_runtime.Visit.Panel;
+            Touch("OpenDocuments");
+
+            var imageNode=panel.transform.Find("DocumentImage");
+            Assert.That(imageNode,Is.Not.Null,"A selected document should be presented as its own image.");
+            var image=imageNode.GetComponent<RawImage>();
+            Assert.That(AssetDatabase.GetAssetPath(image.texture),Does.EndWith("/office-disinfection-training-record-v1.png"));
+            var imageRect=image.rectTransform;
+            var gallery=(RectTransform)panel.transform.Find("DocumentGalleryControls");
+            Assert.That(gallery,Is.Not.Null);
+            var imageRight=imageRect.anchoredPosition.x+imageRect.rect.width*.5f;
+            var controlsLeft=gallery.anchoredPosition.x-gallery.rect.width*.5f;
+            Assert.That(imageRight,Is.LessThan(controlsLeft),"Navigation must remain outside the document image.");
+            Assert.That(panel.transform.Find("DocumentGalleryControls/PreviousDocument"),Is.Null);
+            Assert.That(panel.transform.Find("DocumentGalleryControls/NextDocument"),Is.Null);
+            Assert.That(panel.transform.Find("DocumentGalleryControls/BackToRows"),Is.Not.Null);
+            Assert.That(panel.transform.Find("DocumentGalleryControls/ReturnToTerminal"),Is.Null);
+            Assert.That(panel.GetComponentsInChildren<Button>(),Has.Length.EqualTo(ClinicalTrainingRecords.DocumentCount+2),
+                "The document gallery exposes six source choices, zoom, and one contextual return.");
+            Assert.That(panel.transform.Find("DocumentGalleryControls/LeaveOfficeRecords"),Is.Null);
+            for(int i=0;i<ClinicalTrainingRecords.DocumentCount;i++)
+                Assert.That(panel.transform.Find("DocumentGalleryControls/Doc"+i),Is.Not.Null,
+                    "Direct material selection replaces redundant previous/next controls.");
+
+            _runtime.Session.TryGetTask("OF-01",out var before);
+            var pose=panel.transform.position;
+            var rotation=panel.transform.rotation;
+            var originalWidth=imageRect.rect.width;
+            Touch("ZoomDocument");
+            var zoomedWidth=panel.transform.Find("DocumentImage").GetComponent<RawImage>().rectTransform.rect.width;
+            Assert.That(zoomedWidth,Is.GreaterThan(originalWidth));
+            Assert.That(((RectTransform)panel.transform).rect.height,Is.EqualTo(900));
+            Assert.That(panel.transform.Find("DocumentGalleryControls"),Is.Null,
+                "Focused reading should show the paper and one way back instead of the whole document menu.");
+            Assert.That(panel.GetComponentsInChildren<Button>(),Has.Length.EqualTo(1));
+            Assert.That(panel.transform.position,Is.EqualTo(pose));
+            Assert.That(panel.transform.rotation,Is.EqualTo(rotation));
+            Touch("ZoomDocument");
+            Assert.That(((RectTransform)panel.transform).rect.height,Is.EqualTo(760));
+            Assert.That(panel.transform.Find("DocumentGalleryControls"),Is.Not.Null);
+            Touch("Doc4");
+            Assert.That(panel.transform.Find("Title").GetComponent<TMPro.TMP_Text>().text,Does.EndWith("人员培训"));
+            var trainingImage=panel.transform.Find("DocumentImage").GetComponent<RawImage>();
+            Assert.That(AssetDatabase.GetAssetPath(trainingImage.texture),Does.EndWith("/office-staff-training-record-v1.png"));
+            Touch("BackToRows");
+            Assert.That(panel.transform.position,Is.EqualTo(pose));
+            Assert.That(panel.transform.rotation,Is.EqualTo(rotation));
+            _runtime.Session.TryGetTask("OF-01",out var after);
+            Assert.That(after.Status,Is.EqualTo(before.Status),"Browsing a different document must not complete or alter the task.");
+            Assert.That(_runtime.Session.GetFindings("OF-01"),Is.Empty);
         }
         [Test] public void WaitingUsesPublishedSourceMeshesAndAllowsUnobstructedObservation()
         {
@@ -894,12 +1212,10 @@ namespace BotanicalGardenQR.Tests.EditMode
             foreach(var room in new[]{"R01_OFFICE","R02_STORAGE"})
             {OpenDoor();Touch("Travel_"+room);}
             Touch("StorageSample_ST-02");Assert.That(_runtime.Visit.ScriptTaskId,Is.EqualTo("ST-02"));
-            Assert.That(_runtime.Visit.Panel.transform.Find("ReadDetail"),Is.Null,
-                "Selecting a week is the effective view action for the storage register.");
-            Assert.That(_runtime.Visit.Panel.transform.Find("ScriptStep").GetComponent<TMPro.TMP_Text>().text,Does.Contain("选择周记录查看"));
-            var pose=_runtime.Visit.Panel.transform.position;
-            Touch("OpenStorageRecords");
+            Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageRegisterObservation"));
+            TouchMountedStorageRegister();
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCleaningRecords"));
+            var pose=_runtime.Visit.Panel.transform.position;
             Assert.That(AssetDatabase.GetAssetPath(_runtime.Visit.Panel.transform.Find("StorageRegisterPaper").GetComponent<RawImage>().texture),Does.EndWith("/storage-cleaning-register-v1.png"));
             Assert.That(_runtime.Visit.Panel.transform.Find("RegisterScope").GetComponent<TMPro.TMP_Text>().text,Does.Contain("无另附登记"));
             Assert.That(_runtime.Visit.Panel.transform.Find("StorageCell2_1").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(""));
@@ -927,13 +1243,13 @@ namespace BotanicalGardenQR.Tests.EditMode
                 Assert.That(_runtime.Session.GetFindings("ST-02").Single(f=>f.CriterionId=="storage-week-3").Judgement,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyJudgement.NoIssue));
                 Touch("StorageIssue");
             }
-            Touch("ReturnToInspection");Touch("OpenStorageRecords");
+            Touch("ReturnToInspection");Touch("StorageSample_ST-02");TouchMountedStorageRegister();
             Assert.That(_runtime.ScriptStepsViewed.Count(s=>s.StartsWith("ST-02:week:")),Is.EqualTo(4));
             foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(3))
             {OpenDoor();Touch("Travel_"+room);}
             Touch("SubmitJourney");Touch("SubmitJourney");
             Assert.That(_runtime.Session.IsFinished,Is.True);
-            OpenDoor();Touch("Travel_R02_STORAGE");Touch("StorageSample_ST-02");Touch("OpenStorageRecords");
+            OpenDoor();Touch("Travel_R02_STORAGE");Touch("StorageSample_ST-02");TouchMountedStorageRegister();
             var oldCount=_runtime.ScriptStepsViewed.Count;Touch("StorageWeek2");
             Assert.That(_runtime.ScriptStepsViewed.Count,Is.EqualTo(oldCount));
             Assert.That(_runtime.Visit.Panel.transform.Find(independent?"StorageIssue":"CompleteStorageLearning").GetComponent<Button>().interactable,Is.False);
@@ -955,13 +1271,9 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(content.Find("StorageCell2_1").GetComponent<TMPro.TMP_Text>().text,Is.EqualTo(""));
             var paper=content.Find("StorageRegisterPaper").GetComponent<RawImage>().texture;
             var head=_rig.centerEyeAnchor.position;var handPose=_rig.leftHandAnchor.position;
-            var before=_runtime.Visit.Panel;
             var mountedButton=mount.transform.Find("OpenMountedRegister").GetComponent<Button>();
             var mountedTouch=mountedButton.GetComponent<BotanicalGardenQR.FrontendShell.Runtime.ClinicalNearTouch>();
-            Assert.That(typeof(BotanicalGardenQR.FrontendShell.Runtime.ClinicalNearTouch).GetProperty("CanPress",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(mountedTouch),Is.False);
-            mountedButton.onClick.Invoke();
-            Frames();Assert.That(_runtime.Visit.Panel,Is.SameAs(before),"Mounted paper cannot interrupt a different panel.");
-            Touch("InspectStorageRegister");
+            Assert.That(typeof(BotanicalGardenQR.FrontendShell.Runtime.ClinicalNearTouch).GetProperty("CanPress",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(mountedTouch),Is.True);
             Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageRegisterObservation"));
             Assert.That(_rig.centerEyeAnchor.position,Is.EqualTo(head));Assert.That(_rig.leftHandAnchor.position,Is.EqualTo(handPose));
             Assert.That(Vector3.Dot(mount.transform.position-head,Vector3.ProjectOnPlane(_rig.centerEyeAnchor.forward,Vector3.up).normalized),Is.EqualTo(.6f).Within(.001f));
@@ -985,7 +1297,7 @@ namespace BotanicalGardenQR.Tests.EditMode
             foreach(var room in _runtime.Definition.mainlineRoomIds.Skip(4))
             {OpenDoor();Touch("Travel_"+room);}
             Touch("SubmitJourney");Touch("SubmitJourney");
-            OpenDoor();Touch("Travel_R02_STORAGE");Touch("StorageSample_ST-02");Touch("InspectStorageRegister");
+            OpenDoor();Touch("Travel_R02_STORAGE");Touch("StorageSample_ST-02");
             mount=GameObject.Find("CabinetSideRegister");mountedButton=mount.transform.Find("OpenMountedRegister").GetComponent<Button>();
             using(var hand=new ClinicalHandFixture(mount,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(mountedButton);
             Frames();Assert.That(_runtime.Visit.Panel.name,Is.EqualTo("StorageCleaningRecords"));
@@ -1086,7 +1398,12 @@ namespace BotanicalGardenQR.Tests.EditMode
             Assert.That(_runtime.Session.LearningActionCount("OF-00",ClinicalLearningAction.Hint),Is.EqualTo(1));
             _runtime.Session.TryGetTask("OF-00",out var task);
             Assert.That(task.Status,Is.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Unstarted));
-            _release.Complete=false;OpenDoor();Touch("Travel_R02_STORAGE");Frames();
+            _release.Complete=false;OpenDoor();
+            var panel=_runtime.Visit.Panel;
+            var travel=panel.GetComponentsInChildren<Button>().Single(button=>button.name=="Travel_R02_STORAGE");
+            using(var hand=new ClinicalHandFixture(panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))
+                hand.Touch(travel);
+            Frames();
             Assert.That(_runtime.Visit,Is.Null);Assert.That(_runtime.Session.CurrentRoomId,Is.EqualTo("R01_OFFICE"));
             _release.Complete=true;Frames();Assert.That(_runtime.Visit.RoomId,Is.EqualTo("R02_STORAGE"));
         }
@@ -1108,12 +1425,35 @@ namespace BotanicalGardenQR.Tests.EditMode
                     Assert.That(task.Status,Is.Not.EqualTo(BotanicalGardenQR.Experience.Contracts.ClinicalJourneyTaskStatus.Completed));
                 }
             }
+            var summaryTitle=_runtime.Visit.Panel.transform.Find("RoomTitle").GetComponent<TMPro.TMP_Text>();
+            var summaryBody=_runtime.Visit.Panel.transform.Find("RoomBrief").GetComponent<TMPro.TMP_Text>();
+            var summaryHint=_runtime.Visit.Panel.transform.Find("WalkingHint").GetComponent<TMPro.TMP_Text>();
+            Assert.That(summaryTitle.color,Is.EqualTo(ClinicalPanelStyle.TextPrimary),
+                "Summary headings on the light panel must remain visible.");
+            Assert.That(summaryBody.color,Is.EqualTo(ClinicalPanelStyle.TextPrimary),
+                "Summary text on the light panel must remain visible.");
+            Assert.That(summaryBody.text,Does.Contain("暂不可用"));
+            Assert.That(summaryBody.text,Does.Contain("使用提示"));
+            Assert.That(summaryBody.text,Does.Not.Contain("有效查阅"),
+                "The decision page should keep learning help while omitting low-value operation counts.");
+            Assert.That(summaryHint.color,Is.EqualTo(ClinicalPanelStyle.Muted),
+                "The summary action hint must remain visible on the light panel.");
+            var visibleSummaryButtons=_runtime.Visit.Panel.GetComponentsInChildren<Button>();
+            Assert.That(visibleSummaryButtons.Length,Is.InRange(4,5),
+                "The summary has details, submission, room review, and office review; field review appears when review data exists.");
             Touch("SubmitJourney");Assert.That(_runtime.Session.IsFinished,Is.False);
             Touch("SubmitJourney");Assert.That(_runtime.Session.IsFinished,Is.True);
+            Assert.That(_runtime.Visit.Panel.transform.Find("SubmitJourney").gameObject.activeSelf,Is.False,
+                "Submitted sessions show the review action instead of a disabled submit control.");
+            Assert.That(_runtime.Visit.Panel.transform.Find("RecordReview").gameObject.activeSelf,Is.True);
         }
         [Test] public void StationaryThemeKeepsHistoricalSourceAndRemovesStandingHeightClamp()
         {
-            var source=_bindings.Configuration.PrologueTheme;
+            var source=AssetDatabase.LoadAssetAtPath<BotanicalGardenQR.Configuration.Runtime.VisitorPrologueThemeAsset>(
+                "Assets/BotanicalGardenQR/Content/Authoring/VisitorPrologueTheme.asset");
+            Assert.That(source,Is.Not.Null);
+            Assert.That(_bindings.Configuration.PrologueTheme,Is.Null,
+                "The current stationary route must not bind the archived prologue theme.");
             source.Copy.TryGetEncounterPage(3,out var original);
             var clone=source.CreateStationaryVariant();
             try
@@ -1288,12 +1628,36 @@ namespace BotanicalGardenQR.Tests.EditMode
             }
             finally{Physics.queriesHitBackfaces=backfaces;}
         }
+        void TouchMountedStorageRegister()
+        {
+            var mount=_runtime.Visit.Room.Root.GetComponentsInChildren<Transform>()
+                .Single(transform=>transform.name=="CabinetSideRegister").gameObject;
+            var button=mount.transform.Find("OpenMountedRegister").GetComponent<Button>();
+            using(var hand=new ClinicalHandFixture(mount,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(button);
+            Frames();
+        }
         void Touch(string name)
         {
             var guide=FindGuide();
             if(guide && guide.CurrentState?.Owner==VisitorDialogueOwner.Guidance)TouchGuide(guide);
             var panel=_runtime.Visit.Panel;
             var button=panel.GetComponentsInChildren<Button>().Single(b=>b.name==name);
+            if(name.StartsWith("Travel_",StringComparison.Ordinal))
+            {
+                // Browse as a visitor would before touching a card outside the visible trio.
+                for(var step=0;step<7 && button.GetComponent<CanvasGroup>().alpha<.65f;step++)
+                {
+                    // EditMode's manual runtime ticks do not advance Time.unscaledTime;
+                    // represent the natural pause between successive arrow presses.
+                    typeof(FullScriptRoomVisit).GetField("_roomGallerySelectionEnableAt",
+                        BindingFlags.Instance|BindingFlags.NonPublic).SetValue(_runtime.Visit,float.NegativeInfinity);
+                    Touch(button.transform.localPosition.x>0 ? "GalleryNext" : "GalleryPrevious");
+                }
+                Assert.That(button.GetComponent<CanvasGroup>().alpha,Is.GreaterThanOrEqualTo(.65f),
+                    name+" did not become visible after browsing.");
+                typeof(FullScriptRoomVisit).GetField("_roomGallerySelectionEnableAt",
+                    BindingFlags.Instance|BindingFlags.NonPublic).SetValue(_runtime.Visit,float.NegativeInfinity);
+            }
             using(var hand=new ClinicalHandFixture(panel,_bindings.Platform.Viewer,_bindings.Presentation.HeadGaze))hand.Touch(button);
             Frames();
             if(name.StartsWith("Travel_",StringComparison.Ordinal))

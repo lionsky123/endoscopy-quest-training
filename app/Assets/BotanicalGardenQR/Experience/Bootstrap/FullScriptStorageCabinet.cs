@@ -59,7 +59,7 @@ namespace BotanicalGardenQR.Bootstrap
             var board=(RectTransform)_panel.transform;board.sizeDelta=new Vector2(720,180);board.localScale=Vector3.one*.00065f;
             board.SetPositionAndRotation(_scriptPose.position-Vector3.up*.22f,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();
-            Fill(board,new Color(.96f,.98f,1),2);
+            Frame(board);
             var state=Label(board,_font,"CabinetState",0,38,680,75,22);state.fontSharedMaterial=_scriptTextMaterial;state.color=new Color(.015f,.025f,.035f);
             state.text=(close?"握住左右把手展开柜门，观察内壁":"整体观察：柜体外壳、门与通风构造")+"\n柜体结构示教 · 悬挂镜体仍待补";
             var distance=Button(board,_font,"SwitchStorageDistance",close?"回到整体观察":"靠近柜门操作",-175,-48,330,60,()=>QueueStationaryAction(()=>ChangeStorageObservation(!_storageClose)),true);

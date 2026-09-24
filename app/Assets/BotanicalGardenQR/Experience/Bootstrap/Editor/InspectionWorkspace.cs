@@ -247,7 +247,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
             try
             {
                 workspace.RefreshRoom();
-                foreach(var id in new[]{"R00_LOBBY","R01_OFFICE"})
+                foreach(var id in workspace._ids)
                 {
                     workspace._selected=Array.IndexOf(workspace._ids,id);workspace._viewIndex=0;
                     workspace.RefreshRoom();
@@ -257,7 +257,7 @@ namespace BotanicalGardenQR.Bootstrap.Editor
                         ProductionPlayProbe.Capture(workspace._camera,System.IO.Path.Combine(folder,id+(standing?"-standing":"-seated")+".png"));
                     }
                 }
-                Debug.Log("[InspectionPreview] Captured lobby/office seated and standing from current workspace configuration.");
+                Debug.Log("[InspectionPreview] Captured every configured room seated and standing from the current workspace configuration.");
             }
             finally{DestroyImmediate(workspace);}
         }

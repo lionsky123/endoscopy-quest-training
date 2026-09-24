@@ -67,7 +67,7 @@ namespace BotanicalGardenQR.Bootstrap
             board.sizeDelta=new Vector2(860,760);board.localScale=Vector3.one*.00065f;
             board.SetPositionAndRotation(_scriptPose.position,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;
-            Fill(board,new Color(.96f,.98f,1),3);
+            Frame(board);
             TMP_Text Text(string name,string copy,float x,float y,float w,float h,int size)
             {
                 var text=Label(board,_font,name,x,y,w,h,size);text.fontSharedMaterial=_scriptTextMaterial;
@@ -113,8 +113,7 @@ namespace BotanicalGardenQR.Bootstrap
                 Control("SkipStorageLearning","明确跳过本项教学",200,-266,380,()=>
                 {_owner.Session.TrySkipGuidedTask("ST-02");ShowStorageRecords();}).interactable=_owner.Session.CanEdit;
             }
-            Control("ReturnToInspection","返回检查说明",-200,-330,380,ReturnFromStorageRegister);
-            Control("StorageLeave",independent?"保留未答 / 选择房间":"保留进度 / 选择房间",200,-330,380,ContinueToDoor);
+            Control("ReturnToInspection","返回储存库",0,-330,520,ReturnFromStorageRegister);
             ClinicalNearTouch.Bind(board,()=>InputAllowed);
         }
     }

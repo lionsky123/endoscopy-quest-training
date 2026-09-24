@@ -2,6 +2,7 @@ using System;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.FrontendShell.Contracts;
 using Oculus.Interaction.Surfaces;
+using Oculus.Interaction.Input;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -104,11 +105,19 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
         public event Action<VisitorDialogueIntent> IntentRequested;
         public event Action<bool> DialogueVisibilityChanged;
         public event Action<VisitorDialogueSurfaceState> SurfaceStateChanged;
+        public event Action<AudioClip> ConfirmationSoundRequested;
 
         public VisitorDialogueOwner? CurrentOwner => _state?.Owner;
         public VisitorDialogueSurfaceState CurrentState => _state;
         public VisitorDialogueComposition CurrentComposition { get; private set; }
         public event Action<VisitorDialogueComposition> CompositionChanged;
+
+        public void BindTrackedHands(IHand[] hands)
+        {
+            _continuePokeTarget.BindTrackedHands(hands);
+            _restartPokeTarget.BindTrackedHands(hands);
+            _replayPokeTarget.BindTrackedHands(hands);
+        }
 
         public void Configure(
             Transform viewer,
@@ -247,9 +256,9 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             if (pageChanged) _gazeRegistration.Invalidate();
             if (contextChanged)
             {
-                var pose = WorldSurfacePlacement.CreateViewerFrontPose(
-                    _viewer, _theme.ViewerDistance, _theme.DialogueVerticalOffset);
-                pose.rotation = Quaternion.LookRotation(pose.position - _viewer.position, Vector3.up);
+                var pose = WorldSurfacePlacement.CreateViewerReadingPose(
+                    _viewer, _theme.ViewerDistance, _theme.DialogueVerticalOffset,
+                    _theme.DialogueReadingTiltDegrees);
                 transform.SetPositionAndRotation(pose.position, pose.rotation);
                 var fairyPosition = pose.position +
                                     pose.rotation * Vector3.right * _theme.FairyDialogueHorizontalOffset.x +
@@ -301,6 +310,13 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             if (_disposed || !_configured || unscaledDeltaSeconds < 0f ||
                 float.IsNaN(unscaledDeltaSeconds) || float.IsInfinity(unscaledDeltaSeconds))
                 return;
+
+            if (_inputMode == VisitorDialogueInputMode.HandPoke && _targetVisible)
+            {
+                _continuePokeTarget.TickTrackedHands();
+                _restartPokeTarget.TickTrackedHands();
+                _replayPokeTarget.TickTrackedHands();
+            }
 
             var target = _targetVisible ? 1f : 0f;
             var speed = 1f / Mathf.Max(0.01f, _theme.FadeSeconds);
@@ -479,7 +495,7 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             _chapter.alignment = TextAlignmentOptions.MidlineLeft;
             _page.color = _theme.DetailTextColor;
             _page.alignment = TextAlignmentOptions.MidlineRight;
-            StyleChoice(_continueButton, _continueLabel);
+            StyleChoice(_continueButton, _continueLabel, primaryAction: true);
             StyleChoice(_restartButton, _restartLabel);
             StyleChoice(_replayButton, _replayLabel);
             StyleChoice(_deferButton, _deferLabel);
@@ -487,7 +503,7 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             ((RectTransform)_restartButton.transform).sizeDelta = new Vector2(292f, 58f);
         }
 
-        DialogueContractGraphic CreateContractGraphic(RectTransform parent, bool choice)
+        DialogueContractGraphic CreateContractGraphic(RectTransform parent, bool choice, bool primaryAction = false)
         {
             var child = new GameObject("ContractFinish", typeof(RectTransform), typeof(CanvasRenderer), typeof(DialogueContractGraphic));
             var rect = (RectTransform)child.transform;
@@ -496,7 +512,7 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             var graphic = child.GetComponent<DialogueContractGraphic>();
-            graphic.Initialize(_theme.PanelColor, _theme.AccentColor, choice);
+            graphic.Initialize(_theme.PanelColor, _theme.AccentColor, choice, primaryAction);
             return graphic;
         }
 
@@ -518,20 +534,22 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             }
         }
 
-        void StyleChoice(Button button, TMP_Text label)
+        void StyleChoice(Button button, TMP_Text label, bool primaryAction = false)
         {
             var oldImage = button.GetComponent<Image>();
             if (oldImage != null) oldImage.enabled = false;
             var progress = button.transform.Find("GazeProgress");
             if (progress != null) progress.gameObject.SetActive(false);
-            var graphic = CreateContractGraphic((RectTransform)button.transform, true);
+            var graphic = CreateContractGraphic((RectTransform)button.transform, true, primaryAction);
             button.targetGraphic = graphic;
+            var pointable = button.GetComponent<VisitorDialoguePointableTarget>();
+            if (pointable != null) pointable.SetFeedbackGraphic(graphic);
             button.transition = Selectable.Transition.None;
             button.gameObject.AddComponent<DialogueChoiceFeedback>().Initialize(graphic, button);
             label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
             label.rectTransform.offsetMin = new Vector2(36f, 5f); label.rectTransform.offsetMax = new Vector2(-12f, -5f);
             label.fontSize = 21f;
-            label.color = _theme.TextColor;
+            label.color = primaryAction ? Color.white : _theme.TextColor;
         }
 
         void HandleContinueSelected() => SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HeadGaze, Time.unscaledTime);
@@ -598,8 +616,13 @@ namespace BotanicalGardenQR.VisitorCoach.Frontend
             _lastAcceptedFrame = Time.frameCount;
             if (Application.isPlaying && _theme.ConfirmSound != null)
             {
-                _confirmationAudio.Stop();
-                _confirmationAudio.PlayOneShot(_theme.ConfirmSound);
+                var request = ConfirmationSoundRequested;
+                if (request != null) request(_theme.ConfirmSound);
+                else
+                {
+                    _confirmationAudio.Stop();
+                    _confirmationAudio.PlayOneShot(_theme.ConfirmSound);
+                }
             }
             return true;
         }

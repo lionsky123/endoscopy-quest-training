@@ -93,24 +93,24 @@ namespace BotanicalGardenQR.Bootstrap
         {
             BeginDiagnostics();
             RecordStartup("installer.awake");
-            PrimeStartup(DefaultStartupHint());
+            if (_runtimeOptions == null || !_runtimeOptions.VirtualRoomEnabled)
+            {
+                RecordStartup("installer.configuration.failed",
+                    "The formal visitor scene requires the stationary full-script configuration.");
+                PrimeStartup("当前体验暂不可用，请联系工作人员。");
+                return;
+            }
+
             try
             {
                 var bindings = CreateValidatedBindings();
                 RecordStartup("installer.bindings.validated");
-                RecordStartup(
-                    "installer.recognition.created",
-                    $"count={bindings.Platform.RecognitionSources.Count}");
-                if (_runtimeOptions.VirtualRoomEnabled)
-                {
-                    var preview=false;
+                var preview=false;
 #if UNITY_EDITOR
-                    preview=InspectionEditorPreview.Enabled;
-                    if(preview)InspectionEditorPreview.Configure(bindings);
+                preview=InspectionEditorPreview.Enabled;
+                if(preview)InspectionEditorPreview.Configure(bindings);
 #endif
-                    _fullScript = new FullScriptJourneyRuntime(bindings, RecordDiagnostic, editorPreview:preview);
-                }
-                else _composition = VisitorRuntimeComposition.Create(bindings, RecordDiagnostic);
+                _fullScript = new FullScriptJourneyRuntime(bindings, RecordDiagnostic, editorPreview:preview);
                 RecordStartup("installer.composition.ready");
             }
             catch (Exception exception)
@@ -132,15 +132,15 @@ namespace BotanicalGardenQR.Bootstrap
             {
                 _fullScript?.StartExperience();
                 _composition?.StartExperience();
-                RecordStartup("installer.prologue.started");
+                RecordStartup("installer.journey.started");
             }
             catch (Exception exception)
             {
                 RecordStartup(
-                    "installer.prologue.failed",
+                    "installer.journey.failed",
                     $"{exception.GetType().FullName}: {exception.Message}\n{exception.StackTrace}");
                 Debug.LogException(exception, this);
-                PrimeStartup("探索序章启动失败，请联系工作人员。");
+                PrimeStartup("应用启动失败，请联系工作人员。");
             }
         }
 
@@ -205,6 +205,7 @@ namespace BotanicalGardenQR.Bootstrap
                 _spatialDataPermissionGate,
                 _recognitionSourceAdapters,
                 _runtimeOptions);
+            var stationary = _runtimeOptions != null && _runtimeOptions.VirtualRoomEnabled;
             var presentation = new VisitorRuntimeBindings.PresentationBindings(
                 _frontendShell,
                 _observationCompletionFrontend,
@@ -213,7 +214,8 @@ namespace BotanicalGardenQR.Bootstrap
                 _gazeReticlePresentation,
                 _spatialDisplayRoot,
                 _atlasHubPresentationPrefab,
-                _featurePages);
+                stationary ? null : _featurePages,
+                stationary);
             var runtimeRoots = new VisitorRuntimeBindings.RuntimeRootBindings(
                 _videoRuntimeRoot,
                 _panoramaRuntimeRoot,
@@ -222,7 +224,8 @@ namespace BotanicalGardenQR.Bootstrap
                 _fairyRuntimeRoot,
                 _effectRuntimeRoot,
                 _physicalAugmentationRuntimeHost,
-                _activationDriver);
+                _activationDriver,
+                stationary);
             return new VisitorRuntimeBindings(configuration, platform, presentation, runtimeRoots);
         }
 
@@ -419,66 +422,4 @@ namespace BotanicalGardenQR.Bootstrap
         }
     }
 
-    internal sealed class VisitorDiagnosticThrottle
-    {
-        readonly object _sync = new object();
-        readonly TimeSpan _repeatInterval;
-        readonly int _capacity;
-        readonly Dictionary<string, Entry> _entries = new Dictionary<string, Entry>(StringComparer.Ordinal);
-
-        internal VisitorDiagnosticThrottle(TimeSpan repeatInterval, int capacity)
-        {
-            if (repeatInterval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(repeatInterval));
-            if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
-            _repeatInterval = repeatInterval;
-            _capacity = capacity;
-        }
-
-        internal bool TryAccept(string signature, DateTimeOffset timestamp, out int suppressedRepeats)
-        {
-            signature = signature ?? string.Empty;
-            lock (_sync)
-            {
-                if (_entries.TryGetValue(signature, out var entry))
-                {
-                    if (timestamp - entry.LastAcceptedAt < _repeatInterval)
-                    {
-                        if (entry.SuppressedRepeats < int.MaxValue) entry.SuppressedRepeats++;
-                        suppressedRepeats = 0;
-                        return false;
-                    }
-
-                    suppressedRepeats = entry.SuppressedRepeats;
-                    entry.LastAcceptedAt = timestamp;
-                    entry.SuppressedRepeats = 0;
-                    return true;
-                }
-
-                if (_entries.Count >= _capacity) RemoveOldest();
-                _entries.Add(signature, new Entry(timestamp));
-                suppressedRepeats = 0;
-                return true;
-            }
-        }
-
-        void RemoveOldest()
-        {
-            string oldestSignature = null;
-            var oldestTimestamp = DateTimeOffset.MaxValue;
-            foreach (var pair in _entries)
-            {
-                if (pair.Value.LastAcceptedAt >= oldestTimestamp) continue;
-                oldestTimestamp = pair.Value.LastAcceptedAt;
-                oldestSignature = pair.Key;
-            }
-            if (oldestSignature != null) _entries.Remove(oldestSignature);
-        }
-
-        sealed class Entry
-        {
-            internal Entry(DateTimeOffset lastAcceptedAt) => LastAcceptedAt = lastAcceptedAt;
-            internal DateTimeOffset LastAcceptedAt;
-            internal int SuppressedRepeats;
-        }
-    }
 }

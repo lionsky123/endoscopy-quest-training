@@ -14,16 +14,19 @@ namespace BotanicalGardenQR.Tests.EditMode
             var definition = ClinicalJourneyConfiguration.Load();
             var session = new ClinicalJourneySession(definition, ClinicalJourneyMode.GuidedLearning);
 
-            var options = ClinicalActSelection.AvailableDestinations(definition, session);
+            var options = ClinicalActSelection.AvailableDestinations(definition, session, roomGallery: true);
 
-            Assert.That(options, Has.Length.EqualTo(1));
-            Assert.That(options[0].RoomId, Is.EqualTo("R01_OFFICE"));
-            Assert.That(options[0].Kind, Is.EqualTo(ClinicalActDestinationKind.ContinueMainline));
-            Assert.That(options[0].IsChapter, Is.True);
-            Assert.That(options[0].TaskIds, Is.EqualTo(definition.FindRoom("R01_OFFICE").taskIds));
+            Assert.That(options, Has.Length.EqualTo(definition.rooms.Length - 1));
+            var recommended = System.Array.Find(options, option => option.RoomId == "R01_OFFICE");
+            Assert.That(recommended.Kind, Is.EqualTo(ClinicalActDestinationKind.ContinueMainline));
+            Assert.That(recommended.IsChapter, Is.True);
+            Assert.That(recommended.TaskIds, Is.EqualTo(definition.FindRoom("R01_OFFICE").taskIds));
             Assert.That(options.Any(option => option.RoomId == definition.startRoomId), Is.False);
-            Assert.That(options.Any(option => option.RoomId == "R04_GI"), Is.False,
-                "Unvisited future rooms are not selectable.");
+            var future = System.Array.Find(options, option => option.RoomId == "R04_GI");
+            Assert.That(future.RoomId, Is.EqualTo("R04_GI"), "Every room must be available in the stationary gallery.");
+            Assert.That(future.TaskIds, Is.EqualTo(definition.FindRoom("R04_GI").taskIds));
+            Assert.That(future.Kind, Is.Not.EqualTo(ClinicalActDestinationKind.ContinueMainline),
+                "Selecting a future room must not imply mainline progress.");
         }
 
         [Test]

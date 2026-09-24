@@ -58,9 +58,11 @@ namespace BotanicalGardenQR.Bootstrap
                 RuntimeBindingValidator.Required(fairy, "_fairyConfiguration");
                 RuntimeBindingValidator.Required(uiDefaults, "_globalUiDefaults");
                 RuntimeBindingValidator.Required(uiDefaults.SharedFont, "_globalUiDefaults._sharedFont");
-                RuntimeBindingValidator.Required(prologueTheme, "_prologueTheme");
+                if (!options.VirtualRoomEnabled) RuntimeBindingValidator.Required(prologueTheme, "_prologueTheme");
                 RuntimeBindingValidator.Required(visitorCoachTheme, "_visitorCoachTheme");
-                if (!prologueTheme.IsValid(out var error)) throw new InvalidOperationException(error);
+                string error;
+                if (!options.VirtualRoomEnabled && !prologueTheme.IsValid(out error))
+                    throw new InvalidOperationException(error);
                 if (!visitorCoachTheme.IsValid(out error)) throw new InvalidOperationException(error);
                 MapDefinition = VisitorMapConfiguration.Resolve(visitorMapDefinition);
                 GuidanceRouteMaterial = guidanceRouteMaterial;
@@ -153,17 +155,22 @@ namespace BotanicalGardenQR.Bootstrap
                 GazeReticlePresenter gazeReticle,
                 Transform displayRoot,
                 GameObject atlasHubPresentationPrefab,
-                FeaturePageBindings featurePages)
+                FeaturePageBindings featurePages,
+                bool stationary = false)
             {
-                RuntimeBindingValidator.Required(shell, "_frontendShell");
-                RuntimeBindingValidator.Required(observationCompletionFrontend, "_observationCompletionFrontend");
+                if (!stationary)
+                {
+                    RuntimeBindingValidator.Required(shell, "_frontendShell");
+                    RuntimeBindingValidator.Required(observationCompletionFrontend, "_observationCompletionFrontend");
+                    RuntimeBindingValidator.Required(startupRecall, "_startupRecallPresentation");
+                    RuntimeBindingValidator.Required(gazeReticle, "_gazeReticlePresentation");
+                    RuntimeBindingValidator.Required(atlasHubPresentationPrefab, "_atlasHubPresentationPrefab");
+                    if (featurePages == null) throw new InvalidOperationException("VisitorInstaller requires '_featurePages'.");
+                    featurePages.Validate();
+                }
                 RuntimeBindingValidator.Required(headGaze, "_headGazeInteraction");
-                RuntimeBindingValidator.Required(startupRecall, "_startupRecallPresentation");
-                RuntimeBindingValidator.Required(gazeReticle, "_gazeReticlePresentation");
                 RuntimeBindingValidator.Required(displayRoot, "_spatialDisplayRoot");
-                RuntimeBindingValidator.Required(atlasHubPresentationPrefab, "_atlasHubPresentationPrefab");
-                FeaturePages = featurePages ?? throw new InvalidOperationException("VisitorInstaller requires '_featurePages'.");
-                FeaturePages.Validate();
+                FeaturePages = featurePages;
                 Shell = shell;
                 ObservationCompletionFrontend = observationCompletionFrontend;
                 HeadGaze = headGaze;
@@ -193,16 +200,20 @@ namespace BotanicalGardenQR.Bootstrap
                 Transform fairy,
                 Transform effect,
                 PhysicalAugmentationRuntimeHost physicalAugmentationRuntimeHost,
-                ActivationCoordinatorDriver activationDriver)
+                ActivationCoordinatorDriver activationDriver,
+                bool stationary = false)
             {
-                RuntimeBindingValidator.Required(video, "_videoRuntimeRoot");
-                RuntimeBindingValidator.Required(panorama, "_panoramaRuntimeRoot");
-                RuntimeBindingValidator.Required(model, "_modelRuntimeRoot");
-                RuntimeBindingValidator.Required(narration, "_narrationRuntimeRoot");
+                if (!stationary)
+                {
+                    RuntimeBindingValidator.Required(video, "_videoRuntimeRoot");
+                    RuntimeBindingValidator.Required(panorama, "_panoramaRuntimeRoot");
+                    RuntimeBindingValidator.Required(model, "_modelRuntimeRoot");
+                    RuntimeBindingValidator.Required(narration, "_narrationRuntimeRoot");
+                    RuntimeBindingValidator.Required(effect, "_effectRuntimeRoot");
+                    RuntimeBindingValidator.Required(physicalAugmentationRuntimeHost, "_physicalAugmentationRuntimeHost");
+                    RuntimeBindingValidator.Required(activationDriver, "_activationDriver");
+                }
                 RuntimeBindingValidator.Required(fairy, "_fairyRuntimeRoot");
-                RuntimeBindingValidator.Required(effect, "_effectRuntimeRoot");
-                RuntimeBindingValidator.Required(physicalAugmentationRuntimeHost, "_physicalAugmentationRuntimeHost");
-                RuntimeBindingValidator.Required(activationDriver, "_activationDriver");
                 Video = video;
                 Panorama = panorama;
                 Model = model;

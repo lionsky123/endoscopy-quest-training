@@ -5,18 +5,37 @@ using UnityEngine.UI;
 
 namespace BotanicalGardenQR.FrontendShell.Runtime
 {
+    /// <summary>Describes the accepted hand-touch action so feedback can match its purpose.</summary>
+    public enum ClinicalTouchFeedbackKind { Confirm, Page, RoomChange }
+
     // Reuse the template's real OVR hand PokeInteractors; no synthetic or alternate input source.
     public sealed class ClinicalNearTouch:MonoBehaviour
     {
         public static ClinicalNearTouch Focused {get;private set;}
+        /// <summary>
+        /// Raised after a tracked poke passes the touch, timing, and input gates and the button action is invoked.
+        /// Hover, gaze, and rejected or repeated touches do not raise this event.
+        /// </summary>
+        public static event System.Action<ClinicalTouchFeedbackKind> ActionAccepted;
         public Button Button=>button;
         public event System.Action<ClinicalNearTouch,bool> ContactChanged;
         readonly System.Collections.Generic.HashSet<int> contacts=new System.Collections.Generic.HashSet<int>();
         bool preserveGaze;
         Button button;RectTransform rect;BoundsClipper clip;PokeInteractable poke;Graphic graphic;Color rest;
         bool committed;int pointer;float readyAt;static float lastCommit;
+        readonly ClinicalPressHoldState pressHold = new ClinicalPressHoldState();
+        float minimumHoverSeconds, holdSeconds;
+        System.Func<float> timeProvider;
         System.Func<bool> inputAllowed;
+        float Now => timeProvider?.Invoke() ?? Time.unscaledTime;
         bool CanPress=>button&&button.IsActive()&&button.IsInteractable()&&(inputAllowed==null||inputAllowed());
+        public void RequireIntentionalPress(float hoverSeconds, float pressSeconds)
+        {
+            minimumHoverSeconds = Mathf.Max(0, hoverSeconds);
+            holdSeconds = Mathf.Max(0, pressSeconds);
+            pressHold.Cancel();
+        }
+        internal void SetTimeProvider(System.Func<float> provider) => timeProvider = provider;
         public static void Bind(Transform root,System.Func<bool> inputAllowed=null,bool preserveGaze=false)
         {
             foreach(var button in root.GetComponentsInChildren<Button>(true))
@@ -25,10 +44,16 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
                 if(!preserveGaze)foreach(var graphic in button.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
                 // Authored dialogue controls already own their Select handlers and surface.
                 var existing=button.GetComponent<ClinicalNearTouch>();
-                if(existing){existing.inputAllowed=inputAllowed;existing.preserveGaze=preserveGaze;continue;}
+                if(existing)
+                {
+                    existing.inputAllowed=inputAllowed;existing.preserveGaze=preserveGaze;
+                    if(button.GetComponent<ClinicalChoiceVisual>())existing.RequireIntentionalPress(.09f,.22f);
+                    continue;
+                }
                 if(button.GetComponentInChildren<PokeInteractable>(true))continue;
                 var touch=button.gameObject.AddComponent<ClinicalNearTouch>();
                 touch.inputAllowed=inputAllowed;touch.preserveGaze=preserveGaze;touch.Initialize(button);
+                if(button.GetComponent<ClinicalChoiceVisual>())touch.RequireIntentionalPress(.09f,.22f);
             }
         }
         void Initialize(Button target)
@@ -54,13 +79,28 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             }
         }
         void OnRectTransformDimensionsChange()=>Resize();
-        void LateUpdate(){Resize();if(!CanPress)ClearContacts();if(poke)poke.enabled=CanPress;}
-        void OnEnable(){_lastRect=default;Resize();readyAt=Time.unscaledTime+.35f;committed=false;}
+        void LateUpdate()
+        {
+            Resize();
+            if(!CanPress)ClearContacts();
+            if(poke)poke.enabled=CanPress;
+            if(holdSeconds<=0 || !CanPress || !pressHold.IsSelected)return;
+            RefreshVisual(Mathf.Lerp(.5f,1f,pressHold.Progress(Now,holdSeconds)));
+            if(Now>=readyAt && Now-lastCommit>=.35f && pressHold.TryCommit(Now,holdSeconds))Commit();
+        }
+        void OnEnable(){_lastRect=default;Resize();readyAt=Now+.35f;committed=false;pressHold.Cancel();}
         void OnPointer(PointerEvent e)
         {
             // Releases can arrive after a page has hidden/disabled this button.
             // Always rearm on withdrawal, before testing whether a new press is allowed.
             if(pointer==e.Identifier&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unselect||e.Type==PointerEventType.Unhover))committed=false;
+            if(holdSeconds>0)
+            {
+                if(e.Type==PointerEventType.Hover)pressHold.Hover(e.Identifier,Now);
+                else if(e.Type==PointerEventType.Select)pressHold.Select(e.Identifier,Now,minimumHoverSeconds);
+                else if(e.Type==PointerEventType.Unselect)pressHold.Unselect(e.Identifier);
+                else if(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover)pressHold.Unhover(e.Identifier);
+            }
             if(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover)
             {
                 contacts.Remove(e.Identifier);
@@ -76,11 +116,34 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
             if((e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover)&&Focused==this)Focused=null;
             if(!preserveGaze&&(e.Type==PointerEventType.Hover||e.Type==PointerEventType.Select))RefreshVisual(.5f);
             if(!preserveGaze&&(e.Type==PointerEventType.Cancel||e.Type==PointerEventType.Unhover))RefreshVisual(0);
+            if(holdSeconds>0)
+            {
+                if(e.Type==PointerEventType.Unselect && !preserveGaze)RefreshVisual(.5f);
+                return;
+            }
             if(committed)return;
-            if(e.Type!=PointerEventType.Select||Time.unscaledTime<readyAt||Time.unscaledTime-lastCommit<.35f)return;
-            committed=true;pointer=e.Identifier;lastCommit=Time.unscaledTime;button.onClick.Invoke();
+            if(e.Type!=PointerEventType.Select||Now<readyAt||Now-lastCommit<.35f)return;
+            pointer=e.Identifier;
+            Commit();
         }
-        void ClearContacts(){if(contacts.Count==0)return;contacts.Clear();ContactChanged?.Invoke(this,false);}
+        void Commit()
+        {
+            committed=true;lastCommit=Now;button.onClick.Invoke();
+            ActionAccepted?.Invoke(FeedbackKind(button.name));
+        }
+        internal static ClinicalTouchFeedbackKind FeedbackKind(string buttonName)
+        {
+            if(buttonName.StartsWith("Travel_",System.StringComparison.Ordinal))return ClinicalTouchFeedbackKind.RoomChange;
+            if(buttonName.IndexOf("Page",System.StringComparison.OrdinalIgnoreCase)>=0 ||
+               buttonName.IndexOf("Next",System.StringComparison.OrdinalIgnoreCase)>=0 ||
+               buttonName.IndexOf("Previous",System.StringComparison.OrdinalIgnoreCase)>=0 ||
+               buttonName.IndexOf("Back",System.StringComparison.OrdinalIgnoreCase)>=0 ||
+               buttonName.IndexOf("Return",System.StringComparison.OrdinalIgnoreCase)>=0 ||
+               buttonName.IndexOf("Close",System.StringComparison.OrdinalIgnoreCase)>=0)
+                return ClinicalTouchFeedbackKind.Page;
+            return ClinicalTouchFeedbackKind.Confirm;
+        }
+        void ClearContacts(){pressHold.Cancel();if(contacts.Count==0)return;contacts.Clear();ContactChanged?.Invoke(this,false);}
         void RefreshVisual(float hover)
         {
             // Retain the session's selected/incorrect state after the finger withdraws.
@@ -90,5 +153,46 @@ namespace BotanicalGardenQR.FrontendShell.Runtime
         }
         void OnDisable(){committed=false;ClearContacts();if(Focused==this)Focused=null;if(!preserveGaze)RefreshVisual(0);}
         void OnDestroy(){if(poke)poke.WhenPointerEventRaised-=OnPointer;}
+    }
+
+    internal sealed class ClinicalPressHoldState
+    {
+        int hoverPointer = int.MinValue, selectedPointer = int.MinValue;
+        float hoveredAt, selectedAt;
+        bool committed;
+        internal bool IsSelected => selectedPointer != int.MinValue;
+        internal void Hover(int pointer, float now)
+        {
+            if(hoverPointer==pointer)return;
+            hoverPointer=pointer;hoveredAt=now;
+        }
+        internal bool Select(int pointer, float now, float minimumHoverSeconds)
+        {
+            if(IsSelected || hoverPointer!=pointer)return false;
+            selectedPointer=pointer;
+            selectedAt=Mathf.Max(now,hoveredAt+minimumHoverSeconds);
+            committed=false;
+            return true;
+        }
+        internal float Progress(float now, float holdSeconds)
+            => IsSelected ? Mathf.Clamp01((now-selectedAt)/holdSeconds) : 0;
+        internal bool TryCommit(float now, float holdSeconds)
+        {
+            if(!IsSelected || committed || now-selectedAt<holdSeconds)return false;
+            committed=true;return true;
+        }
+        internal void Unselect(int pointer)
+        {
+            if(selectedPointer!=pointer)return;
+            Cancel();
+        }
+        internal void Unhover(int pointer)
+        {
+            if(hoverPointer==pointer)Cancel();
+        }
+        internal void Cancel()
+        {
+            hoverPointer=selectedPointer=int.MinValue;committed=false;
+        }
     }
 }

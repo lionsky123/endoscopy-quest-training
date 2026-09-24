@@ -14,6 +14,7 @@ namespace BotanicalGardenQR.Tests.EditMode
             var definition=ClinicalJourneyConfiguration.Load();
             var task=definition.tasks.Single(item=>item.id=="ST-02");
             task.availability=ClinicalContentAvailability.MissingEvidence;
+            task.unavailableReason="测试资料缺件";
             var session=new ClinicalJourneySession(definition,ClinicalJourneyMode.GuidedLearning);
             Enter(session,"R01_OFFICE");
             Enter(session,"R02_STORAGE");

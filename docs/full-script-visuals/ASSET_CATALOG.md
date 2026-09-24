@@ -1,5 +1,11 @@
 # 完整剧本视觉资产图册与接入台账
 
+## 房间 UI 专题概念参考（2026-09-24，非运行资源）
+
+| ID | 源/加工与文件 | SHA-256 | 消费者与验证边界 |
+| --- | --- | --- | --- |
+| UI-CONCEPT-01 | Codex 内置 ImageGen 对当前正式 Play 办公室旧版截图进行两轮编辑，用户选择烟黑悬浮形态并确认浅紫灰选项/钴紫选中态；[最终概念预览](concepts/room-panel-smoke-lavender-concept-20260924.png)。原截图 `artifacts/production-play/ui-final-source-20260924-1-04-office-topic-selector.png` SHA-256 `57A39CDF6F19FAF2A9EE40D8797D3B85575BA70358F8C0A51804938C234434FE`；中间稿与完整提示词见[概念来源记录](concepts/README.md)。 | `938370FE07C500CBB57D68835235DA0C0052FFA21A5258DE3E55C959D2E7090C` | 仅由[专题规格](../ROOM_UI_REFRESH_SPEC_20260924.md)消费作视觉方向参考。未放入 Unity Resources、Prefab 或正式界面；未经真实 Play/Quest 实现与验证，不作为产品画面或医学证据。 |
+
 ## 分幕体验资源（2026-09-23）
 
 设计与实际任务见[原合并计划](../STARTUP_FLOW_AUDIT_PLAN_20260923.md#分幕体验设计与实施顺序2026-09-23)，资源验证与限制见[本轮报告](experience-20260923/README.md)。生成不等于接入；V09/V10已由FullScriptStationaryContent消费，MV01已由FullScriptSinkVideo消费；实际验证见启动修复进展，不覆盖仍在使用的V04–V08/B01或原参考图片。旧图已从活动图册移除引用并标记退役；文件仍留在工作区，删除操作被执行策略拦截，详见[图像清理记录](experience-20260923/IMAGE_CLEANUP_20260923.md)。
@@ -99,7 +105,7 @@ V07新增三维结构参考用途：`StorageRoomPublish`据其通用双门柜构
 
 文档参考图优先于自行设计的界面。电脑外观须对照0920稿的image2登录页、image3记录查询页；不使用大块卡片选择界面替代记录表格。已有图片先复用，确需加工时保留旧版并记录变更原因。屏幕图片与准确业务数据分层，日期、镜号、时间、姓名、空白与用户判断均来自同源运行数据，不能把图片中生成的字符当作正式证据。
 
-模型来源现按根目录`AGENTS.md`执行：只允许从`C:\Users\i1204\Desktop\Models`选取；本对话不重贴图、改材质、重绑或重复导入，贴图修正由另一对话负责。旧记录中对Models.zip的只读盘点仅保留为历史来源信息，不构成导入授权。继续处理前应核对FBX实际材质、内嵌/外部贴图和绑定；不能笼统称为白模，也不能把贴图槽为空推断为所有材质缺失。
+模型来源以用户逐次明确指定的路径为准。本轮在既有`C:\Users\i1204\Desktop\Models`导入外，用户另行指定`C:\Users\i1204\Documents\xwechat_files\wxid_beoh8049sja622_cb77\msg\file\2026-09\清洗室模型.FBX`替换清洗室；这项授权仅针对该源文件。旧记录中对Models.zip的只读盘点仍只作历史来源信息。处理FBX前核对实际材质、内嵌/外部贴图和绑定；不能笼统称为白模，也不能把贴图槽为空推断为所有材质缺失。
 
 ## 素材清单
 
@@ -198,9 +204,47 @@ R05 SHA256：`BB68098551011A765514044A6168C94552F167B7B23E7886AD1023058547A57E`�
 | --- | --- | --- |
 | 办公室 `办公室.FBX` | 逐材质恢复FBX内嵌的27张底色图；`FullScriptModelImport`生成的Office材质引用`Resources/FullScriptRooms/Office/SourceTextures`，`FullScriptRoomPublish`写入办公室房间清单供`VirtualRoomEnvironment`按房读取 | 27/64个发布材质组有源贴图；其余源材质保留原颜色。源FBX UV保留，未再用V04/V05替换办公室地面或桌面 |
 | 诊疗室 `诊疗室模型.FBX` | 恢复FBX内嵌的5张底色图到Clinical房间资源，并写入诊疗室房间清单 | 5/61个发布材质组有源贴图；其余源材质保留原颜色。源UV保留 |
-| 清洗室 `CleaningRoom_Repaired` | 原FBX及8张相对路径贴图连同原目录结构和`.meta`导入`ImportedModels/Source` | Android目标Unity已导入；尚无正式运行房间消费者，不标记为场景接入 |
+| 清洗室 `清洗室模型.FBX` | 用户指定的Documents源文件已复制到`ImportedModels/Source/CleaningRoom_20260923`；SHA-256 `1f597a7d3fe779123328d65ad36e2b7758ffac50a238be424e457bbb5070be38`。从FBX恢复11张嵌入图并连接12/16个材质，写入`Resources/EndoscopyRoom/SourceTextures`；34个静态网格批次写入`Resources/EndoscopyRoom/geometry.bytes`，由`VirtualRoomEnvironment`按房加载。发布报告：[washing-room-model-publication.json](../../artifacts/model-texture-import-20260923/washing-room-model-publication.json)；材质到源图映射及哈希：[washing-room-texture-map.json](../../app/Assets/EndoscopyTheme/ImportedModels/Source/CleaningRoom_20260923/washing-room-texture-map.json) | Android目标Unity导入/编译和正式房间发布通过；模型含2,115,428个三角面。路线已按门洞和柜体净空调整。清洗室运行时及编辑预览主方向光强度为0.77，离房时恢复原值。未运行Play、渲染或Quest验收 |
+| 清洗室旧源 `CleaningRoom_Repaired` | 原FBX及8张相对路径贴图连同原目录结构和`.meta`继续保留在`ImportedModels/Source` | 历史备份，不再由EndoscopyRoom运行时消费 |
 | 消毒剂、胃镜、电脑、桌子、门交互件 | 复用项目内已有同源文件；消毒剂继续使用`Resources/ClinicalCourse/Disinfectant`现有模型/材质/贴图，不复制重复GUID资源 | 消毒剂FBX与贴图和用户目录文件相同；电脑与桌子FBX无图像贴图引用 |
 
 办公室与诊疗室清单共125个材质组，实际引用32份房间贴图文件（Office 27、Clinical 5；4张相同源图分别存放在两房资源目录，底层不同图像共28张），所有贴图路径均存在。用户目录共83个文件记录：78个目标文件与源文件内容一致，另外5个为已有项目`.meta`，GUID一致而FBX导入设置不同；保留了项目原`.meta`。V04水磨石和V05木纹仍保留为参考资产，但不再由Office/Clinical房间发布器覆盖模型本身材质；表格早期“已绑定到派生房间”的状态由本节更新。验证使用Unity `6000.3.23f1`、Android目标：资源导入/脚本编译及两房发布成功，日志无C#编译错误。未构建APK，未运行Play、渲染截图或Quest；实际画面和设备表现仍待验收。
 
 贴图通道边界：本轮将FBX的`DiffuseColor`图像接到运行材质`BaseMap`，没有宣称还原全部原始材质参数。Office有3个源材质把同一图片同时连接到`TransparentColor`；当前`RoomSurface`为不透明表面。Clinical另有Bump、SpecularFactor、ReflectionColor及3ds Max程序贴图连接，没有对应嵌入图像的连接未生成补图。各房间无底色图路径的发布材质组分别为Office 37组、Clinical 56组；这些继续保留源材质颜色。若需复现透明/粗糙度/金属度等整体观感，还需另做材质通道适配并检查实际画面。
+
+## 2026-09-23 办公室模拟资料图片
+
+以下两张图片由`docs/full-script-visuals/create-office-training-doc-images.ps1`读取`app/Assets/EndoscopyTheme/Resources/ClinicalCourse/office-training-records.json`排版生成，没有使用AI生成或复制医院原表。清洗消毒图逐格读取六个字段与三条模拟记录，保留SIM-R002操作人员空白；人员培训图按同一JSON中的已审核模拟正文拆成字段。源JSON变化时脚本会重新生成；人员培训正文结构不再匹配时脚本会失败，防止悄悄排错字段。两图均明确标注为模拟训练资料。
+
+| 文件 | 来源与校验 | 正式消费者 / 运行任务 | SHA-256 |
+| --- | --- | --- | --- |
+| `office-disinfection-training-record-v1.png` | 从现有结构化模拟资料排版；无医院来源或临床凭证含义 | `FullScriptOfficeRecords.DocumentImageResource`；办公室`OF-00`及资料画廊 | `8019BAC0017BBCF80BD4D2D080E7A408A46F5340B3281B1FC7DEAEFF25FAA8C7` |
+| `office-staff-training-record-v1.png` | 从现有结构化模拟资料正文排版；无真实签名、资质或考核凭证含义 | `FullScriptOfficeRecords.DocumentImageResource`；办公室`OF-05`及资料画廊 | `25FB71D332D1B81DB258195B893A1617FC21E7445D19851A4E121284899451A2` |
+
+Android目标EditMode`office-gallery-zoom-green-2`共18/18通过，覆盖图片资源、目录选取、图外放大、返回与任务状态边界；两张生成图已人工查看。当前真实Play/Quest的清晰度与双眼画面尚未验收。生物学监测、消毒剂监测及产品索证仍缺经审核的完整依据和记录，本次只显示其缺件状态，没有制作“完整资料”。
+
+## 2026-09-23 房间选择画廊示意图
+
+| 文件 | 来源与校验 | 正式消费者 | SHA-256 |
+| --- | --- | --- | --- |
+| `FullScriptRooms/RoomGallery/room-preview-atlas-v1.png` | Codex内置ImageGen；单张1254×1254、3×3网格图集。提示词见[PROMPTS.md](PROMPTS.md#房间选择画廊示意图2026-09-23)。插画仅表达大厅、办公室、储存库、候诊区、消化诊疗室、呼吸诊疗室、洗消室等房间类别，不是实际房间照片或模型，也不证明房内实际布置。 | `FullScriptRoomVisit.ShowRoomGallery`通过Resources纹理与七个UV裁切显示为导航缩略图；不加载对应房间模型 | `3EBA773D5362721D4529FA60B3553CF6B75759EA08BA4D28CADE172443B1EDB9` |
+
+Android目标`room-gallery-routes-green-2`5/5、`room-gallery-session-green-2`14/14、`room-gallery-drag-green-1`2/2、`room-gallery-ui-green-2`3/3、`room-gallery-stationary-green-2`47/47通过。验证包含安卓目标导入/编译、七种房间各自UV、画廊固定于展开时世界姿态、手势状态机的松手/追踪丢失立即停止，以及越序选房不推进主线/不完成任务。失败红测和一次EditMode HandRef未初始化故障已保留于测试报告与修复进展。尚未运行真实Play、截图/渲染或Quest选房/拨动；实际房间一一对应、坐站可达与预览可读性继续保留在M5.E04/C01视觉验收中。
+
+## 2026-09-23 画廊带练手势图集
+
+| 文件 | 来源与校验 | 正式消费者 | SHA-256 |
+| --- | --- | --- | --- |
+| `FullScriptRooms/RoomGallery/gallery-gesture-tutorial-v2.png` | Codex内置ImageGen；1536×1024、透明底、3×2图集，五个独立动作格和一个空格；生成原文件与完整提示词见[PROMPTS.md](PROMPTS.md#c01e08-画廊带练手势图集2026-09-23) | `FullScriptRoomGallery`短把手旁的`RawImage`按当前教程状态裁切显示；仅为教学示意，真实动作仍由跟踪手输入，不作为输入或医学证据 | `A2E3E7BFCD809B4E4AEDE1428FD42927A96604B5E80C74C304A566CE06B647C1` |
+
+Android纹理导入禁止NPOT缩放并保留透明度，以维持3×2格UV关系。`gallery-gesture-atlas-green-3.xml`验证图集载入、尺寸、透明与无缩放设置、首次/跳过/重看呈现1/1；`gallery-gesture-map-green-2.xml`验证五种动作与独立UV格映射4/4；`gallery-gesture-stationary-final-1.xml`包含图集的50/50合并回归。图像已查看；Quest下的小尺寸辨识度、坐站可见范围和左右手操作仍待最终验收。
+
+## 2026-09-23 交互音频与背景音乐
+
+| 素材/来源 | 来源与许可 | 正式消费者 | SHA-256 / 验证 |
+| --- | --- | --- | --- |
+| 运行时合成的16秒单声道环境音乐及确认/翻页/切房短音 | `FullScriptAudioRuntime.cs`内用`AudioClip.Create`和样本合成器生成；无外部音乐或第三方录音、无单独音频素材文件。样本峰值受限于[-1,1]。 | `FullScriptJourneyRuntime.Audio`单例跨房使用；音乐只在体验开始时启播，按钮音只在通过真实Poke提交后触发。声音设置可分开调音量/静音。 | 合成器源代码SHA-256：`4139AC61AFB39BCE385AD4E452306C274A5E832CCA1F23B34DF31488CCB3A77B`；Android目标EditMode音频逻辑7/7、旅程15/15、原地流程48/48通过。程序声音实际输出未在EditMode验证，保留真实Play/Quest验收。 |
+| `UI_Panel_Wrist_Action_CompleteCheckMark.wav` | 现有Meta First Hand参考音效；源路径为`app/Assets/BotanicalGardenQR/Experience/Bootstrap/Art/GamePresentation/ReferenceAssets/FirstHand/Audio/UI_Panel_Wrist_Action_CompleteCheckMark.wav`。上游来源和MIT许可见[NOTICE](../../app/Assets/BotanicalGardenQR/Experience/Bootstrap/Art/GamePresentation/ReferenceAssets/NOTICE.md)及同目录`FirstHand/LICENSE.txt`。 | `VisitorCoachThemeAsset.ConfirmSound`用于安小卫接受动作；由`VisitorCoachPresenter.ConfirmationSoundRequested`送入旅程音效源，纳入音量与静音控制。 | `CD0E62A82C643C580B48F6F40A3F4BDE31FD84D2DD4BC975976EFFF7A66D3706`；资源本体未改。 |
+| 水槽MV01 `sink-trigger-04m46s-05m06s-with-audio.mp4` | 指定的20秒片段保留原声；来源、SHA与内容边界记录在[C07媒体接入](../STARTUP_REPAIR_PROGRESS_20260923.md#c07c08-媒体接入与视频原声例外)。 | 仅`FullScriptSinkVideo`启用全局静音例外；VideoPhase为Playing时BGM压至已选音量的12%，其他状态恢复。 | 已有视频生命周期EditMode覆盖7/7；真实解码、播放暂停和原声听感尚未验收。 |
+
+运行时保留现有`AudioListener.volume=0`和`AudioListener.pause=true`来隔离未授权的向导旁白与其他媒体；仅上述音效/音乐音源和MV01配置忽略该监听器静音。Unity无图形EditMode不初始化音频输出，因此测试只覆盖样本合成数值、音源属性、状态机和UI近触，不把这些结果记成可听验收。

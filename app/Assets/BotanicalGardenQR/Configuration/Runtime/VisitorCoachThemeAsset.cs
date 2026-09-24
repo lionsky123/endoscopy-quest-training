@@ -152,13 +152,14 @@ namespace BotanicalGardenQR.Configuration.Runtime
         [SerializeField, Range(0.05f, 0.5f)] float _confirmDebounceSeconds = 0.18f;
         [SerializeField, Min(0.1f)] float _fairyAttentionSeconds = 3f;
         [SerializeField] float _dialogueVerticalOffset = 0f;
+        [SerializeField, Range(-20f, 20f)] float _dialogueReadingTiltDegrees = 8f;
         [SerializeField] Vector2 _fairyDialogueHorizontalOffset = new Vector2(-0.35f, 0.3f);
         [SerializeField] string _fairySpeakerName = "小精灵";
-        [SerializeField] Color _panelColor = new Color(0.035f, 0.09f, 0.085f, 0.92f);
-        [SerializeField] Color _textColor = new Color(0.92f, 1f, 0.96f, 1f);
-        [SerializeField] Color _detailTextColor = new Color(0.72f, 0.86f, 0.8f, 1f);
-        [SerializeField] Color _accentColor = new Color(0.2f, 0.88f, 0.62f, 1f);
-        [SerializeField] Color _speakerColor = new Color(1f, 0.82f, 0.38f, 1f);
+        [SerializeField] Color _panelColor = new Color(.95f, .965f, .95f, .985f);
+        [SerializeField] Color _textColor = new Color(.065f, .12f, .13f, 1f);
+        [SerializeField] Color _detailTextColor = new Color(.23f, .34f, .35f, 1f);
+        [SerializeField] Color _accentColor = new Color(.1f, .4f, .35f, 1f);
+        [SerializeField] Color _speakerColor = new Color(.09f, .37f, .35f, 1f);
 
         [Header("Cue copy")]
         [SerializeField] string _toolPreparationReadyCopy = "靠近我，一起去第一站吧。离得远了，我会等你。";
@@ -188,6 +189,7 @@ namespace BotanicalGardenQR.Configuration.Runtime
         public float ConfirmDebounceSeconds => _confirmDebounceSeconds;
         public float FairyAttentionSeconds => _fairyAttentionSeconds;
         public float DialogueVerticalOffset => _dialogueVerticalOffset;
+        public float DialogueReadingTiltDegrees => _dialogueReadingTiltDegrees;
         public Vector2 FairyDialogueHorizontalOffset => _fairyDialogueHorizontalOffset;
         public string FairySpeakerName => _fairySpeakerName?.Trim() ?? string.Empty;
         public Color PanelColor => _panelColor;
@@ -273,6 +275,7 @@ namespace BotanicalGardenQR.Configuration.Runtime
                 !IsPositiveFinite(_dialogueFontSize) || !IsPositiveFinite(_fadeSeconds) ||
                 !IsPositiveFinite(_confirmDebounceSeconds) ||
                 !IsPositiveFinite(_fairyAttentionSeconds) || !IsFinite(_dialogueVerticalOffset) ||
+                !IsFinite(_dialogueReadingTiltDegrees) || Mathf.Abs(_dialogueReadingTiltDegrees) > 20f ||
                 !IsFinite(_fairyDialogueHorizontalOffset.x) || !IsFinite(_fairyDialogueHorizontalOffset.y) ||
                 string.IsNullOrWhiteSpace(FairySpeakerName) ||
                 string.IsNullOrWhiteSpace(ToolPreparationIntroduction) || string.IsNullOrWhiteSpace(ToolPreparationReadyCopy) || string.IsNullOrWhiteSpace(ToolPreparationStartLabel) ||

@@ -5,7 +5,10 @@ using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.Experience.Application;
 using BotanicalGardenQR.Experience.Contracts;
 using BotanicalGardenQR.FrontendShell.Runtime;
+using BotanicalGardenQR.MapNavigation.Contracts;
 using BotanicalGardenQR.VisitorPrologue.Runtime;
+using Oculus.Interaction;
+using Oculus.Interaction.Input;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -20,18 +23,28 @@ namespace BotanicalGardenQR.Bootstrap
         readonly VirtualRoomTrackingOrigin _tracking;
         readonly VirtualRoomTrackingGuard _guard;
         readonly IClinicalRoomAssetRelease _assetRelease;
+        readonly IHand[] _trackedHands;
         VisitorRuntimeComposition _composition;
         FullScriptRoomVisit _visit;
         VirtualRoomEnvironment _room;
+        VirtualRoomEnvironment.BuildOperation _build;
+        MapDefinition _buildMap;
+        string _buildRoomId;
         ClinicalRoomTransitionCoordinator _transitions;
         ClinicalRoomTransitionRequest _request;
         readonly GameObject _curtain;
         readonly Image _shade;
+        readonly Texture2D _transitionAtlas;
+        readonly RectTransform _transitionPreviewFrameRect;
+        readonly RectTransform _transitionPreviewRect;
+        readonly RawImage _transitionPreview;
+        readonly TMP_Text _transitionPreviewCaption;
         readonly TMP_Text _message;
         readonly GameObject _recover;
         readonly float _audioListenerVolume;
         readonly bool _audioListenerPaused;
-        enum Stage { Initial, Active, FadeOut, Unload, BeginRelease, WaitRelease, Load, WaitTracking, FadeIn, Failed, FocusOut, FocusMove, FocusIn }
+        readonly FullScriptGalleryTutorial _galleryTutorial = new FullScriptGalleryTutorial();
+        enum Stage { Initial, Active, FadeOut, Unload, BeginRelease, WaitRelease, Load, Build, WaitTracking, FadeIn, Failed, FocusOut, FocusMove, FocusIn }
         Action _focusComplete;
         BotanicalGardenQR.MapNavigation.Contracts.MapPosition _focusPoint;
         Vector3? _focusForward;
@@ -43,8 +56,11 @@ namespace BotanicalGardenQR.Bootstrap
         internal ClinicalJourneySession Session { get; private set; }
         internal VisitorPrologueController Prologue { get; }
         internal VisitorCoachThemeAsset CoachTheme => _bindings.Configuration.VisitorCoachTheme;
+        internal IHand[] TrackedHands => _trackedHands;
         internal string LoadingStage => _stage.ToString();
         internal FullScriptRoomVisit Visit => _visit;
+        internal FullScriptAudioRuntime Audio { get; private set; }
+        internal FullScriptGalleryTutorial GalleryTutorial => _galleryTutorial;
         internal bool Stationary { get; }
         internal readonly HashSet<string> ScriptStepsViewed = new HashSet<string>(StringComparer.Ordinal);
         internal readonly Dictionary<string,Vector2Int> ScriptPositions = new Dictionary<string,Vector2Int>(StringComparer.Ordinal);
@@ -76,6 +92,13 @@ namespace BotanicalGardenQR.Bootstrap
             ITrackingOriginTiming timing = null, IClinicalRoomAssetRelease assetRelease = null, bool stationary = true, bool editorPreview = false)
         {
             _bindings=bindings; _diagnostics=diagnostics; Stationary=stationary;
+            var trackedHands=new List<IHand>();
+            foreach(var interactor in bindings.Platform.InteractionRigRoot.GetComponentsInChildren<PokeInteractor>(true))
+            {
+                var hand=interactor.GetComponent<HandRef>();
+                if(hand!=null)trackedHands.Add(hand);
+            }
+            _trackedHands=trackedHands.ToArray();
 #if UNITY_EDITOR
             _editorPreview=editorPreview;
 #endif
@@ -105,16 +128,36 @@ namespace BotanicalGardenQR.Bootstrap
             var canvas=_curtain.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.sortingOrder=31000;
             canvas.worldCamera=viewer.GetComponent<Camera>();
             _shade=_curtain.GetComponent<Image>();_shade.raycastTarget=false;
-            _shade.color=Color.black;
-            // Status is on a separate readable surface in front of the opaque cover.
-            var notice=ClinicalPanelStyle.Rect(_curtain.transform,"TransitionStatus",0,0,800,250);
-            notice.localScale=Vector3.one*.00065f;notice.localPosition=new Vector3(0,0,-.20f);
-            _message=ClinicalPanelStyle.Label(notice,bindings.Configuration.UiDefaults.SharedFont,"Message",0,25,780,150,27);
+            _shade.color=new Color(.16f,.15f,.21f,1f);
+            _transitionAtlas=Resources.Load<Texture2D>("FullScriptRooms/RoomGallery/room-preview-atlas-v1");
+            // A destination illustration and plain-language status stay in view
+            // while the old room releases and the new room is loaded.
+            var notice=ClinicalPanelStyle.Rect(_curtain.transform,"TransitionStatus",0,0,1080,390);
+            notice.localScale=Vector3.one*.0007f;notice.localPosition=new Vector3(0,0,-.20f);
+            ClinicalPanelStyle.Frame(notice);
+            var previewFrame=ClinicalPanelStyle.Rect(notice,"TransitionPreviewFrame",-365,20,270,300);
+            _transitionPreviewFrameRect=previewFrame;
+            ClinicalPanelStyle.Fill(previewFrame,Color.white,10);
+            _transitionPreviewRect=ClinicalPanelStyle.Rect(previewFrame,"TransitionPreview",0,50,220,220);
+            _transitionPreview=_transitionPreviewRect.gameObject.AddComponent<RawImage>();
+            _transitionPreview.raycastTarget=false;
+            _transitionPreview.texture=_transitionAtlas;
+            _transitionPreview.uvRect=TransitionPreviewUv(0);
+            _transitionPreviewCaption=ClinicalPanelStyle.Label(previewFrame,bindings.Configuration.UiDefaults.SharedFont,
+                "TransitionPreviewCaption",0,-100,254,36,16);
+            _transitionPreviewCaption.alignment=TextAlignmentOptions.Center;
+            _transitionPreviewCaption.text="训练场景示意";
+            _transitionPreviewCaption.color=bindings.Configuration.VisitorCoachTheme.DetailTextColor;
+            _message=ClinicalPanelStyle.Label(notice,bindings.Configuration.UiDefaults.SharedFont,"Message",235,0,610,230,27);
             _message.alignment=TextAlignmentOptions.Center;
-            var retry=ClinicalPanelStyle.Button(notice,bindings.Configuration.UiDefaults.SharedFont,"RetryRoom","恢复当前房间",0,-90,720,70,Recover,true);
+            _message.color=ClinicalPanelStyle.TextPrimary;
+            var retry=ClinicalPanelStyle.Button(notice,bindings.Configuration.UiDefaults.SharedFont,"RetryRoom","恢复当前房间",230,-130,620,66,Recover,true);
+            ClinicalPanelStyle.EmphasizeButton(retry,false,true);
             _recover=retry.gameObject;
             ClinicalNearTouch.Bind(retry.transform,()=>_stage==Stage.Failed && (_tracking==null || _tracking.CanInteract));
             _recover.SetActive(false);
+            Audio=FullScriptAudioRuntime.Create(viewer,bindings.Configuration.UiDefaults.SharedFont,()=>InputAllowed);
+            SetTransitionPreview(Session.CurrentRoomId);
             try { LoadRoom(Session.CurrentRoomId); }
             catch(Exception e)
             {
@@ -125,7 +168,7 @@ namespace BotanicalGardenQR.Bootstrap
             }
         }
 
-        internal void StartExperience(){_started=true;}
+        internal void StartExperience(){_started=true;Audio?.StartMusic();}
 
         internal void SelectMode(ClinicalJourneyMode mode)
         {
@@ -142,7 +185,7 @@ namespace BotanicalGardenQR.Bootstrap
         }
 
         internal IEnumerable<ClinicalActDestination> Destinations()
-            => ClinicalActSelection.AvailableDestinations(Definition, Session);
+            => ClinicalActSelection.AvailableDestinations(Definition, Session, roomGallery: Stationary);
 
         internal bool RequestRoom(string target)
         {
@@ -151,6 +194,7 @@ namespace BotanicalGardenQR.Bootstrap
             if(!result.Accepted) return false;
             _request=result.Request;_stage=Stage.FadeOut;_wait=0;_alpha=0;
             _curtain.SetActive(true);_recover.SetActive(false);
+            SetTransitionPreview(target);
             _message.text="请原地等待\n正在前往"+Definition.FindRoom(target).displayName;
             return true;
         }
@@ -189,7 +233,7 @@ namespace BotanicalGardenQR.Bootstrap
         bool BeginObservationTransition(Action after)
         {
             _focusComplete=after;_stage=Stage.FocusOut;_alpha=0;
-            _curtain.SetActive(true);_recover.SetActive(false);_message.text="请留在原位\n正在切换检查点";
+            _curtain.SetActive(true);_recover.SetActive(false);SetTransitionPreview(_visit.RoomId);_message.text="请留在原位\n正在切换检查点";
             return true;
         }
 
@@ -278,29 +322,34 @@ namespace BotanicalGardenQR.Bootstrap
                     if(_assetRelease.IsComplete) _stage=Stage.Load;
                     break;
                 case Stage.Load:
-                    if(_initialRecovery)
+                    try
                     {
-                        try
+                        var id=_initialRecovery?Session.CurrentRoomId:_restoring?_request.FromRoomId:_request.TargetRoomId;
+                        if(Application.isPlaying)
                         {
-                            LoadRoom(Session.CurrentRoomId);
-                            _initialRecovery=false;_stage=Stage.Initial;_wait=0;
+                            BeginRoomBuild(id);
+                            _stage=Stage.Build;
                         }
-                        catch(Exception e)
+                        else
                         {
-                            Debug.LogWarning("[FullScript] Initial room retry failed: "+e.Message);
-                            ReleaseVisit();
-                            Fail("大厅暂时无法加载。\n请轻触按钮重试。");
+                            LoadRoom(id);
+                            _stage=_initialRecovery?Stage.Initial:Stage.WaitTracking;
+                            _initialRecovery=false;_wait=0;
                         }
-                        break;
                     }
-                    try { LoadRoom(_restoring?_request.FromRoomId:_request.TargetRoomId);_stage=Stage.WaitTracking;_wait=0; }
-                    catch(Exception e)
+                    catch(Exception e) { HandleRoomLoadFailure(e); }
+                    break;
+                case Stage.Build:
+                    try
                     {
-                        Debug.LogWarning("[FullScript] Room load failed: "+e.Message);
-                        ReleaseVisit();
-                        if(!_restoring){_restoring=true;_stage=Stage.BeginRelease;}
-                        else Fail("房间暂时无法加载。\n请近触重试，或退出后重新开始。");
+                        if(_build.Tick())
+                        {
+                            FinishRoomBuild();
+                            _stage=_initialRecovery?Stage.Initial:Stage.WaitTracking;
+                            _initialRecovery=false;_wait=0;
+                        }
                     }
+                    catch(Exception e) { HandleRoomLoadFailure(e); }
                     break;
                 case Stage.WaitTracking:
                     _wait+=dt;
@@ -318,7 +367,11 @@ namespace BotanicalGardenQR.Bootstrap
                     else
                     {
                         _message.text="请停止走动，等待头显恢复追踪。";
-                        if(_wait>15 && !_restoring){_restoring=true;_stage=Stage.Unload;}
+                        if(_wait>15 && !_restoring)
+                        {
+                            _restoring=true;_stage=Stage.Unload;SetTransitionPreview(_request.FromRoomId);
+                            _message.text="正在恢复原房间\n请等待追踪恢复";
+                        }
                     }
                     break;
                 case Stage.FadeIn:
@@ -332,7 +385,8 @@ namespace BotanicalGardenQR.Bootstrap
                     }
                     break;
             }
-            _shade.color=new Color(0,0,0,_alpha);
+            _shade.color=new Color(.16f,.15f,.21f,_alpha);
+            if(_transitionPreviewFrameRect)_transitionPreviewFrameRect.localScale=Vector3.one*(1f+.45f*_alpha);
         }
 
         void Fail(string text){_stage=Stage.Failed;_alpha=1;_message.text=text;_recover.SetActive(true);}
@@ -352,12 +406,80 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if(_room!=null || _visit!=null || _composition!=null)
                 throw new InvalidOperationException("Release the current room before loading another room.");
-            var map=FullScriptRoomCatalog.Map(id,_bindings.Configuration.MapDefinition,
-                !Stationary && Session.Mode==ClinicalJourneyMode.GuidedLearning && !Session.IsFinished, Stationary);
+            var map=MapFor(id);
             _room=VirtualRoomEnvironment.Create(_bindings.Platform.XrRigRoot,_bindings.Platform.MrukRoot,map,sharedTracking:_tracking,trackHead:!_editorPreview);
             _viewAligned=false;
             _visit=new FullScriptRoomVisit(this,id,map,_room,_bindings.Platform.Viewer,_bindings.Configuration.UiDefaults.SharedFont);
             _composition=VisitorRuntimeComposition.Create(_bindings,_diagnostics,_visit);
+        }
+
+        MapDefinition MapFor(string id) => FullScriptRoomCatalog.Map(id,_bindings.Configuration.MapDefinition,
+            !Stationary && Session.Mode==ClinicalJourneyMode.GuidedLearning && !Session.IsFinished, Stationary);
+
+        void BeginRoomBuild(string id)
+        {
+            if(_room!=null || _visit!=null || _composition!=null || _build!=null)
+                throw new InvalidOperationException("Release the current room before loading another room.");
+            _buildMap=MapFor(id);
+            _buildRoomId=id;
+            _build=VirtualRoomEnvironment.BeginBuild(_bindings.Platform.XrRigRoot,_bindings.Platform.MrukRoot,
+                _buildMap,sharedTracking:_tracking,trackHead:!_editorPreview);
+        }
+
+        void FinishRoomBuild()
+        {
+            _room=_build.TakeRoom();
+            _build.Dispose();_build=null;
+            _viewAligned=false;
+            _visit=new FullScriptRoomVisit(this,_buildRoomId,_buildMap,_room,_bindings.Platform.Viewer,
+                _bindings.Configuration.UiDefaults.SharedFont);
+            _composition=VisitorRuntimeComposition.Create(_bindings,_diagnostics,_visit);
+            _buildMap=null;_buildRoomId=null;
+        }
+
+        void HandleRoomLoadFailure(Exception error)
+        {
+            Debug.LogWarning("[FullScript] Room load failed: "+error.Message);
+            ReleaseVisit();
+            if(_initialRecovery)
+            {
+                Fail("大厅暂时无法加载。\n请轻触按钮重试。");
+                return;
+            }
+            if(!_restoring)
+            {
+                _restoring=true;_stage=Stage.BeginRelease;SetTransitionPreview(_request.FromRoomId);
+                _message.text="正在恢复原房间\n请保持原位";
+            }
+            else Fail("房间暂时无法加载。\n请近触重试，或退出后重新开始。");
+        }
+
+        void SetTransitionPreview(string roomId)
+        {
+            if(!_transitionPreview || !_transitionAtlas)return;
+            var index=roomId switch
+            {
+                "R00_LOBBY"=>0,
+                "R01_OFFICE"=>1,
+                "R02_STORAGE"=>2,
+                "R03_WAITING"=>3,
+                "R04_GI"=>4,
+                "R04_RESP"=>5,
+                "R05_REPROCESSING"=>6,
+                _=>0
+            };
+            _transitionPreview.uvRect=TransitionPreviewUv(index);
+        }
+
+        static Rect TransitionPreviewUv(int index)
+        {
+            const float size=1254f;
+            var column=index%3;var row=index/3;
+            var left=new[]{20f,435f,849f}[column]/size;
+            var right=new[]{403f,817f,1233f}[column]/size;
+            var top=new[]{20f,435f,850f}[row]/size;
+            var bottom=new[]{403f,817f,1233f}[row]/size;
+            return new Rect(left,1f-bottom,right-left,bottom-top);
         }
         void AlignReadyView()
         {
@@ -375,6 +497,7 @@ namespace BotanicalGardenQR.Bootstrap
         }
         void ReleaseVisit()
         {
+            _build?.Dispose();_build=null;_buildMap=null;_buildRoomId=null;
             _visit?.Dispose();_visit=null;
             _composition?.Dispose();_composition=null;
             _room?.Dispose();_room=null;
@@ -385,6 +508,7 @@ namespace BotanicalGardenQR.Bootstrap
             ReleaseVisit();Prologue?.Dispose();_guard?.Dispose();_tracking?.Dispose();
             _focusComplete=null;
             _washingLessons.Clear();
+            Audio?.Dispose();Audio=null;
             AudioListener.pause=_audioListenerPaused;
             AudioListener.volume=_audioListenerVolume;
             if(_curtain){_curtain.SetActive(false);if(Application.isPlaying)UnityEngine.Object.Destroy(_curtain);else UnityEngine.Object.DestroyImmediate(_curtain);}

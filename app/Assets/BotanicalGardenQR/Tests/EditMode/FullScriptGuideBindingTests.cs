@@ -1,6 +1,7 @@
 using BotanicalGardenQR.FrontendShell.Contracts;
 using BotanicalGardenQR.Bootstrap;
 using NUnit.Framework;
+using UnityEngine.XR;
 
 namespace BotanicalGardenQR.Tests.EditMode
 {
@@ -12,10 +13,22 @@ namespace BotanicalGardenQR.Tests.EditMode
             var copy = FullScriptGuideCopy.Resolve("大厅", firstLobbyVisit: true, finalOfficeVisit: false);
 
             Assert.That(copy.Chapter, Is.EqualTo("欢迎"));
-            Assert.That(copy.Body, Does.Contain("原地观察、查阅和操作"));
-            Assert.That(copy.Body, Does.Contain("先从办公室开始"));
+            Assert.That(copy.Body, Does.Contain("伸出食指，轻轻按一下“开始学习”"));
+            Assert.That(copy.Body, Does.Contain("推荐先从办公室开始"));
             Assert.That(copy.Body.Length, Is.LessThanOrEqualTo(75));
             Assert.That(copy.ActionLabel, Is.EqualTo("开始学习"));
+        }
+
+        [Test]
+        public void LobbyPreviewExplainsWhenNoXrDisplayIsActive()
+        {
+            Assert.That(XRSettings.isDeviceActive, Is.False, "This editor-only check must run without an XR display.");
+
+            var copy = FullScriptGuideCopy.Resolve("大厅", firstLobbyVisit: true, finalOfficeVisit: false);
+
+            Assert.That(copy.Body, Does.Contain("当前仅显示场景预览"));
+            Assert.That(copy.Body, Does.Contain("连接头显后用手操作"));
+            Assert.That(copy.Body.Length, Is.LessThanOrEqualTo(75));
         }
 
         [Test]

@@ -46,15 +46,20 @@ namespace BotanicalGardenQR.Tests.EditMode
                 foreach(var item in content.ImageRing.Items)Assert.That(AssetDatabase.GetAssetPath(item.Image),Does.StartWith(mediaRoot));
             }
         }
-        [Test] public void ReplicaKeepsOneChineseAppAndAudioDisabled()
+        [Test] public void ReplicaKeepsOneChineseApp()
         {
             Assert.That(PlayerSettings.GetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android),Is.EqualTo("com.endoscopy.inspection"));
             Assert.That(PlayerSettings.productName,Is.EqualTo("内镜中心监督检查"));
-            Assert.That(new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/AudioManager.asset")[0]).FindProperty("m_DisableAudio").boolValue,Is.True);
-            Assert.That(EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path),Is.EquivalentTo(new[]{"Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity","Assets/BotanicalGardenQR/Scenes/Admin/SpatialAnchorAdmin.unity"}));
+            Assert.That(EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path),Is.EquivalentTo(new[]{"Assets/BotanicalGardenQR/Scenes/Visitor/BotanicalGardenVisitor.unity"}),
+                "The learner build must launch the guided journey; the authoring scene stays disabled.");
             var composition=AssetDatabase.LoadAllAssetsAtPath("Assets/XR/Settings/OpenXR Package Settings.asset")
                 .Single(asset=>asset.name=="OpenXRCompositionLayersFeature Android");
             Assert.That(new SerializedObject(composition).FindProperty("m_enabled").boolValue,Is.True,"Android Composition Layers Support must remain enabled.");
+        }
+        [Test] public void CurrentGuidedJourneyKeepsPlayerAudioEnabled()
+        {
+            Assert.That(new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/AudioManager.asset")[0]).FindProperty("m_DisableAudio").boolValue,Is.False,
+                "The current guided journey uses authorized button feedback and background music.");
         }
         [Test] public void ActualMetaSurfaceCatchesFingerSweepAndRejectsPointerSubmit()
         {
@@ -62,6 +67,8 @@ namespace BotanicalGardenQR.Tests.EditMode
             // native MRUK runtime, which requires a working desktop XR environment.
             var go=new GameObject("Replica button",typeof(RectTransform),typeof(Image),typeof(NearOnlyButton));
             var finger=new GameObject("Test-only fingertip");var eventObject=new GameObject("Event system",typeof(EventSystem));
+            PokeInteractor poke=null;
+            PokeInteractable surface=null;
             try
             {
                 var rect=go.GetComponent<RectTransform>();rect.sizeDelta=new Vector2(446,68);rect.localScale=Vector3.one*.00065f;
@@ -77,9 +84,9 @@ namespace BotanicalGardenQR.Tests.EditMode
                     if(component is ClinicalNearTouch||component is UnityEngine.EventSystems.UIBehaviour)continue;
                     Lifecycle(component,"Awake");Lifecycle(component,"Start");
                 }
-                var surface=go.GetComponent<PokeInteractable>();surface.Enable();
+                surface=go.GetComponent<PokeInteractable>();surface.Enable();
                 finger.transform.position=new Vector3(0,0,-.06f);
-                var poke=finger.AddComponent<PokeInteractor>();Lifecycle(poke,"Awake");poke.InjectAllPokeInteractor(finger.transform,.008f);poke.IsRootDriver=false;
+                poke=finger.AddComponent<PokeInteractor>();Lifecycle(poke,"Awake");poke.InjectAllPokeInteractor(finger.transform,.008f);poke.IsRootDriver=false;
                 float time=1;poke.SetTimeProvider(()=>time);Lifecycle(poke,"Start");
                 poke.Drive();Assert.That(poke.State,Is.EqualTo(InteractorState.Hover),"Front approach must hover the actual surface.");
                 time+=.02f;finger.transform.position=new Vector3(0,0,-.05f);poke.Drive();
@@ -87,7 +94,12 @@ namespace BotanicalGardenQR.Tests.EditMode
                 for(int i=0;i<8;i++){time+=.02f;poke.Drive();}Assert.That(presses,Is.EqualTo(1));
                 poke.Disable();Assert.That(presses,Is.EqualTo(1));
             }
-            finally{Object.DestroyImmediate(finger);Object.DestroyImmediate(go);Object.DestroyImmediate(eventObject);}
+            finally
+            {
+                if(poke)poke.Disable();
+                if(surface)surface.Disable();
+                Object.DestroyImmediate(finger);Object.DestroyImmediate(go);Object.DestroyImmediate(eventObject);
+            }
         }
         static void Lifecycle(MonoBehaviour target,string name)
         {

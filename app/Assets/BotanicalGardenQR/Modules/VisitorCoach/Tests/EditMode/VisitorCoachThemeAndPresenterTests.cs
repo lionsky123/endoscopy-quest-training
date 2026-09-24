@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BotanicalGardenQR.Configuration.Runtime;
 using BotanicalGardenQR.FrontendShell.Contracts;
 using BotanicalGardenQR.VisitorCoach.Contracts;
@@ -8,6 +11,7 @@ using Oculus.Interaction.Surfaces;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
 {
@@ -43,7 +47,10 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                 VisitorDialogueIntentKind? selected = null;
                 presenter.IntentRequested += intent => selected = intent.Kind;
                 presenter.PresentGuidance(new VisitorGuidanceSurface(VisitorGuidanceSurfaceKind.Unavailable, ""));
-                Assert.That(Vector3.Angle(presenter.transform.forward, presenter.transform.position - viewer.transform.position), Is.LessThan(1));
+                var expectedPose = WorldSurfacePlacement.CreateViewerReadingPose(viewer.transform,
+                    theme.ViewerDistance, theme.DialogueVerticalOffset, theme.DialogueReadingTiltDegrees);
+                Assert.That(Vector3.Distance(presenter.transform.position, expectedPose.position), Is.LessThan(.0001f));
+                Assert.That(Quaternion.Angle(presenter.transform.rotation, expectedPose.rotation), Is.LessThan(.01f));
                 Assert.That(Vector3.Distance(presenter.transform.position, viewer.transform.position), Is.LessThan(.7f));
                 Assert.That(viewer.transform.position.y - presenter.transform.position.y, Is.InRange(.12f, .22f));
                 Assert.That(presenter.SubmitInput(VisitorDialogueIntentKind.Advance, VisitorDialogueInputMode.HeadGaze, float.MaxValue), Is.False);
@@ -142,7 +149,21 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
             Assert.That(theme.SpeakerColor, Is.Not.EqualTo(theme.TextColor));
             Assert.That(theme.PanelColor.r, Is.GreaterThan(.85f), "Dialogue surfaces use a light, low-glare base.");
             Assert.That(theme.TextColor.r, Is.LessThan(.2f), "Dialogue body copy remains dark and readable.");
-            Assert.That(theme.AccentColor.g, Is.GreaterThan(.8f), "Selection feedback uses the shared restrained cyan-green accent.");
+            Assert.That(Contrast(theme.AccentColor, theme.PanelColor), Is.GreaterThanOrEqualTo(4.5f),
+                "The teal accent remains readable on the light dialogue surface.");
+        }
+
+        static float Contrast(Color foreground, Color background)
+        {
+            var a = Luminance(foreground);
+            var b = Luminance(background);
+            return (Mathf.Max(a, b) + .05f) / (Mathf.Min(a, b) + .05f);
+        }
+
+        static float Luminance(Color color)
+        {
+            static float Linear(float value) => value <= .04045f ? value / 12.92f : Mathf.Pow((value + .055f) / 1.055f, 2.4f);
+            return .2126f * Linear(color.r) + .7152f * Linear(color.g) + .0722f * Linear(color.b);
         }
 
         [Test]
@@ -233,6 +254,24 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                     "欢迎", "安小卫", "开始学习。", 0, 1,
                     primaryActionLabel: "开始学习", allowDefer: false, allowRestart: false));
 
+                var continueLabel = continueButton.GetComponentInChildren<TMP_Text>();
+                Assert.That(continueLabel.color, Is.EqualTo(Color.white),
+                    "The main action uses white text on the dark accent surface.");
+                var continueGraphic = continueButton.GetComponentInChildren<DialogueContractGraphic>();
+                Assert.That(continueGraphic, Is.Not.Null);
+                var populateMesh = typeof(DialogueContractGraphic).GetMethod("OnPopulateMesh",
+                    BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(VertexHelper) }, null);
+                Assert.That(populateMesh, Is.Not.Null);
+                var vertices = new List<UIVertex>();
+                using (var vertexHelper = new VertexHelper())
+                {
+                    populateMesh.Invoke(continueGraphic, new object[] { vertexHelper });
+                    vertexHelper.GetUIVertexStream(vertices);
+                }
+                Assert.That(vertices.Count, Is.GreaterThanOrEqualTo(4));
+                Assert.That(vertices.Take(4).All(vertex => ((Color)vertex.color).grayscale < .35f), Is.True,
+                    "The main action fill remains a dark, readable surface.");
+
                 var shortBodyHeight = body.rect.height;
                 var shortStageHeight = stageRect.rect.height;
                 Assert.That(shortBodyHeight, Is.LessThan(100f), "Short copy should not reserve the old fixed paragraph block.");
@@ -295,6 +334,175 @@ namespace BotanicalGardenQR.VisitorCoach.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(noImageTheme);
                 UnityEngine.Object.DestroyImmediate(viewer);
                 UnityEngine.Object.DestroyImmediate(noImageViewer);
+            }
+        }
+
+        [Test]
+        public void WelcomePokeFeedbackSeparatesApproachPressTriggerAndReleaseWithoutMovingHitArea()
+        {
+            var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(ThemePath);
+            var defaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(UiDefaultsPath);
+            var viewer = new GameObject("WelcomeButtonStateViewer", typeof(Camera));
+            var instance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
+            var presenter = instance.GetComponentInChildren<VisitorCoachPresenter>(true);
+            try
+            {
+                presenter.Configure(viewer.transform, theme, defaults.SharedFont, new DialogueGazeRegistry());
+                presenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                presenter.Present(new VisitorDialogueSurfaceState(1,
+                    new VisitorDialogueContextId("welcome:button-states"), VisitorDialogueOwner.Guidance,
+                    VisitorDialogueSurfaceMode.Dialogue, "欢迎", "安小卫", "欢迎来到内镜中心监督检查。", 0, 1,
+                    primaryActionLabel: "开始学习", allowDefer: false, allowRestart: false));
+
+                var target = instance.transform.Find("DialogueStage/Continue")
+                    .GetComponent<VisitorDialoguePointableTarget>();
+                var rect = (RectTransform)target.transform;
+                var startingPosition = rect.position;
+                var startingRect = rect.rect;
+                var selected = 0;
+                target.Selected += () => selected++;
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Resting"));
+
+                target.PresentTrackedFingerHover(true);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Approaching"));
+                target.BindTrackedHands(new Oculus.Interaction.Input.IHand[1]);
+                var front = rect.position - rect.forward * .03f;
+                var press = rect.position - rect.forward * .003f;
+                var through = rect.position + rect.forward * .005f;
+                target.SampleTrackedFinger(0, front);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Approaching"));
+                target.SampleTrackedFinger(0, press);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Pressed"));
+                target.SampleTrackedFinger(0, through);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Triggered"));
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(1), "One poke must commit only once while the finger remains through the surface.");
+
+                target.SampleTrackedFinger(0, front);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Approaching"));
+                target.SampleTrackedFinger(0, press);
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(2), "Withdrawing to the front must rearm a new poke.");
+                target.SampleTrackedFinger(0, rect.position + rect.forward * .11f);
+                Assert.That(ButtonVisualStateName(target), Is.EqualTo("Resting"));
+                Assert.That(rect.position, Is.EqualTo(startingPosition), "Visual press feedback must not move the interaction target.");
+                Assert.That(rect.rect, Is.EqualTo(startingRect), "Visual press feedback must not resize the interaction target.");
+            }
+            finally
+            {
+                presenter.Dispose();
+                UnityEngine.Object.DestroyImmediate(instance);
+                UnityEngine.Object.DestroyImmediate(viewer);
+            }
+        }
+
+        [Test]
+        public void DialoguePanelTiltsForReadingAndKeepsItsWorldPoseAfterOpening()
+        {
+            var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(ThemePath);
+            var defaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(UiDefaultsPath);
+            var viewer = new GameObject("TiltedDialogueViewer", typeof(Camera));
+            var instance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
+            var presenter = instance.GetComponentInChildren<VisitorCoachPresenter>(true);
+            try
+            {
+                presenter.Configure(viewer.transform, theme, defaults.SharedFont, new DialogueGazeRegistry());
+                presenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                var context = new VisitorDialogueContextId("dialogue:reading-pose");
+                presenter.Present(new VisitorDialogueSurfaceState(1, context, VisitorDialogueOwner.Guidance,
+                    VisitorDialogueSurfaceMode.Dialogue, "欢迎", "安小卫", "先看这里。", 0, 1,
+                    primaryActionLabel: "继续", allowDefer: false, allowRestart: false));
+
+                var firstPose = presenter.CurrentComposition.StagePose;
+                var frontNormal = firstPose.rotation * Vector3.back;
+                Assert.That(frontNormal.y, Is.GreaterThan(.05f), "The dialogue should angle its reading face slightly upward.");
+                var eyeFacing = Quaternion.LookRotation(firstPose.position - viewer.transform.position, Vector3.up);
+                var expectedReadingRotation = eyeFacing * Quaternion.Euler(8f, 0f, 0f);
+                Assert.That(Quaternion.Angle(firstPose.rotation, expectedReadingRotation), Is.LessThan(.01f),
+                    "The upward reading tilt should come from the dialogue presentation profile.");
+
+                viewer.transform.position += Vector3.right;
+                viewer.transform.rotation = Quaternion.Euler(20f, 90f, 0f);
+                presenter.Present(new VisitorDialogueSurfaceState(2, context, VisitorDialogueOwner.Guidance,
+                    VisitorDialogueSurfaceMode.Dialogue, "欢迎", "安小卫", "继续阅读。", 0, 1,
+                    primaryActionLabel: "继续", allowDefer: false, allowRestart: false));
+                Assert.That(presenter.CurrentComposition.StagePose.position, Is.EqualTo(firstPose.position),
+                    "Changing the viewer pose must not drag an already-open panel.");
+                Assert.That(presenter.CurrentComposition.StagePose.rotation, Is.EqualTo(firstPose.rotation));
+            }
+            finally
+            {
+                presenter.Dispose();
+                UnityEngine.Object.DestroyImmediate(instance);
+                UnityEngine.Object.DestroyImmediate(viewer);
+            }
+        }
+
+        static string ButtonVisualStateName(VisitorDialoguePointableTarget target)
+        {
+            var property = typeof(VisitorDialoguePointableTarget).GetProperty("VisualState",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(property, Is.Not.Null, "The touch target should expose its current visual interaction state.");
+            return property.GetValue(target)?.ToString();
+        }
+
+        [Test]
+        public void WelcomeButtonUsesVisibleFeedbackAndAcceptsTrackedIndexFingerCrossing()
+        {
+            var theme = AssetDatabase.LoadAssetAtPath<VisitorCoachThemeAsset>(ThemePath);
+            var defaults = AssetDatabase.LoadAssetAtPath<GlobalUiDefaults>(UiDefaultsPath);
+            var viewer = new GameObject("WelcomeFingerViewer", typeof(Camera));
+            var instance = UnityEngine.Object.Instantiate(theme.PresentationPrefab);
+            var presenter = instance.GetComponentInChildren<VisitorCoachPresenter>(true);
+            try
+            {
+                presenter.Configure(viewer.transform, theme, defaults.SharedFont, new DialogueGazeRegistry());
+                presenter.SetInputMode(VisitorDialogueInputMode.HandPoke);
+                presenter.Present(new VisitorDialogueSurfaceState(1,
+                    new VisitorDialogueContextId("welcome:finger"), VisitorDialogueOwner.Guidance,
+                    VisitorDialogueSurfaceMode.Dialogue, "欢迎", "安小卫", "欢迎来到内镜中心监督检查。", 0, 1,
+                    primaryActionLabel: "开始学习", allowDefer: false, allowRestart: false));
+
+                var target = instance.transform.Find("DialogueStage/Continue")
+                    .GetComponent<VisitorDialoguePointableTarget>();
+                var button = target.GetComponent<UnityEngine.UI.Button>();
+                var feedback = new SerializedObject(target).FindProperty("_feedbackGraphic").objectReferenceValue;
+                Assert.That(feedback, Is.SameAs(button.targetGraphic));
+                Assert.That(((UnityEngine.UI.Graphic)feedback).isActiveAndEnabled, Is.True);
+                var visibleGraphic = (DialogueContractGraphic)feedback;
+                target.PresentTrackedFingerHover(true);
+                Assert.That(visibleGraphic.CurrentProgress, Is.GreaterThan(0f));
+                target.PresentTrackedFingerHover(false);
+                Assert.That(visibleGraphic.CurrentProgress, Is.Zero);
+
+                target.BindTrackedHands(new Oculus.Interaction.Input.IHand[1]);
+                var selected = 0;
+                target.Selected += () => selected++;
+                var front = target.transform.position - target.transform.forward * .03f;
+                var through = target.transform.position + target.transform.forward * .005f;
+                target.SampleTrackedFinger(0, front);
+                target.SampleTrackedFinger(0, through);
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(1));
+                target.SampleTrackedFinger(0, front);
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(2), "A new finger withdrawal and poke must rearm the button.");
+                target.SampleTrackedFinger(0, front);
+                typeof(VisitorDialoguePointableTarget)
+                    .GetMethod("OnApplicationPause", System.Reflection.BindingFlags.Instance |
+                        System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(target, new object[] { true });
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(2), "A paused hand must approach from the front again.");
+                target.SampleTrackedFinger(0, front);
+                target.SampleTrackedFinger(0, through);
+                Assert.That(selected, Is.EqualTo(3));
+            }
+            finally
+            {
+                presenter.Dispose();
+                UnityEngine.Object.DestroyImmediate(instance);
+                UnityEngine.Object.DestroyImmediate(viewer);
             }
         }
 

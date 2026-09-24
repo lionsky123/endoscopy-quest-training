@@ -58,23 +58,8 @@ namespace BotanicalGardenQR.Bootstrap
         public static VirtualRoomEnvironment Create(GameObject xrRig, GameObject mruk, MapDefinition definition, ITrackingOriginTiming timing = null,
             VirtualRoomTrackingOrigin sharedTracking = null, bool trackHead = true)
         {
-            MapDefinitionValidation.Validate(definition);
-            if (string.IsNullOrWhiteSpace(definition.roomResource))
-                throw new InvalidOperationException("VR requires a published room resource.");
-            if (mruk != null) mruk.SetActive(false);
-            var manager = xrRig.GetComponentInChildren<OVRManager>(true);
-            if (manager != null) manager.isInsightPassthroughEnabled = false;
-            foreach (var layer in xrRig.scene.GetRootGameObjects())
-                foreach (var passthrough in layer.GetComponentsInChildren<OVRPassthroughLayer>(true))
-                    passthrough.enabled = false;
-            foreach (var camera in xrRig.GetComponentsInChildren<Camera>(true))
-            {
-                camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.backgroundColor = new Color(.16f, .20f, .24f, 1f);
-                // MR's 10–30 cm near plane visibly slices walls during close inspection.
-                // Keep smaller authored values and never compensate by moving the XR rig.
-                camera.nearClipPlane = Mathf.Min(camera.nearClipPlane, .03f);
-            }
+            ValidateDefinition(definition);
+            PrepareRig(xrRig, mruk);
             var room = new VirtualRoomEnvironment(xrRig.transform, definition);
             try
             {
@@ -89,36 +74,215 @@ namespace BotanicalGardenQR.Bootstrap
                     UnityEngine.Object.Instantiate(prefab,room._root.transform,false);
                 }
                 else room.Load(definition.roomResource, definition.modelDigest);
-                room.GuidePath = new VirtualRoomGuidePath(definition, room.Frame, room._root.GetComponentsInChildren<MeshFilter>(),room._publishedObstacles);
-                var cameraRig = xrRig.GetComponentInChildren<OVRCameraRig>(true);
-                if (sharedTracking != null)
-                {
-                    room._trackingOrigin = sharedTracking;
-                    room._ownsTracking = false;
-                }
-                else if (cameraRig && trackHead)
-                {
-                    var start = room.Frame.Transform(definition.start);
-                    var next = room.Frame.Transform(definition.routes[0].samples[1]);
-                    var spawn = new Pose(new Vector3(start.x, start.y, start.z),
-                        Quaternion.LookRotation(new Vector3(next.x - start.x, 0, next.z - start.z)));
-                    room._trackingOrigin = new VirtualRoomTrackingOrigin(cameraRig, manager, timing, spawn);
-                }
-                foreach (var point in definition.points)
-                {
-                    var anchor = new GameObject("Station_" + point.id).transform;
-                    anchor.SetParent(room._root.transform, false);
-                    anchor.localPosition = new Vector3(point.position.x, point.position.y, point.position.z);
-                }
-                RenderSettings.ambientMode = AmbientMode.Flat;
-                RenderSettings.ambientLight = new Color(.72f, .76f, .80f);
-                RenderSettings.fog = false;
-                if(definition.roomResource==FullScriptRoomCatalog.StorageRoom || definition.roomResource==FullScriptRoomCatalog.WaitingRoom)
-                    room.LightSuppliedArchitecture();
+                FinishRoom(room, xrRig, definition, timing, sharedTracking, trackHead);
                 return room;
             }
             catch { room.Dispose(); throw; }
         }
+
+        internal static BuildOperation BeginBuild(GameObject xrRig, GameObject mruk, MapDefinition definition,
+            VirtualRoomTrackingOrigin sharedTracking = null, bool trackHead = true)
+            => new BuildOperation(xrRig, mruk, definition, sharedTracking, trackHead);
+
+        static void ValidateDefinition(MapDefinition definition)
+        {
+            MapDefinitionValidation.Validate(definition);
+            if (string.IsNullOrWhiteSpace(definition.roomResource))
+                throw new InvalidOperationException("VR requires a published room resource.");
+        }
+
+        static void PrepareRig(GameObject xrRig, GameObject mruk)
+        {
+            if (mruk != null) mruk.SetActive(false);
+            var manager = xrRig.GetComponentInChildren<OVRManager>(true);
+            if (manager != null) manager.isInsightPassthroughEnabled = false;
+            foreach (var layer in xrRig.scene.GetRootGameObjects())
+                foreach (var passthrough in layer.GetComponentsInChildren<OVRPassthroughLayer>(true))
+                    passthrough.enabled = false;
+            foreach (var camera in xrRig.GetComponentsInChildren<Camera>(true))
+            {
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = new Color(.17f, .16f, .22f, 1f);
+                // Keep close observation possible without changing the tracked head pose.
+                camera.nearClipPlane = Mathf.Min(camera.nearClipPlane, .03f);
+            }
+        }
+
+        static void FinishRoom(VirtualRoomEnvironment room, GameObject xrRig, MapDefinition definition,
+            ITrackingOriginTiming timing, VirtualRoomTrackingOrigin sharedTracking, bool trackHead)
+        {
+            room.GuidePath = new VirtualRoomGuidePath(definition, room.Frame,
+                room._root.GetComponentsInChildren<MeshFilter>(), room._publishedObstacles);
+            var cameraRig = xrRig.GetComponentInChildren<OVRCameraRig>(true);
+            var manager = xrRig.GetComponentInChildren<OVRManager>(true);
+            if (sharedTracking != null)
+            {
+                room._trackingOrigin = sharedTracking;
+                room._ownsTracking = false;
+            }
+            else if (cameraRig && trackHead)
+            {
+                var start = room.Frame.Transform(definition.start);
+                var next = room.Frame.Transform(definition.routes[0].samples[1]);
+                var spawn = new Pose(new Vector3(start.x, start.y, start.z),
+                    Quaternion.LookRotation(new Vector3(next.x - start.x, 0, next.z - start.z)));
+                room._trackingOrigin = new VirtualRoomTrackingOrigin(cameraRig, manager, timing, spawn);
+            }
+            foreach (var point in definition.points)
+            {
+                var anchor = new GameObject("Station_" + point.id).transform;
+                anchor.SetParent(room._root.transform, false);
+                anchor.localPosition = new Vector3(point.position.x, point.position.y, point.position.z);
+            }
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(.72f, .76f, .80f);
+            RenderSettings.fog = false;
+            if (definition.roomResource == FullScriptRoomCatalog.StorageRoom ||
+                definition.roomResource == FullScriptRoomCatalog.WaitingRoom)
+                room.LightSuppliedArchitecture();
+        }
+
+        internal sealed class BuildOperation : IDisposable
+        {
+            enum Phase { AwaitAssets, AwaitTextures, BuildGeometry, Finish, Complete }
+
+            readonly GameObject _xrRig;
+            readonly MapDefinition _definition;
+            readonly VirtualRoomTrackingOrigin _sharedTracking;
+            readonly bool _trackHead;
+            readonly ResourceRequest _roomAsset, _geometry, _manifest, _template;
+            readonly Dictionary<string, ResourceRequest> _textureRequests = new Dictionary<string, ResourceRequest>();
+            Dictionary<string, Texture2D> _textures;
+            System.Collections.Generic.IEnumerator<object> _geometrySteps;
+            VirtualRoomEnvironment _room;
+            Phase _phase;
+            bool _disposed;
+
+            internal bool IsComplete => _phase == Phase.Complete;
+            internal string PhaseName => _phase.ToString();
+
+            internal BuildOperation(GameObject xrRig, GameObject mruk, MapDefinition definition,
+                VirtualRoomTrackingOrigin sharedTracking, bool trackHead)
+            {
+                ValidateDefinition(definition);
+                PrepareRig(xrRig, mruk);
+                _xrRig = xrRig;
+                _definition = definition;
+                _sharedTracking = sharedTracking;
+                _trackHead = trackHead;
+                _room = new VirtualRoomEnvironment(xrRig.transform, definition);
+                try
+                {
+                    if (definition.roomResource == "EndoscopyRoom") _room.SetCleaningRoomLight(xrRig.scene);
+                    if (definition.roomResource == FullScriptRoomCatalog.DevelopmentResource ||
+                        definition.roomResource == FullScriptRoomCatalog.FurnishedResource)
+                    {
+                        _phase = Phase.Finish;
+                        FullScriptRoomCatalog.BuildDevelopmentGeometry(_room._root, definition.mapId, _room._owned,
+                            definition.roomResource == FullScriptRoomCatalog.FurnishedResource);
+                    }
+                    else if (definition.roomResource == FullScriptRoomCatalog.LobbyPanorama ||
+                        definition.roomResource == FullScriptRoomCatalog.WaitingRoom ||
+                        definition.roomResource == FullScriptRoomCatalog.StorageRoom)
+                        _roomAsset = Resources.LoadAsync<GameObject>(definition.roomResource);
+                    else
+                    {
+                        _geometry = Resources.LoadAsync<TextAsset>(definition.roomResource + "/geometry");
+                        _manifest = Resources.LoadAsync<TextAsset>(definition.roomResource + "/manifest");
+                        _template = Resources.LoadAsync<Material>(definition.roomResource + "/RoomSurface");
+                    }
+                }
+                catch { _room.Dispose(); _room = null; throw; }
+            }
+
+            internal bool Tick()
+            {
+                if (_disposed) throw new ObjectDisposedException(nameof(BuildOperation));
+                try
+                {
+                    switch (_phase)
+                    {
+                        case Phase.AwaitAssets:
+                            if (_roomAsset != null)
+                            {
+                                if (!_roomAsset.isDone) return false;
+                                var prefab = _roomAsset.asset as GameObject;
+                                if (!prefab) throw new InvalidOperationException("Published room prefab is missing: " + _definition.roomResource);
+                                if (_definition.roomResource == FullScriptRoomCatalog.LobbyPanorama) _room.LoadLobby(prefab);
+                                else UnityEngine.Object.Instantiate(prefab, _room._root.transform, false);
+                                _phase = Phase.Finish;
+                                return false;
+                            }
+                            if (!_geometry.isDone || !_manifest.isDone || !_template.isDone) return false;
+                            var manifestAsset = _manifest.asset as TextAsset;
+                            if (!_geometry.asset || !manifestAsset || !_template.asset)
+                                throw new InvalidOperationException("Published VR room geometry/materials are missing.");
+                            var manifest = JsonUtility.FromJson<RoomManifest>(manifestAsset.text);
+                            if (manifest?.materials == null) throw new InvalidDataException("Room material manifest is invalid.");
+                            foreach (var material in manifest.materials)
+                            {
+                                var path = TexturePath(_definition.roomResource, material);
+                                if (path != null && !_textureRequests.ContainsKey(path))
+                                    _textureRequests.Add(path, Resources.LoadAsync<Texture2D>(path));
+                            }
+                            _phase = Phase.AwaitTextures;
+                            return false;
+                        case Phase.AwaitTextures:
+                            if (_textureRequests.Values.Any(request => !request.isDone)) return false;
+                            _textures = new Dictionary<string, Texture2D>();
+                            foreach (var pair in _textureRequests)
+                                _textures.Add(pair.Key, pair.Value.asset as Texture2D);
+                            _geometrySteps = _room.LoadSteps(_geometry.asset as TextAsset,
+                                _manifest.asset as TextAsset, _template.asset as Material,
+                                _definition.roomResource, _definition.modelDigest, _textures).GetEnumerator();
+                            _phase = Phase.BuildGeometry;
+                            return false;
+                        case Phase.BuildGeometry:
+                            // A bounded amount of parsing and mesh upload per frame keeps the
+                            // compositor supplied while the destination remains covered.
+                            for (var step = 0; step < 2; step++)
+                                if (!_geometrySteps.MoveNext())
+                                {
+                                    _geometrySteps.Dispose();
+                                    _geometrySteps = null;
+                                    _phase = Phase.Finish;
+                                    break;
+                                }
+                            return false;
+                        case Phase.Finish:
+                            FinishRoom(_room, _xrRig, _definition, null, _sharedTracking, _trackHead);
+                            _phase = Phase.Complete;
+                            return true;
+                        case Phase.Complete:
+                            return true;
+                        default:
+                            throw new InvalidOperationException("Unknown room build phase.");
+                    }
+                }
+                catch { Dispose(); throw; }
+            }
+
+            internal VirtualRoomEnvironment TakeRoom()
+            {
+                if (_disposed || !IsComplete) throw new InvalidOperationException("Room creation has not completed.");
+                var result = _room;
+                _room = null;
+                return result;
+            }
+
+            public void Dispose()
+            {
+                if (_disposed) return;
+                _disposed = true;
+                _geometrySteps?.Dispose();
+                _room?.Dispose();
+                _room = null;
+            }
+        }
+
+        static string TexturePath(string resource, RoomMaterial material)
+            => !string.IsNullOrEmpty(material.textureResource) ? material.textureResource :
+                !string.IsNullOrEmpty(material.texture) ? resource + "/" + material.texture : null;
 
         void LightSuppliedArchitecture()
         {
@@ -157,6 +321,10 @@ namespace BotanicalGardenQR.Bootstrap
         {
             var prefab=Resources.Load<GameObject>(FullScriptRoomCatalog.LobbyPanorama);
             if(!prefab)throw new InvalidOperationException("Published lobby panorama is missing.");
+            LoadLobby(prefab);
+        }
+        void LoadLobby(GameObject prefab)
+        {
             var panorama=UnityEngine.Object.Instantiate(prefab,_root.transform,false);
             // A panoramic display shell is not physical architecture or an obstacle.
             _publishedObstacles=Array.Empty<Bounds>();
@@ -191,15 +359,31 @@ namespace BotanicalGardenQR.Bootstrap
             var geometry = Resources.Load<TextAsset>(resource + "/geometry");
             var manifestAsset = Resources.Load<TextAsset>(resource + "/manifest");
             var template = Resources.Load<Material>(resource + "/RoomSurface");
+            foreach (var step in LoadSteps(geometry, manifestAsset, template, resource, expectedDigest, null)) { }
+        }
+
+        IEnumerable<object> LoadSteps(TextAsset geometry, TextAsset manifestAsset, Material template,
+            string resource, string expectedDigest, Dictionary<string, Texture2D> stagedTextures)
+        {
             if (geometry == null || manifestAsset == null || template == null)
                 throw new InvalidOperationException("Published VR room geometry/materials are missing.");
+            var geometryBytes = geometry.bytes;
             using (var hash = System.Security.Cryptography.SHA256.Create())
             {
-                var digest = BitConverter.ToString(hash.ComputeHash(geometry.bytes)).Replace("-", "");
+                const int hashChunk = 4 * 1024 * 1024;
+                for (var offset = 0; offset < geometryBytes.Length; offset += hashChunk)
+                {
+                    var chunkLength = Math.Min(hashChunk, geometryBytes.Length - offset);
+                    hash.TransformBlock(geometryBytes, offset, chunkLength, geometryBytes, offset);
+                    yield return null;
+                }
+                hash.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                var digest = BitConverter.ToString(hash.Hash).Replace("-", "");
                 if (!string.Equals(digest, expectedDigest, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("The published fairy routes do not match the room model. Republish the room map.");
             }
             var manifest = JsonUtility.FromJson<RoomManifest>(manifestAsset.text);
+            if (manifest?.materials == null) throw new InvalidDataException("Room material manifest is invalid.");
             if(manifest.obstacles!=null)
             {
                 _publishedObstacles=Array.ConvertAll(manifest.obstacles,o=>new Bounds(o.center,o.size));
@@ -212,9 +396,12 @@ namespace BotanicalGardenQR.Bootstrap
                 var material = new Material(template) { name = source.name };
                 _owned.Add(material);
                 material.color = new Color(source.color[0], source.color[1], source.color[2], 1);
-                if (!string.IsNullOrEmpty(source.texture) || !string.IsNullOrEmpty(source.textureResource))
+                var texturePath = TexturePath(resource, source);
+                if (texturePath != null)
                 {
-                    var texture = Resources.Load<Texture2D>(!string.IsNullOrEmpty(source.textureResource)?source.textureResource:resource + "/" + source.texture);
+                    Texture2D texture;
+                    if (stagedTextures != null) stagedTextures.TryGetValue(texturePath, out texture);
+                    else texture = Resources.Load<Texture2D>(texturePath);
                     if (texture == null) throw new InvalidOperationException("Missing room texture: " + source.texture);
                     material.mainTexture = texture;
                     // The imported diffuse tint multiplies the texture. Replacing it with
@@ -222,8 +409,9 @@ namespace BotanicalGardenQR.Bootstrap
                 }
                 material.SetFloat("_Smoothness", .25f);
                 materials[i] = material;
+                yield return null;
             }
-            using var reader = new BinaryReader(new MemoryStream(geometry.bytes));
+            using var reader = new BinaryReader(new MemoryStream(geometryBytes));
             if (Encoding.ASCII.GetString(reader.ReadBytes(4)) != "ECR1")
                 throw new InvalidDataException("Unsupported room geometry format.");
             var count = reader.ReadInt32();
@@ -269,6 +457,7 @@ namespace BotanicalGardenQR.Bootstrap
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
                 // Virtual collider checks are used for guide recovery, never to push the player.
                 if(_publishedObstacles==null)item.AddComponent<MeshCollider>().sharedMesh = mesh;
+                yield return null;
             }
             if (reader.BaseStream.Position != reader.BaseStream.Length)
                 throw new InvalidDataException("Unexpected trailing room geometry data.");

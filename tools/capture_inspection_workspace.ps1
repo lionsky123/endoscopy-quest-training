@@ -12,7 +12,7 @@ $taskArgs=@('-batchmode','-force-vulkan','-buildTarget','Android','-projectPath'
 $taskProcess=Start-Process 'D:/unityhub/unity22.3.62f3c1/6000.3.23f1/Editor/Unity.exe' -ArgumentList $taskArgs -PassThru -WindowStyle Hidden
 if(!$taskProcess.WaitForExit(360000)){$taskProcess.Kill();throw 'Workspace capture timed out.'}
 if($taskProcess.ExitCode -ne 0){throw 'Workspace capture failed; inspect editor.log.'}
-foreach($taskRoom in @('R00_LOBBY','R01_OFFICE')){foreach($taskPose in @('seated','standing')){
+foreach($taskRoom in @('R00_LOBBY','R01_OFFICE','R02_STORAGE','R03_WAITING','R04_GI','R04_RESP','R05_REPROCESSING')){foreach($taskPose in @('seated','standing')){
  $taskImage=Join-Path $taskOutput ($taskRoom+'-'+$taskPose+'.png')
  if(!(Test-Path -LiteralPath $taskImage)){throw ('Missing capture: '+$taskImage)}
  Write-Output $taskImage

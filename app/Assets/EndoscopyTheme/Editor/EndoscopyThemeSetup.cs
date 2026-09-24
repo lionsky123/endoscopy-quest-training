@@ -23,7 +23,7 @@ namespace EndoscopyTheme.Editor
             if(settings)foreach(var feature in settings.GetFeatures())
                 if(feature.GetType().Name=="OpenXRCompositionLayersFeature") {feature.enabled=true;EditorUtility.SetDirty(feature);}
             var audio=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/AudioManager.asset")[0]);
-            audio.FindProperty("m_DisableAudio").boolValue=true;audio.ApplyModifiedPropertiesWithoutUndo();
+            audio.FindProperty("m_DisableAudio").boolValue=false;audio.ApplyModifiedPropertiesWithoutUndo();
             // VR is the application environment, including the system loading backdrop.
             var config=AssetDatabase.LoadMainAssetAtPath("Assets/Oculus/OculusProjectConfig.asset");
             if(config)

@@ -1,6 +1,7 @@
 using System;
 using BotanicalGardenQR.FrontendShell.Contracts;
 using BotanicalGardenQR.VisitorCoach.Frontend;
+using UnityEngine.XR;
 
 namespace BotanicalGardenQR.Bootstrap
 {
@@ -20,7 +21,11 @@ namespace BotanicalGardenQR.Bootstrap
         internal static FullScriptGuideCopy Resolve(string roomName, bool firstLobbyVisit, bool finalOfficeVisit)
         {
             if (firstLobbyVisit)
-                return new FullScriptGuideCopy("欢迎", "欢迎来到内镜中心监督检查。我会陪你原地观察、查阅和操作，先从办公室开始。", "开始学习");
+            {
+                var body = "欢迎来到内镜中心监督检查。伸出食指，轻轻按一下“开始学习”；推荐先从办公室开始。";
+                if (!XRSettings.isDeviceActive) body += "\n当前仅显示场景预览，连接头显后用手操作。";
+                return new FullScriptGuideCopy("欢迎", body, "开始学习");
+            }
             if (finalOfficeVisit)
                 return new FullScriptGuideCopy(roomName, "各房间的检查记录已汇集到这里。请逐项回看，核对未完成和待补内容，再决定是否结束。", "查看汇总");
             if (roomName == "办公室")

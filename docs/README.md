@@ -6,6 +6,7 @@
 | --- | --- |
 | 理解当前产品范围 | [完整规格](FULL_SCRIPT_SPEC_20260920.md)的当前范围与相关业务章节、[内容矩阵](FULL_SCRIPT_CONTENT_MATRIX.md) |
 | 接续实现或验证 | [合并计划](STARTUP_FLOW_AUDIT_PLAN_20260923.md)的执行清单与对应验收条件 |
+| 查看用户确认的房间 UI 专题 | [独立规格](ROOM_UI_REFRESH_SPEC_20260924.md)、[独立实施计划](ROOM_UI_REFRESH_PLAN_20260924.md)；概念预览不代表运行画面 |
 | 使用 spec / design / plan 流程 | [项目工作流](WORKFLOW.md) |
 | 查启动修复证据 | [启动修复进展](STARTUP_REPAIR_PROGRESS_20260923.md) |
 | 查 Quest 大厅故障 | [Quest 诊断](QUEST_LOBBY_DIAGNOSIS_20260923.md)；不将文档中的旧实测当作当前通过 |

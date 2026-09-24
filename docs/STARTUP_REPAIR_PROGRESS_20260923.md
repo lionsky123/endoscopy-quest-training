@@ -168,3 +168,144 @@ recovery-final-play：恢复逻辑修复后真实Play再次PASS，正常大厅�
 - 用户随后要求合并几项再验证，最终要求“完成这个任务后暂时暂停，不用测试”。因此最终批次**未运行EditMode、真实Play、渲染、Quest或任何测试套件**。只遵守工程编译门槛执行`-batchmode -quit -nographics -buildTarget Android`，未传runTests或构建入口。
 - 最终[`learning-batch-compile-only.log`](../artifacts/inspection-editor/learning-batch-compile-only.log)明确Targeting platform: Android，发生实际脚本编译，进程退出0，无C#编译错误。未构建APK、未操作设备。最终修改的交互、布局、生命周期及回归仍需后续测试/用户验收，不以较早的局部通过代签。
 - 当前暂停，不启动下一批。原计划C02及各房实物/内容缺口、热点与整体验收继续保留；C10/C11已实现部分不等于全部验收完成。
+
+## 2026-09-23 接续批次：设备热点、测漏原表、学习边界及正式绑定
+
+- 本批将互不冲突的C07.E02、C10/C05、C11与M2正式绑定实现并行完成，最后合并验证。RE-02教学图和剧本原图接入同一套气枪、测漏仪、水枪近触热点；每件分别记录观察，重复触碰去重，未把图像查看当作完整设备检查。教学图导入关闭NPOT缩放，使两图保持3:4位置对应。实物设备及水槽空间入口仍缺。
+- 办公室和洗消室逐次测漏均须先从同源纸表选中对应登记；翻页和筛选不自动选中、不产生观察事实。缺纸、缺登记及悬空关联保持不可判断并提示返回重试。原有三次模拟使用均能找到登记，没有增加无依据的异常记录。
+- 不可用任务不能消费首次方法示范或请求提示/讲解；反馈仅在学习事实写入成功后展示。统一提交成功同时将会话标为已提交、已结束，后续保持只读；汇总区分当前尚待修正和历史曾答错。正式VirtualRoom绑定不再要求旧序章页面和旧媒体运行根，旧路径只在显式归档配置下使用；序列化的历史对象尚待清理。
+- 首次Android目标全组导入/编译通过，但包含大量历史测试且有113项失败；缩小到本批相关组后72项中47项共同卡在场景的`VisitorInstaller`缺失脚本。查明C#类可编译、可动态实例化，但Unity的`.cs`资产`MonoScript.GetClass()`为空，正式prefab实例上的组件因而丢失。将同文件的`VisitorDiagnosticThrottle`拆到独立脚本后恢复绑定；这是正式场景问题，不仅是测试夹具问题。下一批72项中67项通过，余5项为图片导入比、过长台词和旧夹具/断言；一并修正后最终[`combined-focused-20260923-g.xml`](../artifacts/inspection-editor/combined-focused-20260923-g.xml)为72/72通过：StationaryScript 45、ClinicalJourneySession 13、ClinicalTrainingRecords 6、ClinicalLearningStateBoundary 4、ClinicalLeakSource 2、设备热点1、正式绑定隔离1。最终编译目标为Android，未构建APK。
+- 正式场景Vulkan真实Play首轮[`combined-startup-20260923.txt`](../artifacts/production-play/combined-startup-20260923.txt)记录大厅全景已加载、无旧序章，但探针仍用旧`Visit.Panel`判断欢迎入口，12秒时误判失败。探针改为核对安小卫`Guidance`状态及无竞争主面板后，[`combined-startup-20260923-b.txt`](../artifacts/production-play/combined-startup-20260923-b.txt)记录PASS、Unity退出0。当前真实Play图[`combined-startup-20260923-b.png`](../artifacts/production-play/combined-startup-20260923-b.png)已查看：大厅全景与欢迎/开始入口可见，安小卫图形为洋红色，原因未定位，不作视觉签收。这是当前Play画面，非Quest；旧办公室截图`isolated-shared-views/R01_OFFICE-seated.png`是工作区预览，不能代表当前贴图。用户提供的桌面`办公室.FBX`与工程源FBX SHA-256同为`645AC900FACCD512AF2541EC304D0E76A11C631B1BE860B4162080313DDA46FB`；模型贴图由另一对话负责，本批没有改模型材质或重复导入。
+- Quest双眼、手部、音视频及逐房画面尚待用户自行构建后验收；当前未启动APK构建、安装或设备应用。用户要求本轮结束后暂停，等待真机反馈。`git diff --check`除既有字体SDF资产第48/70/87行尾部空白外无本批新增空白错误；该资产由其他工作修改，本批未改动。
+
+## 2026-09-23 真机反馈：欢迎页“开始学习”食指戳按无响应
+
+- 用户确认使用Quest裸手追踪，虚拟手可见，食指可穿过欢迎按钮平面，但按钮不亮且无法触发。设备只读查询显示已安装包versionCode 97；没有当前源码对应的APK哈希，故不能将该包与本次修复后的源码视为同一状态。本轮未构建、安装、启动或卸载设备应用。
+- 对话按钮原有`PokeInteractable`和碰撞体在正式Play中启用；左右手`PokeInteractor`也存在。可见反馈失效另有确定原因：运行时将原`Image`禁用并以`DialogueContractGraphic`绘制按钮，而反馈仍写向旧Image。现将反馈绑到实际显示的图形，并以该图形的高亮进度呈现手指靠近/按下状态。
+- Meta手部戳按点相对追踪食指尖存在偏移，欢迎按钮的可见高度较窄。对话面板现直接读取正式左右`PokeInteractor`所绑定的`HandRef`食指尖，仅在Android运行时、按钮已启用且真实手部追踪有效时，按指尖从按钮正面穿越判定近触；离开后重新可按。保留原有Meta近触事件，未启用凝视、射线、鼠标或控制器提交。
+- 首批[`welcome-finger-20260923-a.xml`](../artifacts/inspection-editor/welcome-finger-20260923-a.xml)为12/57：测试夹具中另有未配置骨骼的手源，暴露了采样来源过宽。下一批[`welcome-finger-20260923-c.xml`](../artifacts/inspection-editor/welcome-finger-20260923-c.xml)为18/57：夹具启动时手部交互器暂不活动，绑定阶段按激活状态筛选漏掉双手。限定到戳按交互器实际`HandRef`并取消装配时的激活筛选后，[`welcome-finger-20260923-d.xml`](../artifacts/inspection-editor/welcome-finger-20260923-d.xml) 57/57通过。最后补充暂停/失焦重置指尖状态；[`welcome-finger-20260923-e.xml`](../artifacts/inspection-editor/welcome-finger-20260923-e.xml)中56/57通过，唯一失败是新增测试用`SendMessage`模拟Unity系统暂停触发编辑器断言，旅程组45/45均通过。改为直接调用生命周期方法后，最终[`welcome-finger-20260923-f.xml`](../artifacts/inspection-editor/welcome-finger-20260923-f.xml)对话与双手绑定组12/12通过，覆盖可见图形反馈、食指穿越、重新按下及暂停后重新接近。e/f为同一运行代码状态，f只修正测试调用方式；两组均显式以Android目标完成当前工程导入/编译，未构建APK。
+- [`welcome-finger-20260923.txt`](../artifacts/production-play/welcome-finger-20260923.txt)记录正式场景Vulkan真实Play **PASS**：欢迎按钮、`PokeInteractable`启用，0.534m处仅有一个活跃近触面，欢迎状态准备就绪。该Play发生在最终的暂停状态重置补丁前，不能替代Quest裸手输入验证；本轮没有新画面截图或渲染验收。改动文件`git diff --check`通过。此故障及大厅后续实机验收继续保持未勾选，等待用户自行构建后的Quest复测；此前暂停后的本次续做记录如下。
+
+## 原地房间画廊与自由选房路由
+
+- 按用户授权继续本计划。只读检查参考工程的图片环绕后确认其输入实现含凝视登记，不复用该输入路径；本站点房间卡只用当前`PokeInteractor`/`ClinicalNearTouch`的真实手部近触。
+- `ClinicalActSelection`为原地画廊列出当前房间以外所有房间，并标出推荐下一站、可回看的已到访房间、可选房间和返回大厅。`TryBeginStationary`允许从画廊选择未到访房，实际切房加载成功后才记访问；只有选择主线下一站会推进光标。到访不完成/跳过任务，最终办公室仍独立于早期访问。步行/门口路由保持旧的主线/已访问限制。
+- 新增`FullScriptRoomGallery`和拖动状态：面板在展开时固定世界位姿，六个可选房间卡以半弧排列；整张图片卡可戳按。把手在前下方，通过真实Android运行中的跟踪食指尖、`IHand.GetIndexFingerIsPinching()`及距离阈值启动；拖动期间禁用卡片戳按，释放或失去追踪当帧停止，延迟后重新允许新的戳按。不持续惯性、不随头转。模拟手未初始化的EditMode中不会读取Meta `HandRef`。
+- Codex内置ImageGen生成1254×1254的3×3插画图集，运行资源为`app/Assets/EndoscopyTheme/Resources/FullScriptRooms/RoomGallery/room-preview-atlas-v1.png`。完整提示词/源文件、正式消费者与SHA-256分别登记于[提示词](full-script-visuals/PROMPTS.md#房间选择画廊示意图2026-09-23)和[图册](full-script-visuals/ASSET_CATALOG.md#2026-09-23-房间选择画廊示意图)。哈希`3EBA773D5362721D4529FA60B3553CF6B75759EA08BA4D28CADE172443B1EDB9`。插画只代表房间类别，不代表实际场地、3D模型或本工程运行画面；实际房间一一对应图仍是缺口。
+- Red/故障过程：`room-gallery-routes-red-1`原实现只暴露1个选项，新增会话红测被`FutureRoomLocked`拒绝；首次路线重测误用了非画廊API，随即改为显式画廊调用。首次Android编译因遗漏局部`Finite(Vector3)`函数无测试报告，补齐后恢复。UI集成在EditMode读取未初始化`HandRef`空引用，限定真实Android运行环境后修复。全量站点回归第一次45/47，2项只因旧UI文案断言，已按新画廊更新。
+- 最终Android目标EditMode：[`room-gallery-routes-green-2.xml`](../artifacts/inspection-editor/room-gallery-routes-green-2.xml)5/5；[`room-gallery-session-green-2.xml`](../artifacts/inspection-editor/room-gallery-session-green-2.xml)14/14；[`room-gallery-drag-green-1.xml`](../artifacts/inspection-editor/room-gallery-drag-green-1.xml)2/2；[`room-gallery-ui-green-2.xml`](../artifacts/inspection-editor/room-gallery-ui-green-2.xml)3/3；[`room-gallery-stationary-green-2.xml`](../artifacts/inspection-editor/room-gallery-stationary-green-2.xml)47/47。最后一组覆盖原地流程与现有房间屏幕回归，Unity 6000.3.23f1显式Android目标导入/编译通过；EditMode/nographics，未构建APK。
+- C01.E03/E04和M5.E04的代码阶段已在计划原项下勾选。M5.E04父项仍未完成：尚未运行真实Play画面/渲染，不知道坐姿/站姿下字体、弧度、触达距离与Quest双眼效果；插画不满足实际房间一一对应；逐步带练仍待C01.E08。该续做没有进行实机或设备操作，后续本机转场/音频工作完成后再把Quest实机留作最后验收。
+
+
+## 2026-09-23 按键音效、背景音乐与水槽原声联动
+
+- 新增[`FullScriptAudioRuntime.cs`](../app/Assets/BotanicalGardenQR/Experience/Bootstrap/FullScriptAudioRuntime.cs)：一个旅程级音频服务跨房复用，不随房释放/重建。小型世界固定“声音”入口打开设置；用户以近触分别调节背景音乐、按键音效并静音。设置仅在本会话有效。
+- `ClinicalNearTouch.ActionAccepted`只在实际Poke Select通过按钮/输入门槛并调用动作后触发，悬停、凝视和拒绝的重复触碰不发声；按钮名映射确认、返回/切页、切房三类反馈。安小卫原有接受音不再绕过设置，而是通过同一音效源。
+- BGM和三类短反馈由C#样本合成，无外部音乐素材。BGM为16秒单声道柔和循环，默认音量18%；音效默认42%，均可按10%调节。反馈通过`AudioSource.PlayOneShot`输出，音源设为2D，并忽略监听器全局音量/暂停门控。新代码实际启用时只在Unity Play/Quest运行生成并播放；Unity EditMode无音频输出，不创建动态音频片段。旅程仍保持原先的全局静音，避免扩开放行向导旁白或其他媒体。MIT确认音源沿用项目原有Meta First Hand WAV，未修改文件；来源、许可、哈希和消费者见[图册](full-script-visuals/ASSET_CATALOG.md#2026-09-23-交互音频与背景音乐)。
+- MV01水槽片段继续单独忽略全局静音。VideoPhase进入Playing时将BGM压至当前设置音量的12%，加载/暂停/完成/失败/关闭均恢复；暂停/失焦时暂停音效服务，恢复需同时满足应用恢复和取得焦点；服务Dispose时停止并销毁音源/UI，旅程恢复进入前保存的全局监听器设置。
+- 第一次测试尝试在`-nographics` EditMode读动态`AudioClip.GetData`，音频后端返回不可读/空片段；将测试改为对纯合成样本断言非静音与峰值[-1,1]、并单独检查音源配置。服务只在真实Play时生成动态clip；最终批次没有AudioClip.SetData失败告警。该后端边界意味着输出响度、音质和Quest解码只能留给最后的真实Play/设备试听。
+- Android目标最终测试：`audio-service-final-1.xml` 7/7（音量调节/静音保持、只压低BGM、动作类别、样本范围和2D监听器绕过）；`audio-full-runtime-final-2.xml` 15/15（真实SDK Poke调整UI、世界固定、切房服务不重复、失焦/暂停恢复、结束清理和完整旅程）；`audio-stationary-final-1.xml` 48/48；`audio-video-final-1.xml` 7/7；`audio-dialogue-final-1.xml` 12/12。当前代码显式使用Unity 6000.3.23f1、`-buildTarget Android`、EditMode/nographics；有实际导入/编译。Editor日志没有C#编译错误或动态clip空数据错误，XR音频空间化插件未初始化提示仍是无图形编辑器环境限制。
+- 同批`FullScriptRuntimeTests`复核了旧C10提交后复盘：每一页都根据当前13条模拟记录循环，检查“未答”、无溢出、位置稳定，并遍历每个任务与六条旧洗消学习记录；`audio-full-runtime-final-2.xml`整组15/15通过。旧计划里19/20的硬编码1/10失败记录现已标为历史断点已复核，实际Play文字画面/OF-02完整情境仍待验。
+- 本轮没有启动Play、渲染或Quest，没有构建APK/安装/启动设备。声音实际输出、音量可接受度、指定MV01原声听感、暂停/焦点切换和Quest双耳效果均保持未验收；测试通过仅证明代码与状态逻辑。
+
+## C01.E06/E07 样板视觉一致与操作精简局部代码回归
+
+- 将共用面板角色调整为暖白/浅灰表面、深色正文、深青绿强调和可读的次级文字；突出项使用深色底与白字。`VisitorCoachThemeAsset`默认值及正式主题资源、`ClinicalPanelStyle`、房间画廊、办公室资料侧栏/按钮接入同一组颜色角色；文件图片本体保持实底。未新增图片/材质资源。
+- EditMode颜色用例先红后绿：`visual-style-red-1.xml`复现旧面板底色仍为深绿；修改后`visual-style-green-2.xml`2/2通过，覆盖浅表面、主/次文字和强调色对比度及欢迎主题与共用面板颜色一致性。`visual-style-coach-1.xml`12/12通过；`visual-style-guide-1.xml`4/4通过；整体`visual-style-stationary-2.xml`48/48通过，包含资料导航、单一主操作、页面位置与缺件流程。
+- 首轮样板回归`visual-style-stationary-1.xml`46/48：两条断言直接比较旧的蓝绿色值，未识别新语义强调色。将断言改为共享颜色令牌后，同源码状态重新运行`visual-style-stationary-2.xml`48/48。旧值没有保留为产品要求。
+- 已验证的控件组织：欢迎入口对话状态为单页且只有“开始学习”一个主要动作；画廊整卡为选房入口，没有叠加同义按钮；办公室字段选择即查看事实，不重复显示手动确认；资料类别由直接选择替代上一/下一份，当前办公室文件样板无上一/下一文件按钮，缩放不改变房间任务状态。
+- 当前证据只覆盖颜色角色、按钮主次与已有入口路径。完整逐页“改版前/后”可见控件数和常见路径步数仍未记录；文件资料侧栏仍同时出现“返回记录列表”和“返回本室检查”两个不同层级入口，需继续评估合并方式是否会增加常用回查步数。任务/汇总及按需帮助/设置还需盘点。
+- 该组EditMode测试使用Unity 6000.3.23f1、`-buildTarget Android`和nographics完成导入/编译；当时未构建APK，也未启动真实Play。后续实际Play仅检查欢迎页主按钮与大厅状态，三种完整样板的文字可读性、材料质感、双眼稳定或坐姿/站姿可达仍未验收。
+
+## C01.E08 画廊逐步带练事件接线与局部回归
+
+- 欢迎页的正式引导仍使用安小卫`VisitorCoachPresenter`/`FullScriptGuideBinding`，正文直接说明伸出食指戳按“开始学习”；进入房间画廊后，指令显示在真实短把手控件本身，避免再叠加一张争抢注意的主对话面板。教程状态保存在本次`FullScriptJourneyRuntime`，随房间画廊回查保留，不写入任务进度或续学存档。
+- 画廊教程只响应真实Android运行时的左右`PokeInteractor`所绑定`IHand`：追踪食指尖接近把手、食指捏合、拖动使画廊累计转动至少5度、松开和下一次有效房间卡Poke。拖动期间及释放后的0.25秒重新稳定期禁止选房；只有`RequestRoom`接受房间切换后才推进教程完成。追踪失效清除当前拖动并回到靠近把手步骤，未移动时松手不会越过拖动步骤。独立“跳过带练/重看带练”只改教程状态。短把手旁新增透明底五格手势图，按步骤分别演示靠近、捏住、左右拖动、张开和食指戳按；每格单独裁切，图示不是输入或验收画面，重看从第一格开始。
+- 手势资源由Codex内置ImageGen生成，已导入`Resources/FullScriptRooms/RoomGallery/gallery-gesture-tutorial-v2.png`；源提示、SHA-256和当前消费者登记在[图册](full-script-visuals/ASSET_CATALOG.md#c01e08-画廊带练手势图集2026-09-23)及[PROMPTS.md](full-script-visuals/PROMPTS.md#c01e08-画廊带练手势图集2026-09-23)。初次PNG因NPOT导入设置被扩至2048宽，尺寸红测捕捉后禁用NPOT缩放并保留透明度；此时UV比例和1536×1024原尺寸测试通过。另一次映射测试捕捉`Rect.zero`符号解析编译错误，改用`UnityEngine.Rect.zero`后恢复。未修改用户或既有模型资源。
+- TDD证据：`gallery-tutorial-red-1`状态类缺失红测；`gallery-gesture-atlas-red-1.xml` 0/1定位空缺演示图；`gallery-gesture-atlas-green-2.xml`因NPOT导入尺寸变为2048×1024失败，修正meta后`gallery-gesture-atlas-green-3.xml` 1/1（1536×1024原尺寸、透明度、跳过隐藏与重看恢复）；[`gallery-tutorial-green-2.xml`](../artifacts/inspection-editor/gallery-tutorial-green-2.xml) 3/3；[`gallery-tutorial-guide-1.xml`](../artifacts/inspection-editor/gallery-tutorial-guide-1.xml) 4/4；[`gallery-gesture-map-green-2.xml`](../artifacts/inspection-editor/gallery-gesture-map-green-2.xml) 4/4；[`gallery-tutorial-dragstate-1.xml`](../artifacts/inspection-editor/gallery-tutorial-dragstate-1.xml) 2/2；[`gallery-gesture-stationary-final-1.xml`](../artifacts/inspection-editor/gallery-gesture-stationary-final-1.xml) 50/50，包含跳过/重看任务状态不变、手势图、办公室文档和原地流程。中间一次编译因`Rect.zero`被静态`ClinicalPanelStyle.Rect`遮蔽，改为`UnityEngine.Rect.zero`；保留`gallery-gesture-map-green-1.log`，修复后的4项和50项最终回归均通过。Unity 6000.3.23f1、`-buildTarget Android`、EditMode/nographics；每项实际导入/编译，无APK。
+- 逐步文本核对：`FullScriptGalleryTutorial.Instruction`对靠近、捏合、拖动、松手、戳选分别提供短指令；实际画廊把手文本和手势图在同一教程状态刷新。新增界面断言覆盖初始、跳过、重看提示；[`gallery-instruction-final-1.xml`](../artifacts/inspection-editor/gallery-instruction-final-1.xml) 4/4通过（Android目标EditMode）。此前“没有逐步刷新提示”的描述已更正为“无逐步语音”。
+- 未完成：图示是随步骤切换的静态画格，尚无动态手部动画或安小卫逐步语音台词。左右手Quest输入、遮挡后重看、实际触达/双眼画面和无需口头协助仍待验收；因此C01.E08、样板合并检查、样板体验和批次A父项保持未完成。后续宿主Vulkan Play只覆盖欢迎页，没有进入画廊验证教程视觉/交互；Quest仍待最后验收。
+
+## C01.E07 当前界面控件数的EditMode核对
+
+- 对当前生成界面树补了操作数量断言并以[`operation-census-1.xml`](../artifacts/inspection-editor/operation-census-1.xml) 50/50通过，后续当前源码复核[`operation-census-final-2.xml`](../artifacts/inspection-editor/operation-census-final-2.xml)仍为50/50：欢迎对话1个可用动作；画廊7个房间图片入口+1个教程入口，短把手是独立捏合目标；办公室文件侧栏有6类资料、一个放大/缩小控件和两个返回层级（合计9个）；样板汇总在本测试路径中显示4或5个控件，复盘控件仅在有数据时出现。办公室任务页主按钮单独由已有测试核对为1个。
+- 数量只描述EditMode创建的当前控件；没有记录改版前基线，也没覆盖所有任务/帮助/设置页的任务步数。文件侧栏两个返回目的地同时可见，是否改成单一上下文返回、同时避免常用回查增加一步，仍需设计验证；本项未达到完整C01.E07验收。
+
+## M5.E07 安小卫移动条件审计
+
+- 活动原地装配会把当前房间`GuidePath`传入Fairy控制器；`VirtualRoomGuidePath`有避开发布几何的路线约束，`FairyAnimationDriver`可设置WalkRate/Running并触发站立反应。`VisitorDialogueFairyBinding`只随对话焦点显示并发出反应，不为当前任务请求对象位置或移动。
+- 现有任务入口尚未把可指示对象锚点映射到已发布安全路径；已核对的Oppy动作资源没有指向对象的动作。未把Wave当作指向，也未接入自动移动。后续需要为正式观察对象建立经核准的锚点/安全停留位与指向动作，再验证遮挡、阅读干扰、暂停及重访生命周期；当前只完成依赖审计，M5.E07保持未完成。
+
+## 2026-09-23 最新源码回归与正式Play
+
+- 欢迎页主动作红绿回归：初始检查确认主按钮文字继承暗色主题文字，不满足主强调动作白字对比；修复`VisitorCoachPresenter`主按钮文字色与`DialogueContractGraphic`主按钮深青绿底后，[`welcome-primary-contrast-green-2.xml`](../artifacts/inspection-editor/welcome-primary-contrast-green-2.xml) 12/12通过。次要按钮仍使用普通表面层级。
+- 音频销毁顺序红绿回归：`OnDestroy`先释放Unity对象后，旅程Dispose再次调用曾触发`MissingReferenceException`；调整为幂等清理并分别处理Unity销毁和托管Dispose后，[`audio-destroy-green-1.xml`](../artifacts/inspection-editor/audio-destroy-green-1.xml) 8/8、[`audio-lifecycle-integration-final-1.xml`](../artifacts/inspection-editor/audio-lifecycle-integration-final-1.xml) 15/15通过。
+- 当前代码控件数量回归[`operation-census-final-2.xml`](../artifacts/inspection-editor/operation-census-final-2.xml) 50/50；画廊逐步指令刷新[`gallery-instruction-final-1.xml`](../artifacts/inspection-editor/gallery-instruction-final-1.xml) 4/4；此前的原地站点组最终回归50/50。上述EditMode执行均显式使用Unity 6000.3.23f1、`-buildTarget Android`和nographics，完成Unity导入/编译，没有构建APK。
+- `tools/check_vr_static.ps1`在本轮最新代码后通过20个源码程序集检查；路由静态核对通过固定VR帧、精确出生/六房对齐、六段真实路线、追踪暂停与比例拒绝。唯一编译警告为`VisitorCoachPresenter.cs`现有的TMP `enableWordWrapping`过时API。
+- Vulkan正式场景Play：`startup-audit-audio-dispose-final-20260923.txt` PASS；欢迎按钮存在且可戳按、全景激活、幕布已揭开、简报就绪、旧开场关闭；正常退出没有`MissingReferenceException`。最新欢迎页运行截图为[`startup-audit-audio-dispose-final-20260923.png`](../artifacts/production-play/startup-audit-audio-dispose-final-20260923.png)，SHA-256 `2F2C772F66EE0D0967BE9D4676B5CA385C380306834CFA8146E07A9F95B8CC67`，这是当前Unity Android目标下的宿主Vulkan Play画面，不是Quest截图。
+- 当前源码连续启动补验：[`startup-audit-current-source-1.txt`](../artifacts/production-play/startup-audit-current-source-1.txt)、[`startup-audit-current-source-2.txt`](../artifacts/production-play/startup-audit-current-source-2.txt)、[`startup-audit-current-source-3.txt`](../artifacts/production-play/startup-audit-current-source-3.txt)依次PASS，三次均Vulkan且确认简报就绪、全景激活与旧开场关闭。首轮自动循环在启动第二次前碰到Unity进程清理延迟并安全中止；确认进程结束后，单独串行重跑第二、三次通过，不把被中止的脚本循环计作测试结果。
+- `git diff --check`当前工作树仍报告TMP字体资产`SourceHanSansSC-Regular SDF.asset`第48、70、87行的尾随空白。该字体资源有未提交的Unity序列化改动，本轮不顺带重写；其余代码检查未报告空白错误。文档证据已记录，仍保留原工作区变更。
+- 仍未完成：EditMode/Play没有试听音频输出；Play截图只覆盖欢迎页，未验收三种样板的完整视觉、坐姿/站姿与手部交互；Quest双手、双眼画面、性能与声音留待最后。未构建APK、安装或启动设备应用。
+
+## 2026-09-23 M2 正式装配隔离与音频开关复核
+
+- 正式`VisitorRuntime`中已通过`PrefabUtility`移除`GlobalFrontendShell`整个旧UI子树、`ObservationCompletionSurface`孤立嵌套prefab及旧运行根/驱动组件；Installer的旧页面、QR、空间权限、Depth和PhysicalAugmentation引用已清空。正式场景中原先被禁用的`ApplicationModeGateway`实例也已移除，源prefab资源保留。启动错误时仍保留单独的`StartupRecallPresenter`。
+- 活动与非活动层级检查先红后绿：[`stationary-prefab-archive-red-2.xml`](../artifacts/inspection-editor/stationary-prefab-archive-red-2.xml)发现`VisitorRuntime/ObservationCompletionSurface`以`activeInHierarchy=True`实例化`KnowledgeMiniGameFrontend`；移除该嵌套prefab后[`stationary-prefab-archive-green-3.xml`](../artifacts/inspection-editor/stationary-prefab-archive-green-3.xml) 3/3通过，断言遗留模块未被正式场景创建、stationary绑定不引用旧页面/QR/空间权限/运行根，且双手真实Poke保持活动。
+- 更宽的旧兼容合跑[`stationary-prefab-runtime-green-1.xml`](../artifacts/inspection-editor/stationary-prefab-runtime-green-1.xml)得到53/65：12项失败中，11项来自`FullScriptRuntimeTests`强制创建已退出产品范围的非原地VisitorPrologue/模式选择路线，正式prefab按M2清理后不再满足其旧装配夹具；另1项断言要求正式stationary绑定非空PrologueTheme。没有为通过旧路线而恢复生产组件。该旧fixture保留并标为Explicit；主题测试改为直接核对归档资源仍完整且正式绑定为空。当前路线新增声音设置真实近触回归，随后[`stationary-production-regression-green-2.xml`](../artifacts/inspection-editor/stationary-production-regression-green-2.xml) StationaryScriptTests、StationaryBindingIsolationTests和FullScriptAudioRuntimeTests合计62/62通过。Unity 6000.3.23f1，Android目标EditMode，实际导入/编译，无APK。
+- `tools/check_vr_static.ps1`通过20个源码程序集与VR路线静态检查；仅有`VisitorCoachPresenter.cs`已有TMP `enableWordWrapping`过时API警告。
+- 三次当前代码Vulkan正式Play [`startup-audit-audio-enabled-current-1.txt`](../artifacts/production-play/startup-audit-audio-enabled-current-1.txt)、[`startup-audit-audio-enabled-current-2.txt`](../artifacts/production-play/startup-audit-audio-enabled-current-2.txt)、[`startup-audit-audio-enabled-current-3.txt`](../artifacts/production-play/startup-audit-audio-enabled-current-3.txt)连续PASS；都确认欢迎按钮Poke入口、全景激活、简报就绪及无旧开场。音频开启后日志中`AudioClip.SetData failed`为0。
+- Play日志反查发现工程原本`ProjectSettings/AudioManager.asset`设为`m_DisableAudio: 1`；Unity 6000.3官方Audio设置说明该项会在独立播放器中停用音频系统，故本项目为支持已授权的BGM/交互音效设为`0`，并让[`test_production_play.ps1`](../tools/test_production_play.ps1)把`AudioClip.SetData failed`列入失败模式。旧三次Play日志各有4条错误，不再作为音频可用的证据；关闭开关后上述三次错误数均为0。该依据见[Unity Audio Manager 6000.3](https://docs.unity3d.com/6000.3/Documentation/Manual/class-AudioManager.html)。
+- 最新欢迎页宿主截图[`startup-audit-audio-enabled-current-3.png`](../artifacts/production-play/startup-audit-audio-enabled-current-3.png) SHA-256为`764F7FA4B5B20A11773488C3A308289E7C598F4A365A9E024CBD5B0B6644CA00`；当前仍能看到安小卫图形呈洋红色，原因未定位。宿主Play没有音频听感反馈；音量、真实设备输出、MV01原声及Quest双耳效果仍待实机。没有构建APK、安装或启动设备。
+
+## 2026-09-23 M3 首房失败画面与音频开关持久化
+
+- 首房缺少大厅资源时，探针日志已确认旅程停在失败状态、没有大厅实例、没有旧开场对象，并显示“大厅暂时无法加载。请轻触按钮重试。”；首次真实渲染[`m3-initial-room-failure-play-2.png`](../artifacts/production-play/m3-initial-room-failure-play-2.png)发现消息使用白字落在浅色面板上，按钮标签也缺少清晰反差。
+- 先在[`initial-room-recovery-contrast-red-1.xml`](../artifacts/inspection-editor/initial-room-recovery-contrast-red-1.xml)添加了失败提示正文色、主按钮底色及白色按钮字检查，原实现按预期失败；将`FullScriptJourneyRuntime`失败说明改为`ClinicalPanelStyle.TextPrimary`，并以`ClinicalPanelStyle.EmphasizeButton`保持深青绿实底后，[`initial-room-recovery-contrast-green-1.xml`](../artifacts/inspection-editor/initial-room-recovery-contrast-green-1.xml) 1/1通过。既有恢复测试[`initial-room-recovery-green.xml`](../artifacts/inspection-editor/initial-room-recovery-green.xml) 6/6仍覆盖资源恢复、释放屏障和真实手部Poke重试。
+- 再次以`-buildTarget Android -force-vulkan`启动正式场景，运行期间仅临时移开`LobbyPanorama.prefab`及`.meta`注入首次加载故障；[`m3-initial-room-failure-play-4.txt`](../artifacts/production-play/m3-initial-room-failure-play-4.txt) PASS。实际截图[`m3-initial-room-failure-play-4.png`](../artifacts/production-play/m3-initial-room-failure-play-4.png)已检查，提示与主按钮可读；SHA-256 `E404C4699D08FE5ED3E7B7197AE00F27F03713BE7B5AA4A3D5A4CC844C285954`。退出Play后资源与`.meta`均恢复，原prefab SHA-256保持`D796FC80D22C8FBC516D624BBB34A3E3544784A42E9492FD116EEA52CFDBAE72`，无临时备份残留。
+- 首次修正画面后的Play [`m3-initial-room-failure-play-3.txt`](../artifacts/production-play/m3-initial-room-failure-play-3.txt) 探针本身报告PASS，但外层门禁因4条`AudioClip.SetData failed`拒收。追到根因是`EndoscopyThemeSetup`的`[InitializeOnLoad]`回调每次编辑器启动都把`m_DisableAudio`重新写为`true`，覆盖了工程资产中的开启设置；旧`EndoscopyReplicaTests`也把静音当作预期。已把配置改为启用音频，并新增独立的`CurrentGuidedJourneyKeepsPlayerAudioEnabled`回归。配置预期红灯[`audio-setup-reversion-red-1.xml`](../artifacts/inspection-editor/audio-setup-reversion-red-1.xml) 0/1 → Android目标配置测试[`audio-setup-reversion-green-2.xml`](../artifacts/inspection-editor/audio-setup-reversion-green-2.xml) 1/1；正式入口身份/Composition Layers与音频配置合同[`current-replica-contracts-green-1.xml`](../artifacts/inspection-editor/current-replica-contracts-green-1.xml) 2/2通过。旧合同对已禁用的管理编辑场景仍误期待其被启用，现按当前“学习场景唯一启用、管理场景仅编辑用途”校正了测试，没有改`EditorBuildSettings`。
+- 当前Android目标原地旅程/隔离/音频合并回归[`m3-current-stationary-regression-final-1.xml`](../artifacts/inspection-editor/m3-current-stationary-regression-final-1.xml) 63/63通过。`tools/check_vr_static.ps1`再次通过20个源码程序集和固定原地VR路线检查；唯一警告仍为`VisitorCoachPresenter.cs`的TMP `enableWordWrapping`过时API。
+- 修复当前源码后串行正式Vulkan Play [`startup-audit-final-source-1.txt`](../artifacts/production-play/startup-audit-final-source-1.txt)、[`startup-audit-final-source-2.txt`](../artifacts/production-play/startup-audit-final-source-2.txt)、[`startup-audit-final-source-3.txt`](../artifacts/production-play/startup-audit-final-source-3.txt)三次均PASS，`AudioClip.SetData failed`均为0；按钮、全景、简报、无旧开场检查通过。最新欢迎页截图[`startup-audit-final-source-3.png`](../artifacts/production-play/startup-audit-final-source-3.png) SHA-256 `516FE16E604DF4A1E9B3995C598B5A9ACDFBF2291D4D9B20CF1F7D86BDBA942E`；已查看，安小卫仍呈洋红色，原因未定位。上述均为当前工程的Android目标Vulkan宿主Play，不是Quest运行或音频听感验收。未构建APK、未安装或启动设备。
+- 未完成边界：真实Quest头部追踪及坐/站观察位、双眼全景效果、运行性能和音频输出仍未测；宿主Play最初缺少无XR预览状态，后续已补齐并完成M1本地验收，M3仍待设备确认。安小卫洋红肖像源图、办公室与其余房间实际画面也继续留在原C01/M4项目。
+
+## 2026-09-23 M1 无XR预览状态及最终启动验收
+
+- 无XR宿主Play里欢迎页仍呈现正常学习入口，初始版本没有告诉体验者当前只是预览。新增[`LobbyPreviewExplainsWhenNoXrDisplayIsActive`](../artifacts/inspection-editor/m1-no-xr-preview-red-1.xml)失败预期后，EditMode在XR显示设备未活动时先以“当前仅显示场景预览，连接头显后用手操作。”断言复现红灯；修改`FullScriptGuideCopy`后[`m1-no-xr-preview-green-1.xml`](../artifacts/inspection-editor/m1-no-xr-preview-green-1.xml)5/5通过，欢迎说明连同状态保持在75字符以内。
+- 状态读取使用Unity 6000.3的[`XRSettings.isDeviceActive`](https://docs.unity3d.com/6000.3/Documentation/ScriptReference/XR.XRSettings-isDeviceActive.html)。官方说明该属性判断XR显示设备是否活动，佩戴者不在场时仍可能为true，因此这里只显示预览状态，不代替`VirtualRoomTrackingOrigin`的真实头手追踪门槛。`ProductionPlayProbe`现在也核对状态消息与XR显示活动值一致。
+- Android目标Vulkan正式Play[`m1-no-xr-preview-play-1.txt`](../artifacts/production-play/m1-no-xr-preview-play-1.txt)、[`m1-no-xr-preview-play-2.txt`](../artifacts/production-play/m1-no-xr-preview-play-2.txt)、[`m1-no-xr-preview-play-3.txt`](../artifacts/production-play/m1-no-xr-preview-play-3.txt)连续三次均PASS：`xrDisplayActive=False`、`previewNoticeVisible=True`，欢迎近触对象、全景、简报和无旧开场检查通过。最新实际宿主截图[`m1-no-xr-preview-play-3.png`](../artifacts/production-play/m1-no-xr-preview-play-3.png) SHA-256 `E2E658E9E78E2CA839EE0E820A5C20A12FDFC4769107907C64F515D638664A03`，预览提示排版无溢出。
+- M1最终当前路线Android目标合并EditMode回归[`startup-audit-all-local-current-1.xml`](../artifacts/inspection-editor/startup-audit-all-local-current-1.xml) 70/70通过；包含StationaryScript、正式绑定隔离、音频、身份与Composition Layers、无XR欢迎文案，以及M4资源导入自动刷新的临时资源回归。`tools/check_vr_static.ps1`通过20个源码程序集及固定VR路线检查；唯一警告仍是`VisitorCoachPresenter.cs`的TMP `enableWordWrapping`过时API。至此M1本地验收勾选；Quest实际头手、双眼及性能继续留在P0/M3。
+- 新截图里安小卫剪影仍为洋红色。对照资源发现`OppyWelcome.png`、Listening、Wonder三份PNG源图本身均是洋红剪影；`VisitorCoachPresenter`对显示图像使用白色`Image.color`。NOTICE标明这些PNG是已批准Oppy模型与现有动作的离线渲染，所以现有证据指向肖像源像素本身，而非运行时Image tint。未编辑这些肖像、模型或材质；最终人物表现仍需按其核准资源路径确认，C01视觉项不勾选。
+- 未构建APK，未安装/启动/卸载Quest设备应用。无XR宿主通过仅说明预览状态明确且启动稳定，不代表Quest画面/输入通过。
+
+## 2026-09-23 M4 资源导入自动刷新
+
+- 在`StationaryScriptTests`新增EditMode UnityTest：向工程导入随机名临时资源，等待`projectChanged`与工作区刷新完成，确认旧房间预览根销毁、独立Preview Scene重建当前房间；测试结束删除本次临时资源。
+- Unity测试运行器在`-nographics`下不能`ShowUtility`，测试不显示窗口后改为直接验证预览Scene与房间根；期间还发现工程内已有未跟踪文件`app/Assets/EndoscopyTheme/Resources/ClinicalCourse/InspectionWorkspaceRefreshProbe.txt`及其`.meta`，没有覆盖或删除它。早期测试框架错误及固定路径冲突留在日志中，随机路径最终结果为[`workspace-auto-import-refresh-4.xml`](../artifacts/inspection-editor/workspace-auto-import-refresh-4.xml) 1/1通过。
+- 合并Android目标EditMode回归[`startup-audit-all-local-current-1.xml`](../artifacts/inspection-editor/startup-audit-all-local-current-1.xml) 70/70通过，确认新增UnityTest与当前路线回归共存；`tools/check_vr_static.ps1`通过20个源码程序集和固定VR路线检查，仍仅报现有TMP `enableWordWrapping`过时API警告。
+- M4其余验收仍未完成：观察位配置保存后重新进入真实Play、各房实际画面、办公室贴图/光照及Quest视觉仍需现场核验。本次未启动设备、构建APK或删除工程中原有的探针文件。
+
+## 2026-09-24 画廊卡片朝向、全房间Play覆盖与交互回归
+
+- 用户指出画廊运行画面可能显示了图像背面。正式Play截图确认属实：`PositionGalleryCards`以固定180度偏航旋转卡片，使平面内容法线背离观察者。新增`RoomGalleryShowsSevenIllustrativeRoomImagesAndStaysWorldFixed`法线断言；修复前[`startup-audit-gallery-facing-red-1.xml`](../artifacts/inspection-editor/startup-audit-gallery-facing-red-1.xml)按预期失败，中心办公室卡片点积为-0.9975；逐张按观察者在画廊本地空间的位置计算卡片朝向后，[`startup-audit-gallery-facing-green-1.xml`](../artifacts/inspection-editor/startup-audit-gallery-facing-green-1.xml) 1/1通过。新正式Play图[`startup-audit-gallery-facing-play-1-02-lobby-gallery.png`](../artifacts/production-play/startup-audit-gallery-facing-play-1-02-lobby-gallery.png)已查看，中心办公室缩略图和各卡片文字现为正向；最终办公室汇总图[`startup-audit-gallery-facing-play-1-26-r01-office-first-choice.png`](../artifacts/production-play/startup-audit-gallery-facing-play-1-26-r01-office-first-choice.png)标题/正文保持深色可读。
+- 使用[`tools/test_production_play.ps1`](../tools/test_production_play.ps1)以Android目标、Vulkan重新进入当前正式场景，`startup-audit-gallery-facing-play-1.txt` PASS并捕获26张图片：大厅欢迎/画廊、办公室初访资料界面、储存、候诊、GI、RESP、洗消及办公室最终汇总。每个已配置房间都有生产房间加载器的运行界面截图。捕获说明记录探针使用合成指尖样本经过生产对话命中路径、可见UI按钮及生产旅程访问API；`XR display inactive`，因此不验证自然手追踪、完整手部路线、头显双眼效果或Quest性能。GI/RESP画面仍缺少对应诊疗内容，没有加入灰盒替代物。
+- 编辑器工作区截图[`startup-audit-all-configured-rooms-1`](../artifacts/inspection-workspace/startup-audit-all-configured-rooms-1)现覆盖配置中的7间房×坐姿/站姿，共14张Scene预览。GI/RESP预览为空场景状态，办公室观察视点有遮挡等问题仍开放；此批图片不作为运行画面验收。
+- 较宽的当前路线合跑曾发现`ClinicalHandFixture`把合成指尖从玩家身后长距离瞬移到控件，SDK会先命中路径上经过的房间卡片。夹具现先在目标前方建立追踪采样，再以短程穿越执行实际`PokeInteractor`戳按；单独的画廊跳过/重看测试通过。`EndoscopyReplicaTests.ActualMetaSurfaceCatchesFingerSweepAndRejectsPointerSubmit`也在清理时显式停用PokeInteractor与PokeInteractable，避免销毁表面后污染后续测试。最终当前路线Android目标EditMode报告[`startup-audit-current-route-final-4.xml`](../artifacts/inspection-editor/startup-audit-current-route-final-4.xml) 69/69通过，覆盖原地脚本、引导绑定隔离、音频及上述Meta真实表面测试；没有构建APK。
+- 最新[`tools/check_vr_static.ps1`](../tools/check_vr_static.ps1)通过20个源码程序集与VR路线静态断言，仍只有`VisitorCoachPresenter.cs`的TMP `enableWordWrapping`过时API警告。此前更宽合跑[`startup-audit-current-final-local-1.xml`](../artifacts/inspection-editor/startup-audit-current-final-local-1.xml)包含两个未纳入当前路线集合的验证失败：旧全局架构校验仍按已退出的旧应用装配规则扫描，内容发布校验将资源作用域的`ReferenceDialogueTheme.asset`当作第二份全局主题。其余级联`MissingReferenceException`由上述测试夹具表面清理缺陷触发，已修复并在69项当前路线合跑中回归。全量历史EditMode套件未通过/未据此签收；是否继续保留并修订两项旧合同需结合其旧发布工具是否仍受支持处理。
+- 仍待完成：房间图仍是训练场景插画而非每间实际房间画面；真实头显坐姿/站姿、左右手触达、旋转手势、双眼显示/透视/性能和声音听感均未验证。未构建APK、未安装或启动Quest应用。
+
+## 2026-09-24 画廊视觉层级与拖动阻断修复
+
+- 用户指出画廊UI仍旧且无法滑动。上一轮只修正卡片反面，没有完成视觉重构；旧页面继续使用通用大按钮。通用按钮视觉按控件高度生成半高圆角，使548单位高的房间入口变成胶囊形，推荐房间标题还被手动覆成深色，压在深绿卡片上对比不足。
+- 房间入口改成专用低圆角卡片；当前/推荐位置拆成两行，中心推荐房间使用高对比强调，缩窄卡片并加大路线标题。短把手改为约28厘米宽，原捕获半径14厘米，因此整根把手均落在有效捏合区；把手和教程操作移到卡片前方并与卡片投影错开，动态教程步骤移到把手上方，静态把手一直提示左右拖动。
+- 拖动原先要求`Application.platform == Android`，所以Unity Editor/XR Link即使提供真实`IHand`追踪也每帧取消手势。开放XR Play手源后，正式Play暴露输入组件中的未绑定`HandRef`：Meta `HandRef.IsConnected`会解引用空的底层`Hand`并抛异常，导致`TickStationary`提早退出，待处理选房操作无法运行；对应阶段诊断留在[`gallery-ui-redesign-20260924-3.txt`](../artifacts/production-play/gallery-ui-redesign-20260924-3.txt)及其日志。采样器现在读取HandRef实际包装的手源，并跳过未绑定/销毁的对象；输入仍只来自Meta手部追踪，不新增鼠标或键盘路径。TDD红测[`gallery-handref-red-20260924-1.xml`](../artifacts/inspection-editor/gallery-handref-red-20260924-1.xml)先复现SDK `HandRef.IsConnected`空引用；修复后的画廊/教程/近触局部用例为8/8。
+- 最终Android目标EditMode回归[`gallery-route-regression-final-20260924-2.xml`](../artifacts/inspection-editor/gallery-route-regression-final-20260924-2.xml)73/73通过，包含新增UI层级、把手捕获范围、HandRef无底层手源、Meta近触、引导绑定、音频及原地流程测试。最终正式场景Vulkan宿主Play[`gallery-ui-final-20260924-2.txt`](../artifacts/production-play/gallery-ui-final-20260924-2.txt) PASS并覆盖26张画面，当前大厅画廊截图为[`gallery-ui-final-20260924-2-02-lobby-gallery.png`](../artifacts/production-play/gallery-ui-final-20260924-2-02-lobby-gallery.png)；没有Unity更新异常，未绑定手源时选择路线继续工作。`tools/check_vr_static.ps1`通过20个程序集及固定VR路线静态断言，唯一警告仍是TMP `enableWordWrapping`过时API。
+- Play证据来自当前正式场景、Android目标、Vulkan宿主，记录为`XR display inactive`；它证明当前UI、卡片近触路由和无追踪引用的恢复，不证明真实手部拖动。未生成或安装APK，未启动Quest。M5.E04资源与Quest体验验收仍保持未完成：须用实际房间对应图替换示意插画，并在用户验收/最后的设备阶段检查坐姿、站姿、左右手、拖动方向/距离及双眼画面。
+
+## 2026-09-24 整体UI质感、办公室分类与防误触
+
+- 依据用户提供的办公室实际画面，旧“选择主题→选择电子记录任务→阅读说明→打开电脑记录”至少多出两次中转，任务页同时出现上一/下一细项、选择内容、打开资料、下一检查点等重复或当前不可用的操作。办公室首页现按办公现场、电子记录、纸质资料三类显示；点电子记录直接到模拟电脑，点纸质资料直接到对应文件，返回仍保留会话和阅读位置。旧路径由3次选择缩为1次。电脑表格直接点行/字段，移去上一条/下一条；通用任务末项不再重复切房入口，细项边界不显示无效翻页，储存库仅保留一个内容选择入口。
+- 共用面板增加暖白实底、上沿洗色、细边与统一深青绿主动作；欢迎页增加圆角轮廓/阴影，储存库选择面板由760单位高压缩至560并统一标题栏。禁用按钮立即换成灰色，避免看似可点；常驻声音入口移到左上角，避免从任务面板后露出半截。项目既有模型、材质和洋红肖像源图未改，由负责模型贴图的另一对话继续处理。
+- 画廊保留真实Meta手输入：原捏合点只取食指尖且离把手远，现捏合时取食指/拇指中点；把手加宽到约32厘米，抓取半径19厘米，位置调整到坐姿斜距约66厘米，完整位于当前Play视野。两侧可选近卡保持清晰，远卡降低叠影。普通按钮需短暂悬停后持续按压约0.14秒，房间卡约0.20秒；离开、抬手和重复Select不会误提交，按面显示确认进度。数值是当前实现与局部验证结果，Quest实际手势阈值需现场调校。
+- 快速靠近后立即戳到按面时，SDK可能只发一次Select；现按下会先锁定手指并等待悬停稳定时长，再计持续按压，避免“按住也没有反应”。提前离开仍取消；`FastIntentionalPokeCanFinishItsHoldWithoutASecondSelectEvent`和一次提交/抬手取消用例包含在最终82/82回归中。
+- Android目标导入/编译和现行流程EditMode[`ui-current-route-final-20260924-2.xml`](../artifacts/inspection-editor/ui-current-route-final-20260924-2.xml)82/82通过；把手局部[`gallery-reach-current-20260924-1.xml`](../artifacts/inspection-editor/gallery-reach-current-20260924-1.xml)6/6。[`tools/check_vr_static.ps1`](../tools/check_vr_static.ps1)通过20个程序集与VR路线断言，仍仅有TMP旧API警告。正式场景Android目标Vulkan宿主Play[`ui-final-source-20260924-1.txt`](../artifacts/production-play/ui-final-source-20260924-1.txt)PASS，捕获24张当前运行图；已检查[`欢迎`](../artifacts/production-play/ui-final-source-20260924-1-01-lobby-welcome.png)、[`大厅画廊`](../artifacts/production-play/ui-final-source-20260924-1-02-lobby-gallery.png)、[`办公室分类`](../artifacts/production-play/ui-final-source-20260924-1-04-office-topic-selector.png)、[`模拟电脑`](../artifacts/production-play/ui-final-source-20260924-1-05-office-electronic-records.png)及[`储存库`](../artifacts/production-play/ui-final-source-20260924-1-09-r02-storage-first-choice.png)。画廊PNG SHA-256 `CBE71CF09AFA1370505AEBD543567C7F21CDCD0EABDECEC058A0134E3299FC81`，该哈希来自最终源码Play截图。
+- 一次显式选择的归档`FullScriptRuntimeTests.SoundSettingsAreNearTouchAdjustableAndRemainWorldFixed`仍在旧非原地入口下报告声音入口Hover缺失；该类已标记`Explicit`且不属于正式启动链。现行`StationaryScriptTests.SoundSettingsUseNearTouchAndRemainWorldFixed`及当前流程整组82/82通过。归档兼容性不以正式流程结果代签，后续若决定继续支持旧入口再单独修订。
+- Play捕获说明为`XR display inactive`；按钮选择在探针内使用当前Unity UI动作，只有对话入口使用生产Poke合成指尖路径。真实Quest双手捏合拖动、戳按时长、坐姿/站姿可达、双眼文字与音效反馈未实测，不能由宿主Play或EditMode签收。房间缩略图仍是训练示意图，未替换为每房当前实景；GI/RESP等房间内容缺件仍按原矩阵保留。未构建APK、未安装或启动设备应用。

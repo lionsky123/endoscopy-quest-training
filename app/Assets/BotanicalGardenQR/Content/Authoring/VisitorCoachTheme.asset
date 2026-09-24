@@ -12,18 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 578a21a524c24524885760578d7b2031, type: 3}
   m_Name: VisitorCoachTheme
   m_EditorClassIdentifier: BotanicalGardenQR.Configuration.Runtime::BotanicalGardenQR.Configuration.Runtime.VisitorCoachThemeAsset
+  _confirmSound: {fileID: 8300000, guid: 1fa66e479047fce43bcde80d570332df, type: 3}
+  _guidanceChapter: "\u5730\u56FE\u5F15\u822A"
+  _guidanceDepartureCopy: "\u672C\u7AD9\u5B66\u4E60\u5DF2\u5B8C\u6210\u3002\u4E0B\u4E00\u70B9\u4F4D\uFF1A{0}\u3002\u8F7B\u89E6\u51FA\u53D1\u6309\u94AE\uFF0C\u518D\u8DDF\u7740\u6211\u548C\u5730\u9762\u7684\u8DEF\u7EBF\u7EE7\u7EED\u524D\u8FDB\u3002"
+  _guidanceDepartureLabel: "\u524D\u5F80\u4E0B\u4E00\u7AD9"
+  _guidanceUnavailableCopy: "\u8FD9\u4E00\u6BB5\u6682\u65F6\u65E0\u6CD5\u5E26\u8DEF\u3002\u8BF7\u786E\u8BA4\u624B\u90E8\u4E0E\u5934\u663E\u8FFD\u8E2A\u6B63\u5E38\uFF0C\u518D\u91CD\u65B0\u5F00\u59CB\u3002"
+  _guidanceEndLabel: "\u6536\u8D77\u63D0\u793A"
   _presentationPrefab: {fileID: 1649305300181074337, guid: aa8c077921260bb49ab97d6e9d3cb4f9, type: 3}
   _listeningPortrait: {fileID: 21300000, guid: 4b3350511aa8a7243a71ec0c9f870f26, type: 3}
   _welcomePortrait: {fileID: 21300000, guid: 85e962dc3e6b90b499b5b59763f2dcff, type: 3}
   _wonderPortrait: {fileID: 21300000, guid: 9564f182b115b364799698603206e515, type: 3}
   _directSeconds: 4
-  _confirmSound: {fileID: 8300000, guid: 1fa66e479047fce43bcde80d570332df, type: 3}
   _demonstrationSeconds: 8
   _recoverySeconds: 12
   _viewerDistance: 0.5
-  _panelPixels:
-    x: 880
-    y: 370
+  _panelPixels: {x: 880, y: 370}
   _canvasScale: 0.00065
   _detailFontSize: 24
   _speakerFontSize: 24
@@ -32,149 +35,97 @@ MonoBehaviour:
   _confirmDebounceSeconds: 0.18
   _fairyAttentionSeconds: 3
   _dialogueVerticalOffset: -0.18
-  _fairyDialogueHorizontalOffset:
-    x: -0.35
-    y: 0.3
-  _fairySpeakerName: 小精灵
-  _panelColor:
-    r: 0.95
-    g: 0.965
-    b: 0.95
-    a: 0.985
-  _textColor:
-    r: 0.065
-    g: 0.12
-    b: 0.13
-    a: 1
-  _detailTextColor:
-    r: 0.23
-    g: 0.34
-    b: 0.35
-    a: 1
-  _accentColor:
-    r: 0.24
-    g: 0.88
-    b: 0.69
-    a: 1
-  _speakerColor:
-    r: 0.09
-    g: 0.37
-    b: 0.35
-    a: 1
-  _toolPreparationIntroduction: 学习册记录发现，卷轴为我们指路。把一只手放在胸前，掌心朝上，稍停片刻——试试看。
-  _toolPreparationPracticeCopy: '我在这里等你。
-
-    一只手放在胸前，掌心朝上，稍停片刻。'
-  _toolPreparationSummonedCopy: '看，它们回应你了！
-
-    先用“收起”送它们回去，我们就可以出发。'
-  _toolPreparationSuccessCopy: 它们认得你了，以后就这样呼唤它们。
-  _toolPreparationDeferredCopy: 没关系，方便时我们再试。
-  _toolPreparationReadyCopy: 靠近我，一起去第一站吧。离得远了，我会等你。
-  _toolPreparationStartLabel: 开始探索
+  _dialogueReadingTiltDegrees: 8
+  _fairyDialogueHorizontalOffset: {x: -0.35, y: 0.3}
+  _fairySpeakerName: "\u5C0F\u7CBE\u7075"
+  _panelColor: {r: 0.968, g: 0.961, b: 0.976, a: 1}
+  _textColor: {r: 0.13, g: 0.115, b: 0.17, a: 1}
+  _detailTextColor: {r: 0.32, g: 0.29, b: 0.37, a: 1}
+  _accentColor: {r: 0.31, g: 0.25, b: 0.66, a: 1}
+  _speakerColor: {r: 0.31, g: 0.25, b: 0.66, a: 1}
+  _toolPreparationReadyCopy: "\u9760\u8FD1\u6211\uFF0C\u4E00\u8D77\u53BB\u7B2C\u4E00\u7AD9\u5427\u3002\u79BB\u5F97\u8FDC\u4E86\uFF0C\u6211\u4F1A\u7B49\u4F60\u3002"
+  _toolPreparationIntroduction: "\u5B66\u4E60\u518C\u8BB0\u5F55\u53D1\u73B0\uFF0C\u5377\u8F74\u4E3A\u6211\u4EEC\u6307\u8DEF\u3002\u628A\u4E00\u53EA\u624B\u653E\u5728\u80F8\u524D\uFF0C\u638C\u5FC3\u671D\u4E0A\uFF0C\u7A0D\u505C\u7247\u523B\u2014\u2014\u8BD5\u8BD5\u770B\u3002"
+  _toolPreparationPracticeCopy: "\u6211\u5728\u8FD9\u91CC\u7B49\u4F60\u3002\n\u4E00\u53EA\u624B\u653E\u5728\u80F8\u524D\uFF0C\u638C\u5FC3\u671D\u4E0A\uFF0C\u7A0D\u505C\u7247\u523B\u3002"
+  _toolPreparationSummonedCopy: "\u770B\uFF0C\u5B83\u4EEC\u56DE\u5E94\u4F60\u4E86\uFF01\n\u5148\u7528\u201C\u6536\u8D77\u201D\u9001\u5B83\u4EEC\u56DE\u53BB\uFF0C\u6211\u4EEC\u5C31\u53EF\u4EE5\u51FA\u53D1\u3002"
+  _toolPreparationSuccessCopy: "\u5B83\u4EEC\u8BA4\u5F97\u4F60\u4E86\uFF0C\u4EE5\u540E\u5C31\u8FD9\u6837\u547C\u5524\u5B83\u4EEC\u3002"
+  _toolPreparationDeferredCopy: "\u6CA1\u5173\u7CFB\uFF0C\u65B9\u4FBF\u65F6\u6211\u4EEC\u518D\u8BD5\u3002"
+  _toolPreparationStartLabel: "\u5F00\u59CB\u63A2\u7D22"
   _cues:
   - _cueKey: entry.qr.confirm
     _globalOverlay: 1
     _dialoguePages:
-    - 第一站就在前面，跟我走到光圈。
-    - 到达后，伸手轻触“开启发现”。
-    - 完成后，我就带你进入这一站的学习。
+    - "\u7B2C\u4E00\u7AD9\u5C31\u5728\u524D\u9762\uFF0C\u8DDF\u6211\u8D70\u5230\u5149\u5708\u3002"
+    - "\u5230\u8FBE\u540E\uFF0C\u4F38\u624B\u8F7B\u89E6\u201C\u5F00\u542F\u53D1\u73B0\u201D\u3002"
+    - "\u5B8C\u6210\u540E\uFF0C\u6211\u5C31\u5E26\u4F60\u8FDB\u5165\u8FD9\u4E00\u7AD9\u7684\u5B66\u4E60\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
     - {fileID: 0}
-    _initial: '轮到你了
-
-      到达光圈后，轻触“开启发现”'
+    _initial: "\u8F6E\u5230\u4F60\u4E86\n\u5230\u8FBE\u5149\u5708\u540E\uFF0C\u8F7B\u89E6\u201C\u5F00\u542F\u53D1\u73B0\u201D"
     _direct:
     _demonstration:
-    _recovery: '找不到入口？
-
-      跟随小精灵和路线到站，再轻触“开启发现”'
+    _recovery: "\u627E\u4E0D\u5230\u5165\u53E3\uFF1F\n\u8DDF\u968F\u5C0F\u7CBE\u7075\u548C\u8DEF\u7EBF\u5230\u7AD9\uFF0C\u518D\u8F7B\u89E6\u201C\u5F00\u542F\u53D1\u73B0\u201D"
   - _cueKey: collection.artifact.grab
     _globalOverlay: 0
     _dialoguePages:
-    - 抓住任意一侧发光页边，我们一起打开。
-    - 向外慢慢拉，看看这一页里藏着什么。
+    - "\u6293\u4F4F\u4EFB\u610F\u4E00\u4FA7\u53D1\u5149\u9875\u8FB9\uFF0C\u6211\u4EEC\u4E00\u8D77\u6253\u5F00\u3002"
+    - "\u5411\u5916\u6162\u6162\u62C9\uFF0C\u770B\u770B\u8FD9\u4E00\u9875\u91CC\u85CF\u7740\u4EC0\u4E48\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
-    _initial: 捏住发光页边，向外拉开
-    _direct: 左手或右手都可以，松手后还能接着抓
-    _demonstration: 向外拉约一掌宽，图片会跟着展开
-    _recovery: 抓取困难时可以选择“稍后收取”，之后从学习册恢复
+    _initial: "\u634F\u4F4F\u53D1\u5149\u9875\u8FB9\uFF0C\u5411\u5916\u62C9\u5F00"
+    _direct: "\u5DE6\u624B\u6216\u53F3\u624B\u90FD\u53EF\u4EE5\uFF0C\u677E\u624B\u540E\u8FD8\u80FD\u63A5\u7740\u6293"
+    _demonstration: "\u5411\u5916\u62C9\u7EA6\u4E00\u638C\u5BBD\uFF0C\u56FE\u7247\u4F1A\u8DDF\u7740\u5C55\u5F00"
+    _recovery: "\u6293\u53D6\u56F0\u96BE\u65F6\u53EF\u4EE5\u9009\u62E9\u201C\u7A0D\u540E\u6536\u53D6\u201D\uFF0C\u4E4B\u540E\u4ECE\u5B66\u4E60\u518C\u6062\u590D"
   - _cueKey: collection.artifact.place
     _globalOverlay: 0
     _dialoguePages:
-    - 慢慢拉开，让图片完整展开。
-    - 看完后把页边带回来合拢，我们就记下这次见闻。
+    - "\u6162\u6162\u62C9\u5F00\uFF0C\u8BA9\u56FE\u7247\u5B8C\u6574\u5C55\u5F00\u3002"
+    - "\u770B\u5B8C\u540E\u628A\u9875\u8FB9\u5E26\u56DE\u6765\u5408\u62E2\uFF0C\u6211\u4EEC\u5C31\u8BB0\u4E0B\u8FD9\u6B21\u89C1\u95FB\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
-    _initial: 向外拉开；充分展开后再合拢入册
-    _direct: 可以先轻拨页中的图片，再捏住页边合拢
-    _demonstration: 松手只会悬停；抓住页边带回来才会合拢
-    _recovery: 随时可以松手休息，重新抓住后接着操作
+    _initial: "\u5411\u5916\u62C9\u5F00\uFF1B\u5145\u5206\u5C55\u5F00\u540E\u518D\u5408\u62E2\u5165\u518C"
+    _direct: "\u53EF\u4EE5\u5148\u8F7B\u62E8\u9875\u4E2D\u7684\u56FE\u7247\uFF0C\u518D\u634F\u4F4F\u9875\u8FB9\u5408\u62E2"
+    _demonstration: "\u677E\u624B\u53EA\u4F1A\u60AC\u505C\uFF1B\u6293\u4F4F\u9875\u8FB9\u5E26\u56DE\u6765\u624D\u4F1A\u5408\u62E2"
+    _recovery: "\u968F\u65F6\u53EF\u4EE5\u677E\u624B\u4F11\u606F\uFF0C\u91CD\u65B0\u6293\u4F4F\u540E\u63A5\u7740\u64CD\u4F5C"
   - _cueKey: collection.artifact.place-retry
     _globalOverlay: 0
     _dialoguePages:
-    - 没关系，这一页会等着你。
-    - 重新抓住发光页边，继续刚才的展开。
+    - "\u6CA1\u5173\u7CFB\uFF0C\u8FD9\u4E00\u9875\u4F1A\u7B49\u7740\u4F60\u3002"
+    - "\u91CD\u65B0\u6293\u4F4F\u53D1\u5149\u9875\u8FB9\uFF0C\u7EE7\u7EED\u521A\u624D\u7684\u5C55\u5F00\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
-    _initial: 重新抓住页边，接着展开
-    _direct: 左右两侧都可以抓，当前进度会保留
-    _demonstration: 展开后合拢即可入册，不需要投放
-    _recovery: 仍然困难时选择“稍后收取”，之后再从学习册恢复
+    _initial: "\u91CD\u65B0\u6293\u4F4F\u9875\u8FB9\uFF0C\u63A5\u7740\u5C55\u5F00"
+    _direct: "\u5DE6\u53F3\u4E24\u4FA7\u90FD\u53EF\u4EE5\u6293\uFF0C\u5F53\u524D\u8FDB\u5EA6\u4F1A\u4FDD\u7559"
+    _demonstration: "\u5C55\u5F00\u540E\u5408\u62E2\u5373\u53EF\u5165\u518C\uFF0C\u4E0D\u9700\u8981\u6295\u653E"
+    _recovery: "\u4ECD\u7136\u56F0\u96BE\u65F6\u9009\u62E9\u201C\u7A0D\u540E\u6536\u53D6\u201D\uFF0C\u4E4B\u540E\u518D\u4ECE\u5B66\u4E60\u518C\u6062\u590D"
   - _cueKey: atlas-hub.palm.summon
     _globalOverlay: 1
     _dialoguePages:
-    - '书本 · 学习图鉴
-
-      这里记录你收集到的学习发现。
-
-      探索途中，可以打开它回看收藏。'
-    - '卷轴 · 地图开关
-
-      轻触开关地图，收起工具不关地图。
-
-      路线和光柱会指明目的地。'
-    - '掌心朝上，稍停呼出工具。
-
-      “当前发现”找回到站提示。
-
-      在路线旁空旷处点“召回精灵”。'
+    - "\u4E66\u672C \xB7 \u5B66\u4E60\u56FE\u9274\n\u8FD9\u91CC\u8BB0\u5F55\u4F60\u6536\u96C6\u5230\u7684\u5B66\u4E60\u53D1\u73B0\u3002\n\u63A2\u7D22\u9014\u4E2D\uFF0C\u53EF\u4EE5\u6253\u5F00\u5B83\u56DE\u770B\u6536\u85CF\u3002"
+    - "\u5377\u8F74 \xB7 \u5730\u56FE\u5F00\u5173\n\u8F7B\u89E6\u5F00\u5173\u5730\u56FE\uFF0C\u6536\u8D77\u5DE5\u5177\u4E0D\u5173\u5730\u56FE\u3002\n\u8DEF\u7EBF\u548C\u5149\u67F1\u4F1A\u6307\u660E\u76EE\u7684\u5730\u3002"
+    - "\u638C\u5FC3\u671D\u4E0A\uFF0C\u7A0D\u505C\u547C\u51FA\u5DE5\u5177\u3002\n\u201C\u5F53\u524D\u53D1\u73B0\u201D\u627E\u56DE\u5230\u7AD9\u63D0\u793A\u3002\n\u5728\u8DEF\u7EBF\u65C1\u7A7A\u65F7\u5904\u70B9\u201C\u53EC\u56DE\u7CBE\u7075\u201D\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
     - {fileID: 0}
-    _initial: '任一只手抬到胸前，掌心朝上，食指放松。
-
-      稍停一下，等书本与卷轴出现。'
-    _direct: 任一只手都可以；掌心朝上，食指不要捏合
-    _demonstration: 不需要握拳或凝视；菜单出现后，再触碰书或卷轴选择功能
-    _recovery: '不用着急，掌心朝上，食指保持放松。
-
-      也可以选择“稍后再学”，先去探索。'
+    _initial: "\u4EFB\u4E00\u53EA\u624B\u62AC\u5230\u80F8\u524D\uFF0C\u638C\u5FC3\u671D\u4E0A\uFF0C\u98DF\u6307\u653E\u677E\u3002\n\u7A0D\u505C\u4E00\u4E0B\uFF0C\u7B49\u4E66\u672C\u4E0E\u5377\u8F74\u51FA\u73B0\u3002"
+    _direct: "\u4EFB\u4E00\u53EA\u624B\u90FD\u53EF\u4EE5\uFF1B\u638C\u5FC3\u671D\u4E0A\uFF0C\u98DF\u6307\u4E0D\u8981\u634F\u5408"
+    _demonstration: "\u4E0D\u9700\u8981\u63E1\u62F3\u6216\u51DD\u89C6\uFF1B\u83DC\u5355\u51FA\u73B0\u540E\uFF0C\u518D\u89E6\u78B0\u4E66\u6216\u5377\u8F74\u9009\u62E9\u529F\u80FD"
+    _recovery: "\u4E0D\u7528\u7740\u6025\uFF0C\u638C\u5FC3\u671D\u4E0A\uFF0C\u98DF\u6307\u4FDD\u6301\u653E\u677E\u3002\n\u4E5F\u53EF\u4EE5\u9009\u62E9\u201C\u7A0D\u540E\u518D\u5B66\u201D\uFF0C\u5148\u53BB\u63A2\u7D22\u3002"
   - _cueKey: panorama.entry
     _globalOverlay: 0
     _dialoguePages:
-    - 这里可以环顾四周，转动身体寻找发光气泡。
-    - 用准星对准气泡，停留到进度完成即可选择。
-    - 想回去时，找到左侧的“返回观察”气泡。
+    - "\u8FD9\u91CC\u53EF\u4EE5\u73AF\u987E\u56DB\u5468\uFF0C\u8F6C\u52A8\u8EAB\u4F53\u5BFB\u627E\u53D1\u5149\u6C14\u6CE1\u3002"
+    - "\u7528\u51C6\u661F\u5BF9\u51C6\u6C14\u6CE1\uFF0C\u505C\u7559\u5230\u8FDB\u5EA6\u5B8C\u6210\u5373\u53EF\u9009\u62E9\u3002"
+    - "\u60F3\u56DE\u53BB\u65F6\uFF0C\u627E\u5230\u5DE6\u4FA7\u7684\u201C\u8FD4\u56DE\u89C2\u5BDF\u201D\u6C14\u6CE1\u3002"
     _dialogueAudio:
     - {fileID: 0}
     - {fileID: 0}
     - {fileID: 0}
-    _initial: '轮到你了
-
-      转动身体观察四周，准星对准气泡并停留确认'
-    _direct: 对准目标气泡，停留到进度完成后移开准星
-    _demonstration: 左侧气泡返回；中间和右侧气泡进入不同内容
-    _recovery: 找不到出口？对准左侧的“返回观察”气泡并停留确认
-  _guidanceChapter: 地图引航
-  _guidanceUnavailableCopy: 这一段暂时无法带路。请确认手部与头显追踪正常，再重新开始。
-  _guidanceEndLabel: 收起提示
-  _guidanceDepartureCopy: 本站学习已完成。下一点位：{0}。轻触出发按钮，再跟着我和地面的路线继续前进。
-  _guidanceDepartureLabel: 前往下一站
+    _initial: "\u8F6E\u5230\u4F60\u4E86\n\u8F6C\u52A8\u8EAB\u4F53\u89C2\u5BDF\u56DB\u5468\uFF0C\u51C6\u661F\u5BF9\u51C6\u6C14\u6CE1\u5E76\u505C\u7559\u786E\u8BA4"
+    _direct: "\u5BF9\u51C6\u76EE\u6807\u6C14\u6CE1\uFF0C\u505C\u7559\u5230\u8FDB\u5EA6\u5B8C\u6210\u540E\u79FB\u5F00\u51C6\u661F"
+    _demonstration: "\u5DE6\u4FA7\u6C14\u6CE1\u8FD4\u56DE\uFF1B\u4E2D\u95F4\u548C\u53F3\u4FA7\u6C14\u6CE1\u8FDB\u5165\u4E0D\u540C\u5185\u5BB9"
+    _recovery: "\u627E\u4E0D\u5230\u51FA\u53E3\uFF1F\u5BF9\u51C6\u5DE6\u4FA7\u7684\u201C\u8FD4\u56DE\u89C2\u5BDF\u201D\u6C14\u6CE1\u5E76\u505C\u7559\u786E\u8BA4"

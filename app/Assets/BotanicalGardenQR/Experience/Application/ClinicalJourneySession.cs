@@ -165,7 +165,8 @@ namespace BotanicalGardenQR.Experience.Application
         }
 
         public bool TryPrepareRoomTransition(string targetRoomId, bool atDoor, bool handConfirmed,
-            out ClinicalJourneyTransitionTicket ticket, out ClinicalJourneyTransitionFailure failure)
+            out ClinicalJourneyTransitionTicket ticket, out ClinicalJourneyTransitionFailure failure,
+            bool roomGallerySelection = false)
         {
             ticket = default;
             if (HasPendingTransition)
@@ -196,12 +197,12 @@ namespace BotanicalGardenQR.Experience.Application
             // The cursor records the last mainline room completed, not the room
             // currently occupied after a permitted revisit.
             var next = _definition.IsMainlineNext(_mainlineIndex, targetRoomId);
-            if (!next && !_visitedRooms.Contains(targetRoomId))
+            if (!roomGallerySelection && !next && !_visitedRooms.Contains(targetRoomId))
             {
                 failure = ClinicalJourneyTransitionFailure.FutureRoomLocked;
                 return false;
             }
-            if (!_definition.CanTransfer(CurrentRoomId, targetRoomId))
+            if (!roomGallerySelection && !_definition.CanTransfer(CurrentRoomId, targetRoomId))
             {
                 failure = ClinicalJourneyTransitionFailure.TransitionNotAllowed;
                 return false;

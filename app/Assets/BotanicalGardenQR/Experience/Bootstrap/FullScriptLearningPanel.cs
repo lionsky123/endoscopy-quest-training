@@ -45,11 +45,11 @@ namespace BotanicalGardenQR.Bootstrap
             board.SetPositionAndRotation(_scriptPose.position,_scriptPose.rotation);
             var canvas=_panel.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;
             canvas.worldCamera=_viewer.GetComponent<Camera>();canvas.sortingOrder=130;
-            Fill(board,new Color(.96f,.98f,1),3);
+            Frame(board);
             void Copy(string name,string body,float y,float height,int size)
             {
                 var text=Label(board,_font,name,0,y,800,height,size);text.fontSharedMaterial=_scriptTextMaterial;
-                text.text=body;text.color=new Color(.04f,.12f,.18f);
+                text.text=body;text.color=ClinicalPanelStyle.TextPrimary;
             }
             var attempt=_owner.Session.GetLearningAttempt(_practiceTask,_practiceCriterion);
             Copy("LearningQuestion",_practiceQuestion.Title,211,108,29);

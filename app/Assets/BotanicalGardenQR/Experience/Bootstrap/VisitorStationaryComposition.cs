@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using BotanicalGardenQR.Experience.Contracts;
 using BotanicalGardenQR.Fairy.Backend;
 using BotanicalGardenQR.VisitorCoach.Frontend;
+using Oculus.Interaction;
+using Oculus.Interaction.Input;
 using UnityEngine;
 
 namespace BotanicalGardenQR.Bootstrap
@@ -24,7 +27,7 @@ namespace BotanicalGardenQR.Bootstrap
                 input.Configure(viewer.GetComponent<Camera>(), platform.EventSystem);
                 input.SetHandOnly(true);
                 ownership.Register(input.Unconfigure);
-                ui.GazeReticle.SetPresentationEnabled(false);
+                ui.GazeReticle?.SetPresentationEnabled(false);
 
                 var parent = ui.DisplayRoot ? ui.DisplayRoot.parent : null;
                 var dialogueObject = InstantiateConfiguredPresentation(config.VisitorCoachTheme.PresentationPrefab,
@@ -33,6 +36,18 @@ namespace BotanicalGardenQR.Bootstrap
                 var dialogue = RequiredComponent<VisitorCoachPresenter>(dialogueObject, "Stationary dialogue");
                 ownership.Register(dialogue.Dispose);
                 dialogue.Configure(viewer, config.VisitorCoachTheme, config.UiDefaults.SharedFont, input);
+                Action<AudioClip> confirmationSound = visit.PlayConfirmationSound;
+                dialogue.ConfirmationSoundRequested += confirmationSound;
+                ownership.Register(() => dialogue.ConfirmationSoundRequested -= confirmationSound);
+                var pokeHands = new List<IHand>();
+                foreach (var interactor in platform.InteractionRigRoot.GetComponentsInChildren<PokeInteractor>(true))
+                {
+                    var hand = interactor.GetComponent<HandRef>();
+                    if (hand != null) pokeHands.Add(hand);
+                }
+                if (pokeHands.Count < 2)
+                    throw new InvalidOperationException("Stationary dialogue requires both tracked-hand poke interactors.");
+                dialogue.BindTrackedHands(pokeHands.ToArray());
 
                 if (!config.FairyDefinitions.TryGet(out var definition) || definition == null)
                     throw new InvalidOperationException("The current script requires its authored guide.");

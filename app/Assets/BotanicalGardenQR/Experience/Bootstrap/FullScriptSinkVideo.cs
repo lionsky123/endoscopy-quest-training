@@ -68,6 +68,7 @@ namespace BotanicalGardenQR.Bootstrap
         {
             if(state.Session!=_sinkVideoSession || !_sinkVideoStatus)return;
             _sinkVideoPhase=state.Phase;
+            SetSinkVideoAudioActive(state.Phase==VideoPhase.Playing);
             _sinkPause.interactable=state.CanPauseResume;
             _sinkReplay.interactable=state.CanReplay || state.Phase==VideoPhase.Failed;
             _sinkPause.GetComponentInChildren<TMP_Text>().text=state.Phase==VideoPhase.Paused?"继续播放":"暂停";
@@ -85,6 +86,7 @@ namespace BotanicalGardenQR.Bootstrap
 
         void CloseSinkVideo()
         {
+            SetSinkVideoAudioActive(false);
             _sinkVideoObservation?.Dispose();_sinkVideoObservation=null;
             _sinkVideo?.Close(_sinkVideoSession);_sinkVideo=null;
             _sinkVideoSession=default;_sinkVideoStatus=null;_sinkPause=null;_sinkReplay=null;

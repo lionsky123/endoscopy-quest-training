@@ -8,6 +8,7 @@ namespace BotanicalGardenQR.Experience.Application
     {
         ContinueMainline,
         ReviewVisitedChapter,
+        AvailableRoom,
         ReturnToLobby
     }
 
@@ -43,7 +44,7 @@ namespace BotanicalGardenQR.Experience.Application
     public static class ClinicalActSelection
     {
         public static ClinicalActDestination[] AvailableDestinations(
-            ClinicalJourneyDefinition definition, ClinicalJourneySession session)
+            ClinicalJourneyDefinition definition, ClinicalJourneySession session, bool roomGallery = false)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
             if (session == null) throw new ArgumentNullException(nameof(session));
@@ -57,23 +58,29 @@ namespace BotanicalGardenQR.Experience.Application
             {
                 var nextRoomId = definition.mainlineRoomIds[nextMainlineIndex];
                 if (nextRoomId != definition.startRoomId && nextRoomId != currentRoomId &&
-                    definition.CanTransfer(currentRoomId, nextRoomId) && added.Add(nextRoomId))
+                    (roomGallery || definition.CanTransfer(currentRoomId, nextRoomId)) && added.Add(nextRoomId))
                     options.Add(Chapter(definition, nextRoomId, ClinicalActDestinationKind.ContinueMainline));
             }
 
             foreach (var room in definition.rooms)
             {
                 if (room == null || string.IsNullOrWhiteSpace(room.id) || room.id == currentRoomId ||
-                    room.id == definition.startRoomId || !session.HasVisited(room.id) ||
-                    !definition.CanTransfer(currentRoomId, room.id) || !added.Add(room.id))
+                    room.id == definition.startRoomId || added.Contains(room.id))
                     continue;
 
-                options.Add(Chapter(definition, room.id, ClinicalActDestinationKind.ReviewVisitedChapter));
+                var visited = session.HasVisited(room.id);
+                if (!visited && (!roomGallery || session.IsFinished)) continue;
+                if (!roomGallery && (!visited || !definition.CanTransfer(currentRoomId, room.id))) continue;
+                if (!added.Add(room.id)) continue;
+
+                options.Add(Chapter(definition, room.id, visited
+                    ? ClinicalActDestinationKind.ReviewVisitedChapter
+                    : ClinicalActDestinationKind.AvailableRoom));
             }
 
             var lobbyId = definition.startRoomId;
             if (currentRoomId != lobbyId && session.HasVisited(lobbyId) &&
-                definition.CanTransfer(currentRoomId, lobbyId) && added.Add(lobbyId))
+                (roomGallery || definition.CanTransfer(currentRoomId, lobbyId)) && added.Add(lobbyId))
                 options.Add(new ClinicalActDestination(lobbyId, ClinicalActDestinationKind.ReturnToLobby, null));
 
             return options.ToArray();

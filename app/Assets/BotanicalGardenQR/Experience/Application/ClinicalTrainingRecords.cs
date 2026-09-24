@@ -101,12 +101,18 @@ namespace BotanicalGardenQR.Experience.Application
             return Data.Fields[index];
         }
 
+        public static string DocumentId(int index)=>Document(index).Id;
         public static string Criterion(int index)=>Field(index).Id;
         public static string Heading(int index)=>Field(index).Heading;
         public static string DocumentTitle(int index)=>Document(index).Title;
         public static string DocumentBody(int index)=>Document(index).Body;
         public static bool IsLeakDocument(int index)=>Document(index).Id=="leak";
         public static LeakEntry[] LeakEntries(int index)=>Document(index).LeakEntries;
+        public static LeakEntry LeakEntryForUse(string useId)
+        {
+            int index=DocumentIndexForTask("OF-02");
+            return index<0?null:Data.Documents[index].LeakEntries.FirstOrDefault(entry=>entry.UseId==useId);
+        }
 
         public static int DocumentIndexForTask(string taskId)
         {
@@ -171,6 +177,10 @@ namespace BotanicalGardenQR.Experience.Application
                         throw new InvalidOperationException("Leak entries require unique ids and matching published use records.");
                 }
             }
+            var leak=documents.FirstOrDefault(document=>document.Id=="leak");
+            if(leak!=null && rows.Any(row=>!string.IsNullOrEmpty(row.LeakId) &&
+                !leak.LeakEntries.Any(entry=>entry.UseId==row.Id && entry.Id==row.LeakId)))
+                throw new InvalidOperationException("A published use record points to a missing leak entry.");
         }
     }
 }
